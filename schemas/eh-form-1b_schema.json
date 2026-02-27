@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "source_file": "input\\eh-form-1b.pdf",
+    "generated_at": "2026-02-27T04:06:33.229483+00:00",
+    "page_count": 3,
+    "tool_version": "2.0.0"
+  },
+  "fields": [
+    {
+      "field_id": "p1_cell_222_360",
+      "page": 1,
+      "type": "text",
+      "label": "Grant Number",
+      "bbox": [
+        360.6,
+        222.8,
+        453.8,
+        244.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_cell_223_453",
+      "page": 1,
+      "type": "text",
+      "label": "Application Tracking Number",
+      "bbox": [
+        453.8,
+        223.2,
+        557.4,
+        244.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_245_114",
+      "page": 1,
+      "type": "text",
+      "label": "Notes",
+      "bbox": [
+        114.9,
+        245.1,
+        550.6,
+        260.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_bracket_radio_149",
+      "page": 1,
+      "type": "radio",
+      "label": "One-time funds will be used for:",
+      "bbox": [
+        77.6,
+        149.4,
+        89.6,
+        161.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p2_bracket_radio_149",
+      "options": [
+        {
+          "value": "Equipment (no minor A/R)",
+          "label": "Equipment (no minor A/R)",
+          "bbox": [
+            77.6,
+            149.4,
+            91.6,
+            164.5
+          ]
+        },
+        {
+          "value": "Minor A/R with equipment",
+          "label": "Minor A/R with equipment",
+          "bbox": [
+            77.7,
+            165.0,
+            91.7,
+            180.1
+          ]
+        },
+        {
+          "value": "Minor A/R without equipment",
+          "label": "Minor A/R without equipment",
+          "bbox": [
+            77.7,
+            180.8,
+            91.7,
+            195.8
+          ]
+        },
+        {
+          "value": "N/A (no funding requested for equipment ",
+          "label": "N/A (no funding requested for equipment ",
+          "bbox": [
+            77.7,
+            196.4,
+            91.7,
+            211.4
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_133_248",
+      "page": 1,
+      "type": "text",
+      "label": "One-time funds will be used for",
+      "bbox": [
+        248.1,
+        133.7,
+        538,
+        148.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    }
+  ]
+}

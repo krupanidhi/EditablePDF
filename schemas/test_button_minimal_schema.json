@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "source_file": "C:\\Users\\KPeterson\\CascadeProjects\\EditablePDF\\input\\923c55b3\\test_button_minimal.pdf",
+    "generated_at": "2026-02-25T12:37:21.601074+00:00",
+    "page_count": 1,
+    "tool_version": "2.0.0"
+  },
+  "fields": [
+    {
+      "field_id": "p1_gap_200_199",
+      "page": 1,
+      "type": "text",
+      "label": "Show Hidden Row",
+      "bbox": [
+        199.5,
+        200.5,
+        300.0,
+        229.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "form_id": "ar_project_cover_page_oppdreview",
+  "form_name": "AR-project-cover-page-OPPDReview",
+  "version": "1.0",
+  "generated": true,
+  "rules": [
+    {
+      "rule_id": "REQ_001",
+      "name": "Grant Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_162_391",
+        "operator": "is_not_empty"
+      },
+      "message": "Grant Number is required"
+    },
+    {
+      "rule_id": "REQ_002",
+      "name": "Application Tracking Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_162_478",
+        "operator": "is_not_empty"
+      },
+      "message": "Application Tracking Number is required"
+    },
+    {
+      "rule_id": "REQ_003",
+      "name": "Name of Service Site Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_gap_216_257",
+        "operator": "is_not_empty"
+      },
+      "message": "Name of Service Site is required"
+    },
+    {
+      "rule_id": "REQ_RADIO_004",
+      "name": "or expansion project? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_bracket_radio_550",
+        "operator": "is_not_empty"
+      },
+      "message": "or expansion project? must be answered"
+    }
+  ]
+}

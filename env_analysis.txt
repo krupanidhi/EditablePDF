@@ -1,0 +1,863 @@
+
+============================================================
+PAGE 1
+============================================================
+Rects: 38, H-edges: 31, V-edges: 11
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [91,96,221,108] 'DEPARTMENT OF HEALTH AND'
+  [118,108,195,121] 'HUMAN SERVICES'
+  [82,133,230,145] 'HEALTH RESOURCES AND SERVICES'
+  [117,145,195,157] 'ADMINISTRATION'
+  [75,169,237,182] 'ENVIRONMENTAL INFORMATION AND'
+  [105,182,205,194] 'DOCUMENTATION (EID)'
+  [243,104,312,116] 'Award Recipient'
+  [264,116,288,128] 'Name'
+  [242,133,310,145] 'Program/Fundin'
+  [248,145,307,157] 'g Opportunity'
+  [259,157,293,169] 'Number'
+  [393,145,482,157] 'Application Tracking #'
+  [258,177,294,189] 'Project #'
+  [412,177,463,189] 'Project Type'
+  [252,200,300,212] 'Project Title'
+  [74,219,517,232] 'This Environmental Information and Documentation (EID) checklist consists of information that the ag'
+  [74,232,521,244] 'required to obtain to comply with the National Environmental Policy Act of 1969 (NEPA) as amended wi'
+  [74,244,526,256] 'Fiscal Responsibility Act (FRA) P.L 118-5 of 2023. NEPA establishes the Federal government's nationa'
+  [74,256,513,268] 'protection of the environment. HRSA has developed the EID for applicants of funding that would poten'
+  [74,268,536,280] 'impact the environment and to ensure that their decision-making processes are consistent with NEPA. '
+  [74,280,507,293] 'must provide information requested on the EID checklist so that HRSA may ensure compliance with NEPA'
+  [74,305,530,317] 'HRSA will provide applicants with the results of the agency's environmental review through the Notic'
+  [74,317,523,329] '(NOA).  If HRSA determines that additional environmental compliance is necessary, HRSA will notify a'
+  [74,329,247,341] 'Award Recipients of specific requirements.'
+  [74,346,526,358] 'Public Burden Statement: An agency may not conduct or sponsor, and a person is not required to respo'
+  [74,358,535,370] 'collection of information unless it displays a valid OMB control number. The OMB control number for '
+  [74,370,239,382] 'is 0915-0324 and is valid until 7/31/2028'
+  [239,370,244,382] '.'
+  [244,370,539,382] 'Public reporting burden for this collection of information is estimated to'
+  [74,382,527,394] 'average 1 hour per response, including the time for reviewing instructions, searching existing data '
+  [74,394,525,407] 'completing and reviewing the collection of information. Send comments regarding this burden estimate'
+  [74,407,523,419] 'other aspect of this collection of information, including suggestions for reducing this burden, to: '
+  [74,419,511,431] 'Clearance Officer, 5600 Fishers Lane, Room 14NWH04, Rockville, Maryland, 20857 or paperwork@hrsa.gov'
+  [74,435,225,447] 'Award Recipient Authorized Official:'
+  [74,447,103,459] 'Phone:'
+  [74,459,102,472] 'Email:'
+  [74,484,200,496] 'Award Recipient EID Preparer:'
+  [74,496,103,508] 'Phone:'
+  [74,508,97,520] 'Email'
+  [74,520,112,533] 'Address:'
+  [74,549,479,561] 'Project Location/Address (Please note - separate EID forms are required for each project location)'
+  [74,561,492,573] 'Please provide the address where the action will occur (e.g. where equipment will be located or wher'
+  [74,573,241,585] 'renovations/new construction will occur)'
+  [74,628,135,641] 'Scope of work'
+  [74,641,516,653] 'Describe all actions that are part of the proposed action (Please include a description of the entir'
+  [74,653,294,665] 'including elements that will use non-federal funding)'
+  [534,742,540,757] '1'
+
+Yes/No occurrences: 0 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,237.9,217.0) sz=166x145
+  rect=(72.0,72.0,237.9,217.0) sz=166x145
+  rect=(238.0,72.0,540.0,100.8) sz=302x29
+  rect=(238.0,72.0,540.0,100.8) sz=302x29
+  rect=(238.0,100.8,313.8,130.0) sz=76x29
+  rect=(238.0,100.8,313.8,130.0) sz=76x29
+  rect=(313.8,100.8,539.9,130.0) sz=226x29
+  rect=(313.8,100.8,539.9,130.0) sz=226x29
+  rect=(238.0,130.0,313.8,171.3) sz=76x41
+  rect=(238.0,130.0,313.8,171.3) sz=76x41
+  rect=(313.8,130.0,388.4,171.3) sz=75x41
+  rect=(313.8,130.0,388.4,171.3) sz=75x41
+  rect=(388.5,130.0,486.1,171.3) sz=98x41
+  rect=(388.5,130.0,486.1,171.3) sz=98x41
+  rect=(486.2,130.0,540.0,171.3) sz=54x41
+  rect=(486.2,130.0,540.0,171.3) sz=54x41
+  rect=(238.0,171.4,313.8,194.2) sz=76x23
+  rect=(238.0,171.4,313.8,194.2) sz=76x23
+  rect=(313.8,171.4,388.4,194.2) sz=75x23
+  rect=(313.8,171.4,388.4,194.2) sz=75x23
+  rect=(388.5,171.4,486.1,194.2) sz=98x23
+  rect=(388.5,171.4,486.1,194.2) sz=98x23
+  rect=(486.2,171.4,540.0,194.2) sz=54x23
+  rect=(486.2,171.4,540.0,194.2) sz=54x23
+  rect=(238.0,194.2,313.8,217.0) sz=76x23
+  rect=(238.0,194.2,313.8,217.0) sz=76x23
+  rect=(313.8,194.2,539.9,217.0) sz=226x23
+  rect=(313.8,194.2,539.9,217.0) sz=226x23
+  rect=(72.0,217.0,540.0,343.0) sz=468x126
+  rect=(72.0,217.0,540.0,343.0) sz=468x126
+  rect=(72.0,343.1,540.0,432.5) sz=468x89
+  rect=(72.0,343.1,540.0,432.5) sz=468x89
+  rect=(72.0,432.6,540.0,546.2) sz=468x114
+  rect=(72.0,432.6,540.0,546.2) sz=468x114
+  rect=(72.0,546.3,540.0,625.8) sz=468x80
+  rect=(72.0,546.3,540.0,625.8) sz=468x80
+  rect=(72.0,625.9,540.0,717.5) sz=468x92
+  rect=(72.0,625.9,540.0,717.5) sz=468x92
+
+============================================================
+PAGE 2
+============================================================
+Rects: 16, H-edges: 25, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,534,87] 'Site Description - required for all building renovations (e.g. interior renovations, new windows, ro'
+  [74,87,407,99] 'new construction (including building additions, temporary facilities, and trailers)'
+  [74,111,128,123] 'Site acreage:'
+  [74,135,142,148] 'Land use on site:'
+  [74,160,412,172] 'Land use surrounding site (current use, zoning and proposed changes if applicable):'
+  [74,184,338,196] 'Buildings currently on site (stories, height, age, total sq. footage):'
+  [74,209,427,221] 'Vegetation on site (e.g. grasses, shrub, heavily wooded, none because it's paved, etc.):'
+  [74,233,272,245] 'Streams/wetlands on site or adjacent to the site:'
+  [74,257,250,270] 'Proposed ground disturbance (sq. footage):'
+  [74,286,191,298] 'A. Scope of Proposed Action'
+  [74,302,386,314] 'This set of questions is concerned with size and scope of the proposed action'
+  [74,318,536,331] 'A.1. Will the action involve the purchase, construction or lease of new facilities (including tempor'
+  [74,331,400,343] 'trailers), or substantially increase the capacity of an existing health care facility?'
+  [74,343,85,355] '[_]'
+  [85,343,104,355] 'Yes'
+  [104,343,115,355] '[_]'
+  [115,343,131,355] 'No'
+  [74,367,129,379] 'If yes explain:'
+  [74,426,520,438] 'A.2. Is the action significantly greater in scope than other development taking place in the area, o'
+  [74,438,217,450] 'significant unusual characteristics?'
+  [74,450,85,462] '[_]'
+  [85,450,104,462] 'Yes'
+  [104,450,115,462] '[_]'
+  [115,450,131,462] 'No'
+  [74,475,129,487] 'If yes explain:'
+  [74,533,217,545] 'B. Potential for Public Controversy'
+  [74,549,498,562] 'This set of questions is concerned with whether or not the proposed action has or could generate pub'
+  [74,562,127,574] 'controversy.'
+  [74,578,509,590] 'B.1. Are there any public concerns or controversy with respect to effects of the action on environme'
+  [74,590,331,602] 'cultural resources based on reasonable and substantial issues?'
+  [74,602,85,615] '[_]'
+  [85,602,104,615] 'Yes'
+  [104,602,115,615] '[_]'
+  [115,602,129,615] 'No'
+  [534,742,540,757] '2'
+
+Yes/No occurrences: 3 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,283.2) sz=468x211
+  rect=(72.0,72.0,540.0,283.2) sz=468x211
+  rect=(72.0,283.3,540.0,299.5) sz=468x16
+  rect=(72.0,283.3,540.0,299.5) sz=468x16
+  rect=(72.0,299.6,540.0,315.9) sz=468x16
+  rect=(72.0,299.6,540.0,315.9) sz=468x16
+  rect=(72.0,315.9,540.0,423.2) sz=468x107
+  rect=(72.0,315.9,540.0,423.2) sz=468x107
+  rect=(72.0,423.3,540.0,530.7) sz=468x107
+  rect=(72.0,423.3,540.0,530.7) sz=468x107
+  rect=(72.0,530.7,540.0,547.0) sz=468x16
+  rect=(72.0,530.7,540.0,547.0) sz=468x16
+  rect=(72.0,547.0,540.0,575.5) sz=468x28
+  rect=(72.0,547.0,540.0,575.5) sz=468x28
+  rect=(72.0,575.5,540.0,658.5) sz=468x83
+  rect=(72.0,575.5,540.0,658.5) sz=468x83
+
+============================================================
+PAGE 3
+============================================================
+Rects: 16, H-edges: 25, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,539,87] 'B.2. Have comments on the action's impacts to environmental or cultural resources been received from'
+  [74,87,242,99] 'or from local, State, or Federal agencies?'
+  [74,99,85,111] '[_]'
+  [85,99,104,111] 'Yes'
+  [104,99,115,111] '[_]'
+  [115,99,131,111] 'No'
+  [74,123,129,135] 'If yes explain:'
+  [74,182,256,194] 'C. Degradation of Environmental Conditions'
+  [74,198,490,210] 'This set of questions concerns the potential for actions to degrade, even slightly, already existing'
+  [74,210,183,223] 'environmental conditions.'
+  [74,227,532,239] 'C.1. Will the action increase identifiable ambient air pollution levels from a new emission source o'
+  [74,239,285,251] 'sources (e.g., lab fume hoods, HVAC systems, etc.)?'
+  [74,251,85,263] '[_]'
+  [85,251,104,263] 'Yes'
+  [104,251,115,263] '[_]'
+  [115,251,131,263] 'No'
+  [74,275,129,288] 'If yes explain:'
+  [74,304,536,316] 'C.2. Will the action increase identifiable ambient air pollution levels through a major increase in '
+  [74,316,529,328] 'use of automobiles, trucks (e.g., will there be a large number of new employees or patients travelin'
+  [74,328,249,340] 'or a large number of deliveries to the site?'
+  [74,340,85,353] '[_]'
+  [85,340,104,353] 'Yes'
+  [104,340,115,353] '[_]'
+  [115,340,131,353] 'No'
+  [74,387,523,399] 'C.3. Will the action exceed city or State health or Federal air quality standards with exhausts from'
+  [74,399,85,411] '[_]'
+  [85,399,104,411] 'Yes'
+  [104,399,115,411] '[_]'
+  [115,399,131,411] 'No'
+  [74,424,132,436] 'If yes explain:'
+  [74,482,276,494] 'C.4. Will the action cause or increase soil erosion?'
+  [74,494,85,507] '[_]'
+  [85,494,104,507] 'Yes'
+  [104,494,115,507] '[_]'
+  [115,494,131,507] 'No'
+  [74,519,502,531] 'If yes explain (For building additions and/or new construction, please list measures to be taken to '
+  [74,531,205,543] 'sedimentation and soil erosion):'
+  [74,559,424,571] 'C.5. Will the action discharge stormwater or pollutants into a stream, river, lake, etc.?'
+  [74,571,85,584] '[_]'
+  [85,571,104,584] 'Yes'
+  [104,571,115,584] '[_]'
+  [115,571,131,584] 'No'
+  [74,596,539,608] 'If yes explain (For building additions and/or new construction, please note any stormwater managemen'
+  [74,608,133,620] 'to be utilized):'
+  [534,742,540,757] '3'
+
+Yes/No occurrences: 6 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,179.3) sz=468x107
+  rect=(72.0,72.0,540.0,179.3) sz=468x107
+  rect=(72.0,179.4,540.0,195.7) sz=468x16
+  rect=(72.0,179.4,540.0,195.7) sz=468x16
+  rect=(72.0,195.7,540.0,224.2) sz=468x28
+  rect=(72.0,195.7,540.0,224.2) sz=468x28
+  rect=(72.0,224.2,540.0,301.2) sz=468x77
+  rect=(72.0,224.2,540.0,301.2) sz=468x77
+  rect=(72.0,301.3,540.0,384.5) sz=468x83
+  rect=(72.0,301.3,540.0,384.5) sz=468x83
+  rect=(72.0,384.5,540.0,479.6) sz=468x95
+  rect=(72.0,384.5,540.0,479.6) sz=468x95
+  rect=(72.0,479.7,540.0,556.8) sz=468x77
+  rect=(72.0,479.7,540.0,556.8) sz=468x77
+  rect=(72.0,556.8,540.0,664.2) sz=468x107
+  rect=(72.0,556.8,540.0,664.2) sz=468x107
+
+============================================================
+PAGE 4
+============================================================
+Rects: 18, H-edges: 29, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,536,87] 'C.6. Will the action overload existing waste treatment plants due to new loads (water volume, chemic'
+  [74,87,97,99] 'etc.)?'
+  [74,99,85,111] '[_]'
+  [85,99,104,111] 'Yes'
+  [104,99,115,111] '[_]'
+  [115,99,131,111] 'No'
+  [74,123,472,135] 'If yes, please obtain and submit a connection permit or other approval from local sewer authority.'
+  [74,182,369,194] 'C.7. Will the action allow seepage of contaminants into the water table?'
+  [74,194,85,206] '[_]'
+  [85,194,104,206] 'Yes'
+  [104,194,115,206] '[_]'
+  [115,194,131,206] 'No'
+  [74,218,132,231] 'If yes explain:'
+  [74,277,209,289] 'D. New or Unproven Technology'
+  [74,293,540,306] 'This set of questions is concerned with the deployment of new or unproven technology with the potent'
+  [74,306,346,318] 'effects or actions involving unique or unknown environmental risks'
+  [74,322,403,334] 'D.1. Will the action involve the purchase or use of new or unproven technology?'
+  [74,334,85,346] '[_]'
+  [85,334,104,346] 'Yes'
+  [104,334,115,346] '[_]'
+  [115,334,131,346] 'No'
+  [74,358,129,371] 'If yes explain:'
+  [74,417,536,429] 'D.2. Will the action involve the purchase or use of technology for which the environmental impacts a'
+  [74,429,85,441] '[_]'
+  [85,429,104,441] 'Yes'
+  [104,429,115,441] '[_]'
+  [115,429,131,441] 'No'
+  [74,454,129,466] 'If yes explain:'
+  [74,512,395,524] 'E. Presence of cultural, archaeological, historical or other protected resources'
+  [74,529,510,541] 'This set of questions is concerned with potential impacts to cultural resources including, but not l'
+  [74,541,521,553] 'buildings; archaeological sites; National Historic Landmarks; objects of significance to a Native Am'
+  [74,553,520,565] 'including graves, funerary objects, and traditional cultural properties; or other protected resource'
+  [74,565,533,577] 'provide applicants with the results of the agency's historic preservation assessment through the Not'
+  [74,577,524,590] '(NOA). If HRSA determines that additional review by the State Historic Preservation Office (SHPO) is'
+  [74,590,452,602] 'HRSA will instruct applicable Award Recipients on how to initiate consultation with the SHPO.'
+  [74,606,534,618] 'E.1. Will the action involve the purchase, construction, alteration, renovation, or lease of real pr'
+  [74,618,145,630] 'of real property?'
+  [74,630,85,642] '[_]'
+  [85,630,104,642] 'Yes'
+  [104,630,115,642] '[_]'
+  [115,630,131,642] 'No'
+  [74,655,247,667] 'If yes, when was the building constructed?'
+  [534,742,540,757] '4'
+
+Yes/No occurrences: 5 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,179.3) sz=468x107
+  rect=(72.0,72.0,540.0,179.3) sz=468x107
+  rect=(72.0,179.4,540.0,274.5) sz=468x95
+  rect=(72.0,179.4,540.0,274.5) sz=468x95
+  rect=(72.0,274.6,540.0,290.9) sz=468x16
+  rect=(72.0,274.6,540.0,290.9) sz=468x16
+  rect=(72.0,290.9,540.0,319.4) sz=468x28
+  rect=(72.0,290.9,540.0,319.4) sz=468x28
+  rect=(72.0,319.4,540.0,414.5) sz=468x95
+  rect=(72.0,319.4,540.0,414.5) sz=468x95
+  rect=(72.0,414.6,540.0,509.8) sz=468x95
+  rect=(72.0,414.6,540.0,509.8) sz=468x95
+  rect=(72.0,509.8,540.0,526.0) sz=468x16
+  rect=(72.0,509.8,540.0,526.0) sz=468x16
+  rect=(72.0,526.1,540.0,603.3) sz=468x77
+  rect=(72.0,526.1,540.0,603.3) sz=468x77
+  rect=(72.0,603.4,540.0,710.8) sz=468x107
+  rect=(72.0,603.4,540.0,710.8) sz=468x107
+
+============================================================
+PAGE 5
+============================================================
+Rects: 18, H-edges: 28, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,532,87] 'E.2. Will the proposed action occur in or near a building listed on or eligible for listing on the N'
+  [74,87,137,99] 'Historic Places?'
+  [74,99,85,111] '[_]'
+  [85,99,104,111] 'Yes'
+  [104,99,115,111] '[_]'
+  [115,99,131,111] 'No'
+  [74,157,535,170] 'E.3. Will the proposed action adversely affect properties listed on or eligible for listing on the N'
+  [74,170,139,182] 'Historic Places?'
+  [74,182,85,194] '[_]'
+  [85,182,104,194] 'Yes'
+  [104,182,115,194] '[_]'
+  [115,182,131,194] 'No'
+  [74,206,129,218] 'If yes explain:'
+  [74,265,537,277] 'E.4. Will the action encroach upon, change views to, or change noise levels around any historical, a'
+  [74,277,206,289] 'archeological cultural property?'
+  [74,289,85,301] '[_]'
+  [85,289,104,301] 'Yes'
+  [104,289,115,301] '[_]'
+  [115,289,131,301] 'No'
+  [74,314,129,326] 'If yes explain:'
+  [74,372,157,384] 'F. Protected Species'
+  [74,389,533,401] 'This set of questions is concerned with protected plant and animals, including endangered or threate'
+  [74,401,167,413] 'or their critical habitat.'
+  [74,417,531,429] 'F.1. Will the action be likely to adversely affect a plant or animal species listed on the Federal o'
+  [74,429,521,441] 'list of endangered or threatened species or a specific critical habitat of an endangered or threaten'
+  [74,441,526,454] 'For assistance, contact the appropriate State Fish and Wildlife Agency or the regional office of the'
+  [74,454,139,466] 'Wildlife Service.'
+  [74,466,85,478] '[_]'
+  [85,466,104,478] 'Yes'
+  [104,466,115,478] '[_]'
+  [115,466,131,478] 'No'
+  [74,490,132,502] 'If yes explain:'
+  [74,549,379,561] 'F.2. Will the action adversely affect nesting Bald Eagles or migratory birds?'
+  [74,561,85,573] '[_]'
+  [85,561,104,573] 'Yes'
+  [104,561,115,573] '[_]'
+  [115,561,131,573] 'No'
+  [74,585,132,598] 'If yes explain:'
+  [74,644,262,656] 'G. Special Status Areas and Critical Resources'
+  [74,660,523,673] 'These questions are concerned with actions with the potential to adversely affect special status are'
+  [74,673,514,685] 'critical resources such as wetlands, floodplains, coastal zones, wildlife refuge and wilderness area'
+  [74,685,303,697] 'scenic rivers, or sole or principal drinking water aquifers.'
+  [534,742,540,757] '5'
+
+Yes/No occurrences: 5 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,155.0) sz=468x83
+  rect=(72.0,72.0,540.0,155.0) sz=468x83
+  rect=(72.0,155.0,540.0,262.3) sz=468x107
+  rect=(72.0,155.0,540.0,262.3) sz=468x107
+  rect=(72.0,262.4,540.0,369.8) sz=468x107
+  rect=(72.0,262.4,540.0,369.8) sz=468x107
+  rect=(72.0,369.8,540.0,386.0) sz=468x16
+  rect=(72.0,369.8,540.0,386.0) sz=468x16
+  rect=(72.0,386.1,540.0,414.5) sz=468x28
+  rect=(72.0,386.1,540.0,414.5) sz=468x28
+  rect=(72.0,414.6,540.0,546.3) sz=468x132
+  rect=(72.0,414.6,540.0,546.3) sz=468x132
+  rect=(72.0,546.4,540.0,641.5) sz=468x95
+  rect=(72.0,546.4,540.0,641.5) sz=468x95
+  rect=(72.0,641.6,540.0,657.8) sz=468x16
+  rect=(72.0,641.6,540.0,657.8) sz=468x16
+  rect=(72.0,657.9,540.0,698.5) sz=468x41
+  rect=(72.0,657.9,540.0,698.5) sz=468x41
+
+============================================================
+PAGE 6
+============================================================
+Rects: 10, H-edges: 17, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,368,87] 'G.1. Are there wetlands or waters of the U.S. on or adjacent to the site?'
+  [74,87,85,99] '[_]'
+  [85,87,104,99] 'Yes'
+  [104,87,115,99] '[_]'
+  [115,87,131,99] 'No'
+  [74,111,428,123] 'If yes, attach National Wetland Inventory Map, State or local map, or site-specific map.'
+  [74,170,390,182] 'G.2. Will the action include discharge to or the filling or dredging of wetlands?'
+  [74,182,85,194] '[_]'
+  [85,182,104,194] 'Yes'
+  [104,182,115,194] '[_]'
+  [115,182,131,194] 'No'
+  [74,206,132,218] 'If yes explain:'
+  [74,265,517,277] 'G.3. Will the action require a section 404 (Clean Water Act) permit for actions in a wetland and/or '
+  [74,277,511,289] '(Rivers and Harbors Act) permit for actions in a stream or river? (Activities in or near a wetland o'
+  [74,289,535,301] 'require a permit from the U.S. Army Corps of Engineers or U.S. Coast Guard. Includes: construction i'
+  [74,301,364,314] 'wet or dry waterway, stream crossings, intake structures, outfalls, etc.)'
+  [74,314,85,326] '[_]'
+  [85,314,104,326] 'Yes'
+  [104,314,115,326] '[_]'
+  [115,314,131,326] 'No'
+  [74,338,236,350] 'If yes, provide status of permit process:'
+  [74,397,381,409] 'G.4. Is the project site located in either a 100-year or a 500-year floodplain?'
+  [74,409,85,421] '[_]'
+  [85,409,104,421] 'Yes'
+  [104,409,115,421] '[_]'
+  [115,409,131,421] 'No'
+  [74,433,514,445] 'Regardless of whether the project is in a known floodplain, please attach a Flood Insurance Rate Map'
+  [74,445,120,458] 'document.'
+  [120,445,172,458] 'Clearly mark'
+  [172,445,517,458] 'the location of the facility, and the NFIP Panel Number. FIRMettes can be generated'
+  [74,458,199,470] 'electronically at no cost at the'
+  [199,458,304,470] 'FEMA Map Service Center'
+  [304,458,526,470] 'website. The FIRMette module is located in the upper'
+  [74,470,517,482] 'left-hand corner, while the tutorial is at the lower right-hand corner of the webpage. (If Flood Ins'
+  [74,482,447,494] 'Maps do not exist for the project site, a floodplain survey or consultation may be required.)'
+  [74,541,540,553] 'G.5. Will the proposed action include new construction or new site features (e.g., new buildings, ad'
+  [74,553,253,565] 'parking lots, signage, etc.) in the floodplain?'
+  [74,565,85,577] '[_]'
+  [85,565,104,577] 'Yes'
+  [104,565,115,577] '[_]'
+  [115,565,131,577] 'No'
+  [74,589,132,602] 'If yes explain:'
+  [534,742,540,757] '6'
+
+Yes/No occurrences: 5 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,167.2,540.0,262.3) sz=468x95
+  rect=(72.0,167.2,540.0,262.3) sz=468x95
+  rect=(72.0,262.4,540.0,394.1) sz=468x132
+  rect=(72.0,262.4,540.0,394.1) sz=468x132
+  rect=(72.0,394.2,540.0,538.2) sz=468x144
+  rect=(72.0,394.2,540.0,538.2) sz=468x144
+  rect=(72.0,538.2,540.0,645.5) sz=468x107
+  rect=(72.0,538.2,540.0,645.5) sz=468x107
+
+============================================================
+PAGE 7
+============================================================
+Rects: 10, H-edges: 16, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,537,87] 'G.6. Will the proposed action adversely impact flood flows in a floodplain or support development in'
+  [74,87,85,99] '[_]'
+  [85,87,104,99] 'Yes'
+  [104,87,115,99] '[_]'
+  [115,87,131,99] 'No'
+  [74,111,132,123] 'If yes explain:'
+  [74,170,287,182] 'G.7. Will the proposed action alter floodplain levels?'
+  [74,182,85,194] '[_]'
+  [85,182,104,194] 'Yes'
+  [104,182,115,194] '[_]'
+  [115,182,131,194] 'No'
+  [74,206,132,218] 'If yes explain:'
+  [74,265,358,277] 'G.8. Will the proposed action discharge stormwater to the floodplain?'
+  [74,277,85,289] '[_]'
+  [85,277,104,289] 'Yes'
+  [104,277,115,289] '[_]'
+  [115,277,131,289] 'No'
+  [74,301,132,314] 'If yes explain:'
+  [74,360,530,372] 'G.9. Is the project located in a state that borders the Atlantic Ocean, Pacific Ocean, Great Lake, C'
+  [74,372,153,384] 'or Gulf of America?'
+  [74,384,85,397] '[_]'
+  [85,384,104,397] 'Yes'
+  [104,384,115,397] '[_]'
+  [115,384,131,397] 'No'
+  [131,384,143,397] '[_]'
+  [143,384,163,397] 'N/A'
+  [74,409,304,421] 'If yes, is your project located in the state's coastal zone?'
+  [74,433,85,445] '[_]'
+  [85,433,104,445] 'Yes'
+  [104,433,115,445] '[_]'
+  [115,433,131,445] 'No'
+  [131,433,143,445] '[_]'
+  [143,433,163,445] 'N/A'
+  [74,458,532,470] 'If yes, you may be asked in your NGA to contact your state coastal zone agency for a Section 307 Fed'
+  [74,470,211,482] 'Zone Consistency Determination.'
+  [74,516,472,529] 'G.10. Will the action adversely affect a specifically designated Wildlife Refuge or Wilderness Area?'
+  [74,529,512,541] 'For assistance contact your State Fish and Wildlife Agency or the regional office of the U.S. Fish a'
+  [74,541,410,553] 'Service, Bureau of Land Management, U.S. Forest Service, or National Park Service.'
+  [74,553,85,565] '[_]'
+  [85,553,104,565] 'Yes'
+  [104,553,115,565] '[_]'
+  [115,553,131,565] 'No'
+  [74,577,132,590] 'If yes explain:'
+  [534,742,540,757] '7'
+
+Yes/No occurrences: 6 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,167.2,540.0,262.3) sz=468x95
+  rect=(72.0,167.2,540.0,262.3) sz=468x95
+  rect=(72.0,262.4,540.0,357.5) sz=468x95
+  rect=(72.0,262.4,540.0,357.5) sz=468x95
+  rect=(72.0,357.6,540.0,514.0) sz=468x156
+  rect=(72.0,357.6,540.0,514.0) sz=468x156
+  rect=(72.0,514.0,540.0,633.5) sz=468x120
+  rect=(72.0,514.0,540.0,633.5) sz=468x120
+
+============================================================
+PAGE 8
+============================================================
+Rects: 18, H-edges: 28, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,522,87] 'G.11. Will the action adversely affect a wild, scenic, or recreational river area or create conditio'
+  [74,87,523,99] 'with the character of the river? (A consideration for activities that are in or near any wild and sc'
+  [74,99,398,111] 'including construction of stream/river crossings, intake structures, outfalls, etc.)'
+  [74,111,85,123] '[_]'
+  [85,111,104,123] 'Yes'
+  [104,111,115,123] '[_]'
+  [115,111,131,123] 'No'
+  [74,135,132,148] 'If yes explain:'
+  [74,194,535,206] 'G.12. Will the action adversely impact an EPA designated sole source aquifer? (Designation of sole s'
+  [74,206,401,218] 'puts restrictions and conditions on Federal expenditures, projects, and Awards.)'
+  [74,218,85,231] '[_]'
+  [85,218,104,231] 'Yes'
+  [104,218,115,231] '[_]'
+  [115,218,131,231] 'No'
+  [74,243,132,255] 'If yes explain:'
+  [74,301,127,314] 'H. Pollutants'
+  [74,318,535,330] 'This set of questions is concerned with the presence of hazardous, toxic, or petroleum substances at'
+  [74,330,418,342] 'exceed Federal, state, or local regulations or standards requiring action or attention.'
+  [74,346,449,358] 'H.1. Will the action include renovation of an existing building or ground disturbing activities?'
+  [74,358,85,371] '[_]'
+  [85,358,104,371] 'Yes'
+  [104,358,115,371] '[_]'
+  [115,358,131,371] 'No'
+  [74,383,510,395] 'If yes, has a Phase I Environmental Site Assessment been prepared for the property within the last 3'
+  [74,441,540,454] 'H.2. Will the action take place on a site where past land uses may have led to contamination of soil'
+  [74,454,145,466] 'or groundwater?'
+  [74,466,85,478] '[_]'
+  [85,466,104,478] 'Yes'
+  [104,466,115,478] '[_]'
+  [115,466,131,478] 'No'
+  [74,490,132,502] 'If yes explain:'
+  [74,549,155,561] 'I. Health and Safety'
+  [74,565,522,577] 'This set of questions is concerned with the potential for adverse impacts to human health and safety'
+  [74,577,145,590] 'proposed action.'
+  [74,594,372,606] 'I.1. Will the action introduce major new sources of unshielded radiation?'
+  [74,606,85,618] '[_]'
+  [85,606,104,618] 'Yes'
+  [104,606,115,618] '[_]'
+  [115,606,131,618] 'No'
+  [74,630,132,642] 'If yes explain:'
+  [534,742,540,757] '8'
+
+Yes/No occurrences: 5 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,191.5) sz=468x120
+  rect=(72.0,72.0,540.0,191.5) sz=468x120
+  rect=(72.0,191.6,540.0,299.0) sz=468x107
+  rect=(72.0,191.6,540.0,299.0) sz=468x107
+  rect=(72.0,299.0,540.0,315.2) sz=468x16
+  rect=(72.0,299.0,540.0,315.2) sz=468x16
+  rect=(72.0,315.3,540.0,343.8) sz=468x28
+  rect=(72.0,315.3,540.0,343.8) sz=468x28
+  rect=(72.0,343.8,540.0,439.0) sz=468x95
+  rect=(72.0,343.8,540.0,439.0) sz=468x95
+  rect=(72.0,439.0,540.0,546.3) sz=468x107
+  rect=(72.0,439.0,540.0,546.3) sz=468x107
+  rect=(72.0,546.4,540.0,562.7) sz=468x16
+  rect=(72.0,546.4,540.0,562.7) sz=468x16
+  rect=(72.0,562.7,540.0,591.2) sz=468x28
+  rect=(72.0,562.7,540.0,591.2) sz=468x28
+  rect=(72.0,591.2,540.0,686.3) sz=468x95
+  rect=(72.0,591.2,540.0,686.3) sz=468x95
+
+============================================================
+PAGE 9
+============================================================
+Rects: 12, H-edges: 19, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,405,87] 'I.2. Will the action require storage of waste pending technology for safe disposal?'
+  [74,87,85,99] '[_]'
+  [85,87,104,99] 'Yes'
+  [104,87,115,99] '[_]'
+  [115,87,131,99] 'No'
+  [74,111,132,123] 'If yes explain:'
+  [74,170,491,182] 'I.3. Will the action adversely affect access to transportation, health, education, and/or welfare se'
+  [74,182,85,194] '[_]'
+  [85,182,104,194] 'Yes'
+  [104,182,115,194] '[_]'
+  [115,182,131,194] 'No'
+  [74,206,132,218] 'If yes explain:'
+  [74,265,455,277] 'I.4. Will the action result in changes in genetic engineering directed at the human population?'
+  [74,277,85,289] '[_]'
+  [85,277,104,289] 'Yes'
+  [104,277,115,289] '[_]'
+  [115,277,131,289] 'No'
+  [74,301,132,314] 'If yes explain:'
+  [74,360,412,372] 'I.5. Will the action cause a new, large volume of production of non-recycled items?'
+  [74,372,85,384] '[_]'
+  [85,372,104,384] 'Yes'
+  [104,372,115,384] '[_]'
+  [115,372,131,384] 'No'
+  [74,397,132,409] 'If yes explain:'
+  [74,455,413,467] 'I.6. Could the action disrupt existing health services' response in case of a disaster?'
+  [74,467,85,480] '[_]'
+  [85,467,104,480] 'Yes'
+  [104,467,115,480] '[_]'
+  [115,467,131,480] 'No'
+  [74,492,132,504] 'If yes explain:'
+  [74,550,494,563] 'I.7. Will the action decrease accessibility to routine health services by altering point-of-service '
+  [74,563,85,575] '[_]'
+  [85,563,104,575] 'Yes'
+  [104,563,115,575] '[_]'
+  [115,563,131,575] 'No'
+  [74,587,132,599] 'If yes explain:'
+  [534,742,540,757] '9'
+
+Yes/No occurrences: 6 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,167.2,540.0,262.3) sz=468x95
+  rect=(72.0,167.2,540.0,262.3) sz=468x95
+  rect=(72.0,262.4,540.0,357.5) sz=468x95
+  rect=(72.0,262.4,540.0,357.5) sz=468x95
+  rect=(72.0,357.6,540.0,452.8) sz=468x95
+  rect=(72.0,357.6,540.0,452.8) sz=468x95
+  rect=(72.0,452.8,540.0,548.0) sz=468x95
+  rect=(72.0,452.8,540.0,548.0) sz=468x95
+  rect=(72.0,548.0,540.0,643.2) sz=468x95
+  rect=(72.0,548.0,540.0,643.2) sz=468x95
+
+============================================================
+PAGE 10
+============================================================
+Rects: 16, H-edges: 25, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,466,87] 'I.8. Will the action increase by more than 5% the patient load of the area's routine care services?'
+  [74,87,85,99] '[_]'
+  [85,87,104,99] 'Yes'
+  [104,87,115,99] '[_]'
+  [115,87,131,99] 'No'
+  [74,111,132,123] 'If yes explain:'
+  [74,170,254,182] 'J. Other Federal, State, Local, or Tribal Laws'
+  [74,186,530,198] 'This set of questions is concerned with consistency with other federal, state, local or tribal laws '
+  [74,198,270,210] 'imposed for the protection of the environment.'
+  [74,214,538,227] 'J.1. Will the action convert significant agricultural lands to non-agricultural uses or impact Prime'
+  [74,227,200,239] 'Solis of Statewide Importance?'
+  [74,239,85,251] '[_]'
+  [85,239,104,251] 'Yes'
+  [104,239,115,251] '[_]'
+  [115,239,131,251] 'No'
+  [74,263,132,275] 'If yes explain:'
+  [74,322,397,334] 'J.2. Will the action change traditional use of the land parcel (by rezoning, etc.)?'
+  [74,334,85,346] '[_]'
+  [85,334,104,346] 'Yes'
+  [104,334,115,346] '[_]'
+  [115,334,131,346] 'No'
+  [74,358,344,371] 'If yes, has zoning change been requested and/or received? Explain'
+  [74,371,196,383] 'If yes, complete the following:'
+  [74,383,259,395] 'Present Zoning: ________________________'
+  [74,395,275,407] 'Present Use of Site: ________________________'
+  [74,407,266,419] 'Proposed Zoning: ________________________'
+  [74,481,529,493] 'J.3. Will the action have significant adverse direct or indirect effects on park land, other public '
+  [74,493,488,505] 'recognized scenic or recreational value? (For example, consider how the activity will affect the vie'
+  [74,505,85,517] '[_]'
+  [85,505,104,517] 'Yes'
+  [104,505,115,517] '[_]'
+  [115,505,131,517] 'No'
+  [74,529,132,542] 'If yes explain:'
+  [74,588,531,600] 'J.4. Will the action block access to known mineral deposits? (Sand, gravel, clay, stone, or other co'
+  [74,600,268,612] 'materials are not considered mineral deposits.)'
+  [74,612,85,625] '[_]'
+  [85,612,104,625] 'Yes'
+  [104,612,115,625] '[_]'
+  [115,612,131,625] 'No'
+  [74,637,132,649] 'If yes explain:'
+  [74,695,169,708] 'K. Cumulative Impacts'
+  [528,742,540,757] '10'
+
+Yes/No occurrences: 5 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,72.0,540.0,167.2) sz=468x95
+  rect=(72.0,167.2,540.0,183.5) sz=468x16
+  rect=(72.0,167.2,540.0,183.5) sz=468x16
+  rect=(72.0,183.5,540.0,212.0) sz=468x28
+  rect=(72.0,183.5,540.0,212.0) sz=468x28
+  rect=(72.0,212.0,540.0,319.4) sz=468x107
+  rect=(72.0,212.0,540.0,319.4) sz=468x107
+  rect=(72.0,319.4,540.0,478.0) sz=468x159
+  rect=(72.0,319.4,540.0,478.0) sz=468x159
+  rect=(72.0,478.1,540.0,585.5) sz=468x107
+  rect=(72.0,478.1,540.0,585.5) sz=468x107
+  rect=(72.0,585.5,540.0,692.8) sz=468x107
+  rect=(72.0,585.5,540.0,692.8) sz=468x107
+  rect=(72.0,692.9,540.0,709.2) sz=468x16
+  rect=(72.0,692.9,540.0,709.2) sz=468x16
+
+============================================================
+PAGE 11
+============================================================
+Rects: 16, H-edges: 25, V-edges: 3
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,526,87] 'Potential for significant cumulative impact when the proposed action is combined with other past, pr'
+  [74,87,534,99] 'reasonably foreseeable future actions, even though the impacts of the proposed action may not be sig'
+  [74,99,123,111] 'themselves.'
+  [74,115,438,127] 'K.1. Has the area around the project undergone major changes in land use/development?'
+  [74,127,85,140] '[_]'
+  [85,127,104,140] 'Yes'
+  [104,127,115,140] '[_]'
+  [115,127,131,140] 'No'
+  [74,152,132,164] 'If yes explain:'
+  [74,210,442,223] 'K.2. Are major changes in land use/development planned for the area around the project?'
+  [74,223,85,235] '[_]'
+  [85,223,104,235] 'Yes'
+  [104,223,115,235] '[_]'
+  [115,223,131,235] 'No'
+  [74,247,132,259] 'If yes explain:'
+  [74,306,494,318] 'K.3. Will the action alter the use of other land by related development of stores, roads, or site ch'
+  [74,318,85,330] '[_]'
+  [85,318,104,330] 'Yes'
+  [104,318,115,330] '[_]'
+  [115,318,131,330] 'No'
+  [74,342,132,354] 'If yes explain:'
+  [74,401,168,413] 'L. Mitigative Measures'
+  [74,417,538,429] 'Please discuss any mitigative measures undertaken to minimize any environmental impacts. For example'
+  [74,429,511,441] 'the EPA's Energy Performance Environmental Assessment Tool (EPEAT) or EnergyStar guidance as part of'
+  [74,441,530,454] 'selection and purchase criteria, using EPA's Environmentally Preferred Purchasing Guidance for 'gree'
+  [74,454,510,466] 'and services, or incorporating Sustainable Design or Leadership in Energy and Environmental Design ('
+  [74,466,340,478] 'standards into alteration/renovation or new construction project.'
+  [74,482,360,494] 'Describe mitigative measures that will be incorporated into the action:'
+  [154,591,461,603] 'ENVIRONMENTAL INFORMATION AND DOCUMENTATION CERTIFICATION'
+  [528,742,540,757] '11'
+
+Yes/No occurrences: 3 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,112.7) sz=468x41
+  rect=(72.0,72.0,540.0,112.7) sz=468x41
+  rect=(72.0,112.7,540.0,207.8) sz=468x95
+  rect=(72.0,112.7,540.0,207.8) sz=468x95
+  rect=(72.0,207.9,540.0,303.0) sz=468x95
+  rect=(72.0,207.9,540.0,303.0) sz=468x95
+  rect=(72.0,303.1,540.0,398.2) sz=468x95
+  rect=(72.0,303.1,540.0,398.2) sz=468x95
+  rect=(72.0,398.3,540.0,414.5) sz=468x16
+  rect=(72.0,398.3,540.0,414.5) sz=468x16
+  rect=(72.0,414.6,540.0,479.6) sz=468x65
+  rect=(72.0,414.6,540.0,479.6) sz=468x65
+  rect=(72.0,479.7,540.0,588.2) sz=468x108
+  rect=(72.0,479.7,540.0,588.2) sz=468x108
+  rect=(72.0,588.2,540.0,604.5) sz=468x16
+  rect=(72.0,588.2,540.0,604.5) sz=468x16
+
+============================================================
+PAGE 12
+============================================================
+Rects: 18, H-edges: 10, V-edges: 11
+
+--- Text spans ---
+  [454,36,494,48] 'OMB No.:'
+  [494,36,542,48] '0915-0324'
+  [428,48,495,61] 'Expiration Date:'
+  [495,48,542,61] '7/31/2028'
+  [74,74,527,87] '[_] I certify that to the best of my knowledge and ability the information presented herein is true '
+  [74,87,296,99] '(enter appropriate information in the shaded blanks):'
+  [76,128,191,140] 'Signature (Type Full Name):'
+  [261,128,330,140] 'Title or Position:'
+  [401,128,466,140] 'Phone Number:'
+  [470,128,493,140] 'Date:'
+  [124,155,488,167] '(Award Recipient or responsible, knowledgeable person who completed this document)'
+  [75,196,190,208] 'Signature (Type Full Name):'
+  [260,196,329,208] 'Title or Position:'
+  [400,196,465,208] 'Phone Number:'
+  [469,196,492,208] 'Date:'
+  [212,224,400,236] '(Award Recipient Authorized Representative)'
+  [72,253,539,263] 'Public Burden Statement: The purpose of this collection is to specific project and site related info'
+  [72,263,532,273] 'to determine the level of review required under the National Environmental Policy Act (NEPA) and rel'
+  [72,273,523,282] 'sponsor, and a person is not required to respond to, a collection of information unless it displays '
+  [72,282,537,292] 'OMB control number for this information collection is 0915-0324 and it is valid until 7/31/2028. Thi'
+  [72,292,514,302] 'or retain a benefit (National Environmental Policy Act of 1969 (NEPA) as amended by the Fiscal Respo'
+  [72,302,528,312] 'General Administration Manual Part 30 Environmental Protection procedures). Data will be private to '
+  [72,312,526,321] 'reporting burden for this collection of information is estimated to average 1 hour per response, inc'
+  [72,321,535,331] 'searching existing data sources, and completing and reviewing the collection of information. Send co'
+  [72,331,521,341] 'any other aspect of this collection of information, including suggestions for reducing this burden, '
+  [72,341,535,351] 'Officer, 5600 Fishers Lane, Room 14NWH04, Rockville, Maryland, 20857 or paperwork@hrsa.gov. Please s'
+  [72,351,245,360] 'resources for the HRSA digital accessibility statement.'
+  [528,742,540,757] '12'
+
+Yes/No occurrences: 0 pairs
+
+--- Key rects (>50px wide) ---
+  rect=(72.0,72.0,540.0,238.5) sz=468x167
+  rect=(72.0,72.0,540.0,238.5) sz=468x167
+  rect=(73.8,125.4,259.5,141.7) sz=186x16
+  rect=(73.8,125.4,259.5,141.7) sz=186x16
+  rect=(259.6,125.4,398.8,141.7) sz=139x16
+  rect=(259.6,125.4,398.8,141.7) sz=139x16
+  rect=(398.8,125.4,468.4,141.7) sz=70x16
+  rect=(398.8,125.4,468.4,141.7) sz=70x16
+  rect=(468.5,125.4,538.2,141.7) sz=70x16
+  rect=(468.5,125.4,538.2,141.7) sz=70x16
+  rect=(73.8,194.2,259.5,208.3) sz=186x14
+  rect=(73.8,194.2,259.5,208.3) sz=186x14
+  rect=(259.6,194.2,398.8,208.3) sz=139x14
+  rect=(259.6,194.2,398.8,208.3) sz=139x14
+  rect=(398.8,194.2,468.4,208.3) sz=70x14
+  rect=(398.8,194.2,468.4,208.3) sz=70x14
+  rect=(468.5,194.2,538.2,208.3) sz=70x14
+  rect=(468.5,194.2,538.2,208.3) sz=70x14
+
+
+TOTAL Yes/No pairs across all pages: 49

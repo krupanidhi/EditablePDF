@@ -1,0 +1,41 @@
+{
+  "form_id": "eh_form_1b",
+  "form_name": "eh-form-1b",
+  "version": "1.0",
+  "generated": true,
+  "rules": [
+    {
+      "rule_id": "REQ_001",
+      "name": "Grant Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_222_360",
+        "operator": "is_not_empty"
+      },
+      "message": "Grant Number is required"
+    },
+    {
+      "rule_id": "REQ_002",
+      "name": "Application Tracking Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_223_453",
+        "operator": "is_not_empty"
+      },
+      "message": "Application Tracking Number is required"
+    },
+    {
+      "rule_id": "REQ_RADIO_003",
+      "name": "One-time funds will be used for: Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p2_bracket_radio_149",
+        "operator": "is_not_empty"
+      },
+      "message": "One-time funds will be used for: must be answered"
+    }
+  ]
+}

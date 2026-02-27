@@ -1,0 +1,235 @@
+{
+  "metadata": {
+    "source_file": "input\\AR-project-cover-page-OPPDReview.pdf",
+    "generated_at": "2026-02-27T03:51:43.983609+00:00",
+    "page_count": 3,
+    "tool_version": "2.0.0"
+  },
+  "fields": [
+    {
+      "field_id": "p1_cell_162_391",
+      "page": 1,
+      "type": "text",
+      "label": "Grant Number",
+      "bbox": [
+        391.3,
+        162.6,
+        478.9,
+        198.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_cell_162_478",
+      "page": 1,
+      "type": "text",
+      "label": "Application Tracking Number",
+      "bbox": [
+        478.9,
+        162.6,
+        575.7,
+        198.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_bracket_radio_550",
+      "page": 1,
+      "type": "radio",
+      "label": "or expansion project?",
+      "bbox": [
+        98.5,
+        550.2,
+        110.5,
+        562.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p1_bracket_radio_550",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            98.5,
+            550.2,
+            110.5,
+            562.2
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            130.3,
+            550.2,
+            142.3,
+            562.2
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_yes_details_550",
+      "page": 1,
+      "type": "text",
+      "label": "If yes, provide details",
+      "bbox": [
+        362.8,
+        543.3,
+        576,
+        567.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_571_144",
+      "page": 1,
+      "type": "text",
+      "label": "Attachments",
+      "bbox": [
+        144.3,
+        571.3,
+        574.2,
+        585.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_589_291",
+      "page": 1,
+      "type": "text",
+      "label": "Provide following documents related to this site",
+      "bbox": [
+        291.7,
+        589.3,
+        538,
+        603.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_textarea_270_72",
+      "page": 1,
+      "type": "textarea",
+      "label": "2. Project Description",
+      "bbox": [
+        72.7,
+        270.8,
+        576.2,
+        377.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_textarea_424_72",
+      "page": 1,
+      "type": "textarea",
+      "label": "3. Project Management/Resources/Capabilities",
+      "bbox": [
+        72.7,
+        424.6,
+        576.2,
+        484.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_216_257",
+      "page": 1,
+      "type": "text",
+      "label": "Name of Service Site",
+      "bbox": [
+        257.0,
+        216.8,
+        342.4,
+        234.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_216_428",
+      "page": 1,
+      "type": "text",
+      "label": "Site Address",
+      "bbox": [
+        428.8,
+        216.8,
+        576.2,
+        234.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_234_257",
+      "page": 1,
+      "type": "text",
+      "label": "Improved Project Square Footage",
+      "bbox": [
+        257.0,
+        234.8,
+        576.2,
+        252.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_180_194",
+      "page": 1,
+      "type": "text",
+      "label": "include work required to",
+      "bbox": [
+        194.8,
+        180.9,
+        538,
+        194.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    }
+  ]
+}

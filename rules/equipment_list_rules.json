@@ -1,0 +1,176 @@
+{
+  "form_id": "equipment_list",
+  "form_name": "equipment-list",
+  "version": "1.0",
+  "generated": true,
+  "rules": [
+    {
+      "rule_id": "REQ_001",
+      "name": "Grant Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_138_338",
+        "operator": "is_not_empty"
+      },
+      "message": "Grant Number is required"
+    },
+    {
+      "rule_id": "REQ_002",
+      "name": "Application Tracking Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_139_458",
+        "operator": "is_not_empty"
+      },
+      "message": "Application Tracking Number is required"
+    },
+    {
+      "rule_id": "REQ_RADIO_003",
+      "name": "Description Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_bracket_radio_281",
+        "operator": "is_not_empty"
+      },
+      "message": "Description must be answered"
+    },
+    {
+      "rule_id": "CALC_004",
+      "name": "Row 1: Total = Unit Price \u00d7 Quantity",
+      "type": "cross_field",
+      "severity": "warning",
+      "condition": {
+        "left": {
+          "field": "p1_cell_276_450",
+          "transform": "to_number"
+        },
+        "right": {
+          "operator": "multiply",
+          "operands": [
+            {
+              "field": "p1_cell_276_338",
+              "transform": "to_number"
+            },
+            {
+              "field": "p1_cell_276_397",
+              "transform": "to_number"
+            }
+          ]
+        },
+        "operator": "equals"
+      },
+      "message": "Row 1: Total Price should equal Unit Price \u00d7 Quantity"
+    },
+    {
+      "rule_id": "CALC_005",
+      "name": "Row 2: Total = Unit Price \u00d7 Quantity",
+      "type": "cross_field",
+      "severity": "warning",
+      "condition": {
+        "left": {
+          "field": "p1_cell_321_450",
+          "transform": "to_number"
+        },
+        "right": {
+          "operator": "multiply",
+          "operands": [
+            {
+              "field": "p1_cell_321_338",
+              "transform": "to_number"
+            },
+            {
+              "field": "p1_cell_321_397",
+              "transform": "to_number"
+            }
+          ]
+        },
+        "operator": "equals"
+      },
+      "message": "Row 2: Total Price should equal Unit Price \u00d7 Quantity"
+    },
+    {
+      "rule_id": "CALC_006",
+      "name": "Row 3: Total = Unit Price \u00d7 Quantity",
+      "type": "cross_field",
+      "severity": "warning",
+      "condition": {
+        "left": {
+          "field": "p1_cell_367_450",
+          "transform": "to_number"
+        },
+        "right": {
+          "operator": "multiply",
+          "operands": [
+            {
+              "field": "p1_cell_366_338",
+              "transform": "to_number"
+            },
+            {
+              "field": "p1_cell_367_397",
+              "transform": "to_number"
+            }
+          ]
+        },
+        "operator": "equals"
+      },
+      "message": "Row 3: Total Price should equal Unit Price \u00d7 Quantity"
+    },
+    {
+      "rule_id": "CALC_007",
+      "name": "Row 4: Total = Unit Price \u00d7 Quantity",
+      "type": "cross_field",
+      "severity": "warning",
+      "condition": {
+        "left": {
+          "field": "p1_cell_412_450",
+          "transform": "to_number"
+        },
+        "right": {
+          "operator": "multiply",
+          "operands": [
+            {
+              "field": "p1_cell_412_338",
+              "transform": "to_number"
+            },
+            {
+              "field": "p1_cell_412_397",
+              "transform": "to_number"
+            }
+          ]
+        },
+        "operator": "equals"
+      },
+      "message": "Row 4: Total Price should equal Unit Price \u00d7 Quantity"
+    },
+    {
+      "rule_id": "CALC_008",
+      "name": "Row 5: Total = Unit Price \u00d7 Quantity",
+      "type": "cross_field",
+      "severity": "warning",
+      "condition": {
+        "left": {
+          "field": "p1_cell_458_450",
+          "transform": "to_number"
+        },
+        "right": {
+          "operator": "multiply",
+          "operands": [
+            {
+              "field": "p1_cell_458_337",
+              "transform": "to_number"
+            },
+            {
+              "field": "p1_cell_458_397",
+              "transform": "to_number"
+            }
+          ]
+        },
+        "operator": "equals"
+      },
+      "message": "Row 5: Total Price should equal Unit Price \u00d7 Quantity"
+    }
+  ]
+}

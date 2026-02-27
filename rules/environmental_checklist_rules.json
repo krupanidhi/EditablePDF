@@ -1,0 +1,490 @@
+{
+  "form_id": "environmental_checklist",
+  "form_name": "Environmental Information and Documentation (EID) Checklist",
+  "version": "1.0",
+  "rules": [
+    {
+      "rule_id": "REQ_RECIPIENT_NAME",
+      "name": "Award Recipient Name Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_gap_100_313", "operator": "is_not_empty" },
+      "message": "Award Recipient Name is required"
+    },
+    {
+      "rule_id": "REQ_PROGRAM_NUMBER",
+      "name": "Program/Funding Opportunity Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_gap_130_313", "operator": "is_not_empty" },
+      "message": "Program/Funding Opportunity Number is required"
+    },
+    {
+      "rule_id": "REQ_APP_TRACKING",
+      "name": "Application Tracking # Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_gap_130_486", "operator": "is_not_empty" },
+      "message": "Application Tracking # is required"
+    },
+    {
+      "rule_id": "REQ_PROJECT_NUM",
+      "name": "Project # Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_gap_171_313", "operator": "is_not_empty" },
+      "message": "Project # is required"
+    },
+    {
+      "rule_id": "REQ_PROJECT_TYPE",
+      "name": "Project Type Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_gap_171_486", "operator": "is_not_empty" },
+      "message": "Project Type is required"
+    },
+    {
+      "rule_id": "REQ_PROJECT_TITLE",
+      "name": "Project Title Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_cell_194_313", "operator": "is_not_empty" },
+      "message": "Project Title is required"
+    },
+    {
+      "rule_id": "REQ_AUTH_OFFICIAL",
+      "name": "Authorized Official Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_435_227", "operator": "is_not_empty" },
+      "message": "Award Recipient Authorized Official name is required"
+    },
+    {
+      "rule_id": "REQ_AUTH_PHONE",
+      "name": "Authorized Official Phone Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_447_106", "operator": "is_not_empty" },
+      "message": "Authorized Official Phone is required"
+    },
+    {
+      "rule_id": "REQ_AUTH_EMAIL",
+      "name": "Authorized Official Email Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_459_102", "operator": "is_not_empty" },
+      "message": "Authorized Official Email is required"
+    },
+    {
+      "rule_id": "REQ_EID_PREPARER",
+      "name": "EID Preparer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_483_202", "operator": "is_not_empty" },
+      "message": "Award Recipient EID Preparer name is required"
+    },
+    {
+      "rule_id": "REQ_EID_PHONE",
+      "name": "EID Preparer Phone Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_496_106", "operator": "is_not_empty" },
+      "message": "EID Preparer Phone is required"
+    },
+    {
+      "rule_id": "REQ_EID_EMAIL",
+      "name": "EID Preparer Email Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_508_99", "operator": "is_not_empty" },
+      "message": "EID Preparer Email is required"
+    },
+    {
+      "rule_id": "REQ_ADDRESS",
+      "name": "Address Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p1_label_520_112", "operator": "is_not_empty" },
+      "message": "Address is required"
+    },
+    {
+      "rule_id": "REQ_SITE_ACREAGE",
+      "name": "Site Acreage Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p2_label_111_128", "operator": "is_not_empty" },
+      "message": "Site acreage is required"
+    },
+    {
+      "rule_id": "REQ_LAND_USE",
+      "name": "Land Use on Site Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p2_label_135_144", "operator": "is_not_empty" },
+      "message": "Land use on site is required"
+    },
+    {
+      "rule_id": "WARN_SURROUNDING_LAND",
+      "name": "Surrounding Land Use Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": { "field": "p2_label_159_415", "operator": "is_not_empty" },
+      "message": "Land use surrounding site is recommended"
+    },
+    {
+      "rule_id": "WARN_BUILDINGS",
+      "name": "Buildings on Site Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": { "field": "p2_label_184_341", "operator": "is_not_empty" },
+      "message": "Buildings currently on site is recommended"
+    },
+    {
+      "rule_id": "WARN_VEGETATION",
+      "name": "Vegetation on Site Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": { "field": "p2_label_208_427", "operator": "is_not_empty" },
+      "message": "Vegetation on site is recommended"
+    },
+    {
+      "rule_id": "WARN_STREAMS",
+      "name": "Streams/Wetlands Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": { "field": "p2_label_233_274", "operator": "is_not_empty" },
+      "message": "Streams/wetlands on site or adjacent is recommended"
+    },
+    {
+      "rule_id": "WARN_GROUND_DISTURB",
+      "name": "Ground Disturbance Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": { "field": "p2_label_257_253", "operator": "is_not_empty" },
+      "message": "Proposed ground disturbance (sq. footage) is recommended"
+    },
+    {
+      "rule_id": "REQ_B1_ANSWER",
+      "name": "B.1 Construction/Renovation Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p2_bracket_radio_342", "operator": "is_not_empty" },
+      "message": "Section B.1 (construction/renovation) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_B1_EXPLAIN",
+      "name": "B.1 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p2_bracket_radio_342", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p2_yes_explain_342", "operator": "is_not_empty" }
+      },
+      "message": "B.1: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_B2_ANSWER",
+      "name": "B.2 Unusual Site Characteristics Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p2_bracket_radio_450", "operator": "is_not_empty" },
+      "message": "Section B.2 (unusual site characteristics) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_B2_EXPLAIN",
+      "name": "B.2 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p2_bracket_radio_450", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p2_yes_explain_450", "operator": "is_not_empty" }
+      },
+      "message": "B.2: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_B3_ANSWER",
+      "name": "B.3 Cultural Resources Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p2_bracket_radio_602", "operator": "is_not_empty" },
+      "message": "Section B.3 (cultural resources) must be answered Yes or No"
+    },
+    {
+      "rule_id": "REQ_C1_ANSWER",
+      "name": "C.1 Environmental Citations Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p3_bracket_radio_98", "operator": "is_not_empty" },
+      "message": "Section C.1 (environmental citations) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_C1_EXPLAIN",
+      "name": "C.1 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p3_bracket_radio_98", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p3_yes_explain_98", "operator": "is_not_empty" }
+      },
+      "message": "C.1: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_C2_ANSWER",
+      "name": "C.2 Air Emission Sources Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p3_bracket_radio_251", "operator": "is_not_empty" },
+      "message": "Section C.2 (air emission sources) must be answered Yes or No"
+    },
+    {
+      "rule_id": "REQ_C2B_ANSWER",
+      "name": "C.2b Deliveries to Site Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p3_bracket_radio_340", "operator": "is_not_empty" },
+      "message": "Section C.2b (deliveries to site) must be answered Yes or No"
+    },
+    {
+      "rule_id": "REQ_C3_ANSWER",
+      "name": "C.3 Exceed Health/Noise Ordinances Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p3_bracket_radio_399", "operator": "is_not_empty" },
+      "message": "Section C.3 (exceed health/noise ordinances) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_C3_EXPLAIN",
+      "name": "C.3 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p3_bracket_radio_399", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p3_yes_explain_399", "operator": "is_not_empty" }
+      },
+      "message": "C.3: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_C4_ANSWER",
+      "name": "C.4 Soil Erosion Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p3_bracket_radio_494", "operator": "is_not_empty" },
+      "message": "Section C.4 (soil erosion) must be answered Yes or No"
+    },
+    {
+      "rule_id": "REQ_C5_ANSWER",
+      "name": "C.5 Stormwater Discharge Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p3_bracket_radio_571", "operator": "is_not_empty" },
+      "message": "Section C.5 (stormwater discharge) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_C5_EXPLAIN",
+      "name": "C.5 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p3_bracket_radio_571", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p3_yes_explain_571", "operator": "is_not_empty" }
+      },
+      "message": "C.5: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_C6_ANSWER",
+      "name": "C.6 Sewer Connection Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p4_bracket_radio_98", "operator": "is_not_empty" },
+      "message": "Section C.6 (sewer connection) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_C6_EXPLAIN",
+      "name": "C.6 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p4_bracket_radio_98", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p4_yes_explain_98", "operator": "is_not_empty" }
+      },
+      "message": "C.6: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_C7_ANSWER",
+      "name": "C.7 Contaminant Seepage Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p4_bracket_radio_194", "operator": "is_not_empty" },
+      "message": "Section C.7 (contaminant seepage) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_C7_EXPLAIN",
+      "name": "C.7 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p4_bracket_radio_194", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p4_yes_explain_194", "operator": "is_not_empty" }
+      },
+      "message": "C.7: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_D1_ANSWER",
+      "name": "D.1 Hazardous Materials Purchase Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p4_bracket_radio_334", "operator": "is_not_empty" },
+      "message": "Section D.1 (hazardous materials purchase) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_D1_EXPLAIN",
+      "name": "D.1 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p4_bracket_radio_334", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p4_yes_explain_334", "operator": "is_not_empty" }
+      },
+      "message": "D.1: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_D2_ANSWER",
+      "name": "D.2 Hazardous Materials Use Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p4_bracket_radio_429", "operator": "is_not_empty" },
+      "message": "Section D.2 (hazardous materials use) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_D2_EXPLAIN",
+      "name": "D.2 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p4_bracket_radio_429", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p4_yes_explain_429", "operator": "is_not_empty" }
+      },
+      "message": "D.2: If Yes, explanation is required"
+    },
+    {
+      "rule_id": "REQ_E1_ANSWER",
+      "name": "E.1 Real Property Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p4_bracket_radio_630", "operator": "is_not_empty" },
+      "message": "Section E.1 (real property) must be answered Yes or No"
+    },
+    {
+      "rule_id": "COND_E1_EXPLAIN",
+      "name": "E.1 If Yes Must Explain",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": { "field": "p4_bracket_radio_630", "operator": "equals", "value": "Yes" },
+        "then": { "field": "p4_yes_explain_630", "operator": "is_not_empty" }
+      },
+      "message": "E.1: If Yes, explanation is required (building construction date)"
+    },
+    {
+      "rule_id": "REQ_CERTIFICATION",
+      "name": "Certification Checkbox Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p12_bracket_checkbox_74", "operator": "equals", "value": "true" },
+      "message": "Certification checkbox must be checked"
+    },
+    {
+      "rule_id": "REQ_AUTH_TITLE",
+      "name": "Authorized Official Title Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p12_label_127_332", "operator": "is_not_empty" },
+      "message": "Authorized Official Title or Position is required on the signature page"
+    },
+    {
+      "rule_id": "REQ_AUTH_DATE",
+      "name": "Authorized Official Date Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p12_label_127_495", "operator": "is_not_empty" },
+      "message": "Authorized Official Date is required on the signature page"
+    },
+    {
+      "rule_id": "REQ_PREPARER_TITLE",
+      "name": "EID Preparer Title Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p12_label_195_331", "operator": "is_not_empty" },
+      "message": "EID Preparer Title or Position is required on the signature page"
+    },
+    {
+      "rule_id": "REQ_PREPARER_DATE",
+      "name": "EID Preparer Date Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": { "field": "p12_label_195_494", "operator": "is_not_empty" },
+      "message": "EID Preparer Date is required on the signature page"
+    },
+    {
+      "rule_id": "ALL_RADIOS_ANSWERED",
+      "name": "All Yes/No Questions Answered",
+      "type": "aggregate",
+      "severity": "warning",
+      "condition": {
+        "operator": "all_filled",
+        "fields": [
+          "p2_bracket_radio_342", "p2_bracket_radio_450", "p2_bracket_radio_602",
+          "p3_bracket_radio_98", "p3_bracket_radio_251", "p3_bracket_radio_340",
+          "p3_bracket_radio_399", "p3_bracket_radio_494", "p3_bracket_radio_571",
+          "p4_bracket_radio_98", "p4_bracket_radio_194",
+          "p4_bracket_radio_334", "p4_bracket_radio_429", "p4_bracket_radio_630"
+        ]
+      },
+      "message": "Not all Yes/No questions on pages 2-4 have been answered"
+    },
+    {
+      "rule_id": "FMT_EMAIL_AUTH",
+      "name": "Authorized Official Email Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": { "field": "p1_label_459_102", "operator": "is_not_empty" },
+        "then": { "field": "p1_label_459_102", "operator": "matches", "value": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" }
+      },
+      "message": "Authorized Official Email does not appear to be a valid email address"
+    },
+    {
+      "rule_id": "FMT_EMAIL_PREPARER",
+      "name": "EID Preparer Email Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": { "field": "p1_label_508_99", "operator": "is_not_empty" },
+        "then": { "field": "p1_label_508_99", "operator": "matches", "value": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" }
+      },
+      "message": "EID Preparer Email does not appear to be a valid email address"
+    },
+    {
+      "rule_id": "FMT_PHONE_AUTH",
+      "name": "Authorized Official Phone Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": { "field": "p1_label_447_106", "operator": "is_not_empty" },
+        "then": { "field": "p1_label_447_106", "operator": "min_length", "value": 7 }
+      },
+      "message": "Authorized Official Phone must be at least 7 characters"
+    },
+    {
+      "rule_id": "FMT_PHONE_PREPARER",
+      "name": "EID Preparer Phone Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": { "field": "p1_label_496_106", "operator": "is_not_empty" },
+        "then": { "field": "p1_label_496_106", "operator": "min_length", "value": 7 }
+      },
+      "message": "EID Preparer Phone must be at least 7 characters"
+    }
+  ]
+}

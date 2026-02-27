@@ -1,0 +1,3150 @@
+{
+  "metadata": {
+    "source_file": "input\\Environmental_Checklist - FINAL APPROVED 07032025.pdf",
+    "generated_at": "2026-02-27T03:26:44.650281+00:00",
+    "page_count": 12,
+    "tool_version": "2.0.0"
+  },
+  "fields": [
+    {
+      "field_id": "p1_cell_194_313",
+      "page": 1,
+      "type": "text",
+      "label": "Project Title",
+      "bbox": [
+        313.3,
+        194.3,
+        539.3,
+        217.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_435_227",
+      "page": 1,
+      "type": "text",
+      "label": "Award Recipient Authorized Official",
+      "bbox": [
+        227.8,
+        435.1,
+        538.0,
+        446.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_447_106",
+      "page": 1,
+      "type": "text",
+      "label": "Phone",
+      "bbox": [
+        106.1,
+        447.3,
+        538.0,
+        458.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_459_102",
+      "page": 1,
+      "type": "text",
+      "label": "Email",
+      "bbox": [
+        102.5,
+        459.5,
+        538.0,
+        473.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_483_202",
+      "page": 1,
+      "type": "text",
+      "label": "Award Recipient EID Preparer",
+      "bbox": [
+        202.9,
+        483.9,
+        538.0,
+        495.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_496_106",
+      "page": 1,
+      "type": "text",
+      "label": "Phone",
+      "bbox": [
+        106.1,
+        496.1,
+        538.0,
+        507.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_508_99",
+      "page": 1,
+      "type": "text",
+      "label": "Email",
+      "bbox": [
+        99.7,
+        508.3,
+        538.0,
+        519.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_label_520_112",
+      "page": 1,
+      "type": "text",
+      "label": "Address",
+      "bbox": [
+        113.0,
+        520.5,
+        538.0,
+        534.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_describe_546",
+      "page": 1,
+      "type": "textarea",
+      "label": "Project Location/Address (Please note - separate EID forms are required for each project location)",
+      "bbox": [
+        74.0,
+        587.4,
+        538.0,
+        623.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_describe_625",
+      "page": 1,
+      "type": "textarea",
+      "label": "Scope of work",
+      "bbox": [
+        74.0,
+        666.9,
+        538.0,
+        715.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_100_313",
+      "page": 1,
+      "type": "text",
+      "label": "Award Recipient Name",
+      "bbox": [
+        313.8,
+        100.8,
+        540.0,
+        130.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_130_313",
+      "page": 1,
+      "type": "text",
+      "label": "Program/Fundin g Opportunity Number",
+      "bbox": [
+        313.8,
+        130.0,
+        388.5,
+        171.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_130_486",
+      "page": 1,
+      "type": "text",
+      "label": "Application Tracking #",
+      "bbox": [
+        486.1,
+        130.0,
+        540.0,
+        171.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_171_313",
+      "page": 1,
+      "type": "text",
+      "label": "Project #",
+      "bbox": [
+        313.8,
+        171.4,
+        388.5,
+        194.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p1_gap_171_486",
+      "page": 1,
+      "type": "text",
+      "label": "Project Type",
+      "bbox": [
+        486.1,
+        171.4,
+        540.0,
+        194.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_bracket_radio_342",
+      "page": 1,
+      "type": "radio",
+      "label": "trailers), or substantially increase the capacity of an existing health care facility?",
+      "bbox": [
+        73.9,
+        342.8,
+        85.9,
+        355.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p2_bracket_radio_342",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            342.8,
+            85.9,
+            355.0
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            342.8,
+            115.6,
+            355.0
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_yes_explain_342",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        381.4,
+        538.0,
+        421.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_bracket_radio_450",
+      "page": 1,
+      "type": "radio",
+      "label": "significant unusual characteristics?",
+      "bbox": [
+        73.9,
+        450.2,
+        85.9,
+        462.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p2_bracket_radio_450",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            450.2,
+            85.9,
+            462.4
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            450.2,
+            115.6,
+            462.4
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_yes_explain_450",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        488.8,
+        538.0,
+        528.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_bracket_radio_602",
+      "page": 1,
+      "type": "radio",
+      "label": "cultural resources based on reasonable and substantial issues?",
+      "bbox": [
+        73.9,
+        602.4,
+        85.9,
+        614.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p2_bracket_radio_602",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            602.4,
+            85.9,
+            614.6
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            602.4,
+            115.6,
+            614.6
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_111_128",
+      "page": 1,
+      "type": "text",
+      "label": "Site acreage",
+      "bbox": [
+        128.9,
+        111.1,
+        538.0,
+        125.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_135_144",
+      "page": 1,
+      "type": "text",
+      "label": "Land use on site",
+      "bbox": [
+        145.0,
+        135.5,
+        538.0,
+        149.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_159_415",
+      "page": 1,
+      "type": "text",
+      "label": "Land use surrounding site (current use, zoning and proposed changes if applicable)",
+      "bbox": [
+        415.1,
+        159.9,
+        538.0,
+        173.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_184_341",
+      "page": 1,
+      "type": "text",
+      "label": "Buildings currently on site (stories, height, age, total sq. footage)",
+      "bbox": [
+        341.4,
+        184.3,
+        538.0,
+        198.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_208_427",
+      "page": 1,
+      "type": "text",
+      "label": "Vegetation on site (e.g. grasses, shrub, heavily wooded, none because it's paved, etc.)",
+      "bbox": [
+        427.1,
+        208.7,
+        538.0,
+        222.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_233_274",
+      "page": 1,
+      "type": "text",
+      "label": "Streams/wetlands on site or adjacent to the site",
+      "bbox": [
+        274.6,
+        233.1,
+        538.0,
+        247.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p2_label_257_253",
+      "page": 1,
+      "type": "text",
+      "label": "Proposed ground disturbance (sq. footage)",
+      "bbox": [
+        253.5,
+        257.5,
+        538.0,
+        271.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_bracket_radio_98",
+      "page": 1,
+      "type": "radio",
+      "label": "or from local, State, or Federal agencies?",
+      "bbox": [
+        73.9,
+        98.9,
+        85.9,
+        111.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p3_bracket_radio_98",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            98.9,
+            85.9,
+            111.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            98.9,
+            115.6,
+            111.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_yes_explain_98",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        137.5,
+        538.0,
+        177.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_bracket_radio_251",
+      "page": 1,
+      "type": "radio",
+      "label": "sources (e.g., lab fume hoods, HVAC systems, etc.)?",
+      "bbox": [
+        73.9,
+        251.1,
+        85.9,
+        263.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p3_bracket_radio_251",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            251.1,
+            85.9,
+            263.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            251.1,
+            115.6,
+            263.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_yes_explain_251",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        133.2,
+        275.5,
+        538.0,
+        299.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_bracket_radio_340",
+      "page": 1,
+      "type": "radio",
+      "label": "or a large number of deliveries to the site?",
+      "bbox": [
+        73.9,
+        340.4,
+        85.9,
+        352.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p3_bracket_radio_340",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            340.4,
+            85.9,
+            352.6
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            340.4,
+            115.6,
+            352.6
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_bracket_radio_399",
+      "page": 1,
+      "type": "radio",
+      "label": "C.3. Will the action exceed city or State health or Federal air quality standards with exhausts from fume hoods",
+      "bbox": [
+        73.9,
+        399.2,
+        85.9,
+        411.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p3_bracket_radio_399",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            399.2,
+            85.9,
+            411.4
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            399.2,
+            115.6,
+            411.4
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_yes_explain_399",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        437.8,
+        538.0,
+        477.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_bracket_radio_494",
+      "page": 1,
+      "type": "radio",
+      "label": "C.4. Will the action cause or increase soil erosion?",
+      "bbox": [
+        73.9,
+        494.4,
+        85.9,
+        506.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p3_bracket_radio_494",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            494.4,
+            85.9,
+            506.6
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            494.4,
+            115.6,
+            506.6
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_yes_explain_494",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain (For building additions and/or new construction, please list measures to be taken to control",
+      "bbox": [
+        208.6,
+        531.0,
+        538.0,
+        554.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_bracket_radio_571",
+      "page": 1,
+      "type": "radio",
+      "label": "C.5. Will the action discharge stormwater or pollutants into a stream, river, lake, etc.?",
+      "bbox": [
+        73.9,
+        571.5,
+        85.9,
+        583.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p3_bracket_radio_571",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            571.5,
+            85.9,
+            583.7
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            571.5,
+            115.6,
+            583.7
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p3_yes_explain_571",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain (For building additions and/or new construction, please note any stormwater management practices",
+      "bbox": [
+        74.0,
+        622.3,
+        538.0,
+        662.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_bracket_radio_98",
+      "page": 1,
+      "type": "radio",
+      "label": "etc.)?",
+      "bbox": [
+        73.9,
+        98.9,
+        85.9,
+        111.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p4_bracket_radio_98",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            98.9,
+            85.9,
+            111.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            98.9,
+            115.6,
+            111.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_yes_explain_98",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes, please obtain and submit a connection permit or other approval from local sewer authority.",
+      "bbox": [
+        74.0,
+        137.5,
+        538.0,
+        177.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_bracket_radio_194",
+      "page": 1,
+      "type": "radio",
+      "label": "C.7. Will the action allow seepage of contaminants into the water table?",
+      "bbox": [
+        73.9,
+        194.1,
+        85.9,
+        206.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p4_bracket_radio_194",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            194.1,
+            85.9,
+            206.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            194.1,
+            115.6,
+            206.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_yes_explain_194",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        232.7,
+        538.0,
+        272.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_bracket_radio_334",
+      "page": 1,
+      "type": "radio",
+      "label": "D.1. Will the action involve the purchase or use of new or unproven technology?",
+      "bbox": [
+        73.9,
+        334.1,
+        85.9,
+        346.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p4_bracket_radio_334",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            334.1,
+            85.9,
+            346.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            334.1,
+            115.6,
+            346.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_yes_explain_334",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        372.7,
+        538.0,
+        412.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_bracket_radio_429",
+      "page": 1,
+      "type": "radio",
+      "label": "D.2. Will the action involve the purchase or use of technology for which the environmental impacts are unknown?",
+      "bbox": [
+        73.9,
+        429.3,
+        85.9,
+        441.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p4_bracket_radio_429",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            429.3,
+            85.9,
+            441.5
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            429.3,
+            115.6,
+            441.5
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_yes_explain_429",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        467.9,
+        538.0,
+        507.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_bracket_radio_630",
+      "page": 1,
+      "type": "radio",
+      "label": "of real property?",
+      "bbox": [
+        73.9,
+        630.3,
+        85.9,
+        642.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p4_bracket_radio_630",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            630.3,
+            85.9,
+            642.5
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            630.3,
+            115.6,
+            642.5
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p4_yes_explain_630",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes, when was the building constructed?",
+      "bbox": [
+        74.0,
+        668.9,
+        538.0,
+        708.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_bracket_radio_98",
+      "page": 1,
+      "type": "radio",
+      "label": "Historic Places?",
+      "bbox": [
+        73.9,
+        98.9,
+        85.9,
+        111.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p5_bracket_radio_98",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            98.9,
+            85.9,
+            111.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            98.9,
+            115.6,
+            111.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_bracket_radio_181",
+      "page": 1,
+      "type": "radio",
+      "label": "Historic Places?",
+      "bbox": [
+        73.9,
+        181.9,
+        85.9,
+        194.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p5_bracket_radio_181",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            181.9,
+            85.9,
+            194.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            181.9,
+            115.6,
+            194.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_yes_explain_181",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        220.5,
+        538.0,
+        260.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_bracket_radio_289",
+      "page": 1,
+      "type": "radio",
+      "label": "archeological cultural property?",
+      "bbox": [
+        73.9,
+        289.3,
+        85.9,
+        301.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p5_bracket_radio_289",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            289.3,
+            85.9,
+            301.5
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            289.3,
+            115.6,
+            301.5
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_yes_explain_289",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        327.9,
+        538.0,
+        367.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_bracket_radio_465",
+      "page": 1,
+      "type": "radio",
+      "label": "Wildlife Service.",
+      "bbox": [
+        73.9,
+        465.9,
+        85.9,
+        478.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p5_bracket_radio_465",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            465.9,
+            85.9,
+            478.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            465.9,
+            115.6,
+            478.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_yes_explain_465",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        504.5,
+        538.0,
+        544.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_bracket_radio_561",
+      "page": 1,
+      "type": "radio",
+      "label": "F.2. Will the action adversely affect nesting Bald Eagles or migratory birds?",
+      "bbox": [
+        73.9,
+        561.1,
+        85.9,
+        573.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p5_bracket_radio_561",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            561.1,
+            85.9,
+            573.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            561.1,
+            115.6,
+            573.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p5_yes_explain_561",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        599.7,
+        538.0,
+        639.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_bracket_radio_86",
+      "page": 1,
+      "type": "radio",
+      "label": "G.1. Are there wetlands or waters of the U.S. on or adjacent to the site?",
+      "bbox": [
+        73.9,
+        86.7,
+        85.9,
+        98.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p6_bracket_radio_86",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            86.7,
+            85.9,
+            98.9
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            86.7,
+            115.6,
+            98.9
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_yes_explain_86",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes, attach National Wetland Inventory Map, State or local map, or site-specific map.",
+      "bbox": [
+        74.0,
+        125.3,
+        538.0,
+        165.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_bracket_radio_181",
+      "page": 1,
+      "type": "radio",
+      "label": "G.2. Will the action include discharge to or the filling or dredging of wetlands?",
+      "bbox": [
+        73.9,
+        181.9,
+        85.9,
+        194.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p6_bracket_radio_181",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            181.9,
+            85.9,
+            194.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            181.9,
+            115.6,
+            194.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_yes_explain_181",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        220.5,
+        538.0,
+        260.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_bracket_radio_313",
+      "page": 1,
+      "type": "radio",
+      "label": "wet or dry waterway, stream crossings, intake structures, outfalls, etc.)",
+      "bbox": [
+        73.9,
+        313.7,
+        85.9,
+        325.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p6_bracket_radio_313",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            313.7,
+            85.9,
+            325.9
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            313.7,
+            115.6,
+            325.9
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_yes_explain_313",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes, provide status of permit process:",
+      "bbox": [
+        74.0,
+        352.3,
+        538.0,
+        392.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_bracket_radio_408",
+      "page": 1,
+      "type": "radio",
+      "label": "G.4. Is the project site located in either a 100-year or a 500-year floodplain?",
+      "bbox": [
+        73.9,
+        408.9,
+        85.9,
+        421.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p6_bracket_radio_408",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            408.9,
+            85.9,
+            421.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            408.9,
+            115.6,
+            421.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_bracket_radio_565",
+      "page": 1,
+      "type": "radio",
+      "label": "parking lots, signage, etc.) in the floodplain?",
+      "bbox": [
+        73.9,
+        565.1,
+        85.9,
+        577.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p6_bracket_radio_565",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            565.1,
+            85.9,
+            577.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            565.1,
+            115.6,
+            577.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p6_yes_explain_565",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        603.7,
+        538.0,
+        643.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_bracket_radio_86",
+      "page": 1,
+      "type": "radio",
+      "label": "G.6. Will the proposed action adversely impact flood flows in a floodplain or support development in a floodplain?",
+      "bbox": [
+        73.9,
+        86.7,
+        85.9,
+        98.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p7_bracket_radio_86",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            86.7,
+            85.9,
+            98.9
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            86.7,
+            115.6,
+            98.9
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_yes_explain_86",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        125.3,
+        538.0,
+        165.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_bracket_radio_181",
+      "page": 1,
+      "type": "radio",
+      "label": "G.7. Will the proposed action alter floodplain levels?",
+      "bbox": [
+        73.9,
+        181.9,
+        85.9,
+        194.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p7_bracket_radio_181",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            181.9,
+            85.9,
+            194.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            181.9,
+            115.6,
+            194.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_yes_explain_181",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        220.5,
+        538.0,
+        260.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_bracket_radio_277",
+      "page": 1,
+      "type": "radio",
+      "label": "G.8. Will the proposed action discharge stormwater to the floodplain?",
+      "bbox": [
+        73.9,
+        277.1,
+        85.9,
+        289.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p7_bracket_radio_277",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            277.1,
+            85.9,
+            289.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            277.1,
+            115.6,
+            289.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_yes_explain_277",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        315.7,
+        538.0,
+        355.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_bracket_radio_384",
+      "page": 1,
+      "type": "radio",
+      "label": "or Gulf of America?",
+      "bbox": [
+        73.9,
+        384.5,
+        85.9,
+        396.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p7_bracket_radio_384",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            384.5,
+            85.9,
+            396.7
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            384.5,
+            115.6,
+            396.7
+          ]
+        },
+        {
+          "value": "N/A",
+          "label": "N/A",
+          "bbox": [
+            131.3,
+            384.5,
+            143.3,
+            396.7
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_bracket_radio_433",
+      "page": 1,
+      "type": "radio",
+      "label": "If yes, is your project located in the state's coastal zone?",
+      "bbox": [
+        73.9,
+        433.3,
+        85.9,
+        445.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p7_bracket_radio_433",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            433.3,
+            85.9,
+            445.5
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            433.3,
+            115.6,
+            445.5
+          ]
+        },
+        {
+          "value": "N/A",
+          "label": "N/A",
+          "bbox": [
+            131.3,
+            433.3,
+            143.3,
+            445.5
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_yes_explain_433",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes, you may be asked in your NGA to contact your state coastal zone agency for a Section 307 Federal Coastal",
+      "bbox": [
+        74.0,
+        484.1,
+        538.0,
+        512.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_bracket_radio_553",
+      "page": 1,
+      "type": "radio",
+      "label": "Service, Bureau of Land Management, U.S. Forest Service, or National Park Service.",
+      "bbox": [
+        73.9,
+        553.1,
+        85.9,
+        565.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p7_bracket_radio_553",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            553.1,
+            85.9,
+            565.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            553.1,
+            115.6,
+            565.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p7_yes_explain_553",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        591.7,
+        538.0,
+        631.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_bracket_radio_111",
+      "page": 1,
+      "type": "radio",
+      "label": "including construction of stream/river crossings, intake structures, outfalls, etc.)",
+      "bbox": [
+        73.9,
+        111.1,
+        85.9,
+        123.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p8_bracket_radio_111",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            111.1,
+            85.9,
+            123.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            111.1,
+            115.6,
+            123.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_yes_explain_111",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        149.7,
+        538.0,
+        189.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_bracket_radio_218",
+      "page": 1,
+      "type": "radio",
+      "label": "puts restrictions and conditions on Federal expenditures, projects, and Awards.)",
+      "bbox": [
+        73.9,
+        218.5,
+        85.9,
+        230.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p8_bracket_radio_218",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            218.5,
+            85.9,
+            230.7
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            218.5,
+            115.6,
+            230.7
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_yes_explain_218",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        257.1,
+        538.0,
+        297.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_bracket_radio_358",
+      "page": 1,
+      "type": "radio",
+      "label": "H.1. Will the action include renovation of an existing building or ground disturbing activities?",
+      "bbox": [
+        73.9,
+        358.5,
+        85.9,
+        370.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p8_bracket_radio_358",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            358.5,
+            85.9,
+            370.7
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            358.5,
+            115.6,
+            370.7
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_yes_explain_358",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes, has a Phase I Environmental Site Assessment been prepared for the property within the last 3 years?",
+      "bbox": [
+        74.0,
+        397.1,
+        538.0,
+        437.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_bracket_radio_465",
+      "page": 1,
+      "type": "radio",
+      "label": "or groundwater?",
+      "bbox": [
+        73.9,
+        465.9,
+        85.9,
+        478.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p8_bracket_radio_465",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            465.9,
+            85.9,
+            478.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            465.9,
+            115.6,
+            478.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_yes_explain_465",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        504.5,
+        538.0,
+        544.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_bracket_radio_605",
+      "page": 1,
+      "type": "radio",
+      "label": "I.1. Will the action introduce major new sources of unshielded radiation?",
+      "bbox": [
+        73.9,
+        605.9,
+        85.9,
+        618.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p8_bracket_radio_605",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            605.9,
+            85.9,
+            618.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            605.9,
+            115.6,
+            618.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p8_yes_explain_605",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        644.5,
+        538.0,
+        684.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_bracket_radio_86",
+      "page": 1,
+      "type": "radio",
+      "label": "I.2. Will the action require storage of waste pending technology for safe disposal?",
+      "bbox": [
+        73.9,
+        86.7,
+        85.9,
+        98.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p9_bracket_radio_86",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            86.7,
+            85.9,
+            98.9
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            86.7,
+            115.6,
+            98.9
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_yes_explain_86",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        125.3,
+        538.0,
+        165.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_bracket_radio_181",
+      "page": 1,
+      "type": "radio",
+      "label": "I.3. Will the action adversely affect access to transportation, health, education, and/or welfare service?",
+      "bbox": [
+        73.9,
+        181.9,
+        85.9,
+        194.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p9_bracket_radio_181",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            181.9,
+            85.9,
+            194.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            181.9,
+            115.6,
+            194.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_yes_explain_181",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        220.5,
+        538.0,
+        260.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_bracket_radio_277",
+      "page": 1,
+      "type": "radio",
+      "label": "I.4. Will the action result in changes in genetic engineering directed at the human population?",
+      "bbox": [
+        73.9,
+        277.1,
+        85.9,
+        289.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p9_bracket_radio_277",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            277.1,
+            85.9,
+            289.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            277.1,
+            115.6,
+            289.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_yes_explain_277",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        315.7,
+        538.0,
+        355.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_bracket_radio_372",
+      "page": 1,
+      "type": "radio",
+      "label": "I.5. Will the action cause a new, large volume of production of non-recycled items?",
+      "bbox": [
+        73.9,
+        372.3,
+        85.9,
+        384.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p9_bracket_radio_372",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            372.3,
+            85.9,
+            384.5
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            372.3,
+            115.6,
+            384.5
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_yes_explain_372",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        410.9,
+        538.0,
+        450.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_bracket_radio_467",
+      "page": 1,
+      "type": "radio",
+      "label": "I.6. Could the action disrupt existing health services' response in case of a disaster?",
+      "bbox": [
+        73.9,
+        467.5,
+        85.9,
+        479.7
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p9_bracket_radio_467",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            467.5,
+            85.9,
+            479.7
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            467.5,
+            115.6,
+            479.7
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_yes_explain_467",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        506.1,
+        538.0,
+        546.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_bracket_radio_562",
+      "page": 1,
+      "type": "radio",
+      "label": "I.7. Will the action decrease accessibility to routine health services by altering point-of-service delivery?",
+      "bbox": [
+        73.9,
+        562.7,
+        85.9,
+        574.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p9_bracket_radio_562",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            562.7,
+            85.9,
+            574.9
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            562.7,
+            115.6,
+            574.9
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p9_yes_explain_562",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        601.3,
+        538.0,
+        641.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_bracket_radio_86",
+      "page": 1,
+      "type": "radio",
+      "label": "I.8. Will the action increase by more than 5% the patient load of the area's routine care services?",
+      "bbox": [
+        73.9,
+        86.7,
+        85.9,
+        98.9
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p10_bracket_radio_86",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            86.7,
+            85.9,
+            98.9
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            86.7,
+            115.6,
+            98.9
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_yes_explain_86",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        125.3,
+        538.0,
+        165.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_bracket_radio_238",
+      "page": 1,
+      "type": "radio",
+      "label": "Solis of Statewide Importance?",
+      "bbox": [
+        73.9,
+        238.9,
+        85.9,
+        251.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p10_bracket_radio_238",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            238.9,
+            85.9,
+            251.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            238.9,
+            115.6,
+            251.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_yes_explain_238",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        277.5,
+        538.0,
+        317.4
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_bracket_radio_334",
+      "page": 1,
+      "type": "radio",
+      "label": "J.2. Will the action change traditional use of the land parcel (by rezoning, etc.)?",
+      "bbox": [
+        73.9,
+        334.1,
+        85.9,
+        346.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p10_bracket_radio_334",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            334.1,
+            85.9,
+            346.3
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            334.1,
+            115.6,
+            346.3
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_bracket_radio_504",
+      "page": 1,
+      "type": "radio",
+      "label": "recognized scenic or recreational value? (For example, consider how the activity will affect the view?)",
+      "bbox": [
+        73.9,
+        504.9,
+        85.9,
+        517.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p10_bracket_radio_504",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            504.9,
+            85.9,
+            517.1
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            504.9,
+            115.6,
+            517.1
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_yes_explain_504",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        543.5,
+        538.0,
+        583.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_bracket_radio_612",
+      "page": 1,
+      "type": "radio",
+      "label": "materials are not considered mineral deposits.)",
+      "bbox": [
+        73.9,
+        612.3,
+        85.9,
+        624.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p10_bracket_radio_612",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            612.3,
+            85.9,
+            624.5
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            612.3,
+            115.6,
+            624.5
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_yes_explain_612",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        650.9,
+        538.0,
+        690.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_underline_382_146",
+      "page": 1,
+      "type": "text",
+      "label": "Present Zoning",
+      "bbox": [
+        146.3,
+        382.9,
+        538.0,
+        394.1
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_underline_395_166",
+      "page": 1,
+      "type": "text",
+      "label": "Present Use of Site",
+      "bbox": [
+        166.2,
+        395.1,
+        538.0,
+        406.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p10_underline_407_152",
+      "page": 1,
+      "type": "text",
+      "label": "Proposed Zoning",
+      "bbox": [
+        152.1,
+        407.3,
+        538.0,
+        421.3
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_bracket_radio_127",
+      "page": 1,
+      "type": "radio",
+      "label": "K.1. Has the area around the project undergone major changes in land use/development?",
+      "bbox": [
+        73.9,
+        127.4,
+        85.9,
+        139.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p11_bracket_radio_127",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            127.4,
+            85.9,
+            139.6
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            127.4,
+            115.6,
+            139.6
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_yes_explain_127",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        166.0,
+        538.0,
+        205.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_bracket_radio_222",
+      "page": 1,
+      "type": "radio",
+      "label": "K.2. Are major changes in land use/development planned for the area around the project?",
+      "bbox": [
+        73.9,
+        222.6,
+        85.9,
+        234.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p11_bracket_radio_222",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            222.6,
+            85.9,
+            234.8
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            222.6,
+            115.6,
+            234.8
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_yes_explain_222",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        261.2,
+        538.0,
+        301.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_bracket_radio_317",
+      "page": 1,
+      "type": "radio",
+      "label": "K.3. Will the action alter the use of other land by related development of stores, roads, or site changes?",
+      "bbox": [
+        73.9,
+        317.8,
+        85.9,
+        330.0
+      ],
+      "required": false,
+      "validation": null,
+      "group": "p11_bracket_radio_317",
+      "options": [
+        {
+          "value": "Yes",
+          "label": "Yes",
+          "bbox": [
+            73.9,
+            317.8,
+            85.9,
+            330.0
+          ]
+        },
+        {
+          "value": "No",
+          "label": "No",
+          "bbox": [
+            103.6,
+            317.8,
+            115.6,
+            330.0
+          ]
+        }
+      ],
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_yes_explain_317",
+      "page": 1,
+      "type": "textarea",
+      "label": "If yes explain:",
+      "bbox": [
+        74.0,
+        356.4,
+        538.0,
+        396.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p11_describe_479",
+      "page": 1,
+      "type": "textarea",
+      "label": "Describe mitigative measures that will be incorporated into the action:",
+      "bbox": [
+        74.0,
+        496.4,
+        538.0,
+        586.2
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p12_bracket_checkbox_74",
+      "page": 1,
+      "type": "checkbox",
+      "label": "I certify that to the best of my knowledge and ability the information presented herein is true and correct",
+      "bbox": [
+        73.9,
+        74.5,
+        85.9,
+        86.5
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p12_label_127_332",
+      "page": 1,
+      "type": "text",
+      "label": "Title or Position",
+      "bbox": [
+        332.7,
+        127.8,
+        396.8,
+        141.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p12_label_127_495",
+      "page": 1,
+      "type": "text",
+      "label": "Date",
+      "bbox": [
+        495.8,
+        127.8,
+        536.2,
+        141.8
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p12_label_195_331",
+      "page": 1,
+      "type": "text",
+      "label": "Title or Position",
+      "bbox": [
+        331.7,
+        195.6,
+        396.8,
+        209.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    },
+    {
+      "field_id": "p12_label_195_494",
+      "page": 1,
+      "type": "text",
+      "label": "Date",
+      "bbox": [
+        494.8,
+        195.6,
+        536.2,
+        209.6
+      ],
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "1": [
+    {
+      "field_id": "p1_cell_222_360",
+      "type": "text",
+      "label": "Grant Number",
+      "bbox": [
+        360.6,
+        222.8,
+        453.8,
+        245.5
+      ],
+      "page": 1,
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null,
+      "_source": "doc_intelligence"
+    },
+    {
+      "field_id": "p1_cell_223_453",
+      "type": "text",
+      "label": "Application Tracking Number",
+      "bbox": [
+        453.8,
+        223.2,
+        557.4,
+        245.5
+      ],
+      "page": 1,
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null,
+      "_source": "doc_intelligence"
+    }
+  ],
+  "2": [],
+  "3": []
+}

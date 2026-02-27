@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Direct test</h1>
+<script type="module">
+  try {
+    const mod = await import('/src/App.tsx');
+    document.body.innerHTML += '<p>App loaded OK</p>';
+  } catch(e) {
+    document.body.innerHTML += '<pre style="color:red">' + e.stack + '</pre>';
+  }
+</script>
+</body>
+</html>

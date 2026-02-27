@@ -1,0 +1,51 @@
+{
+  "1": [
+    {
+      "field_id": "p1_cell_194_71",
+      "type": "text",
+      "label": "DEPARTMENT OF HEALTH AND HUMAN SERVICES",
+      "bbox": [
+        71.9,
+        194.3,
+        238.0,
+        217.0
+      ],
+      "page": 1,
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null,
+      "_source": "doc_intelligence"
+    },
+    {
+      "field_id": "p1_cell_194_313",
+      "type": "text",
+      "label": "Project Title",
+      "bbox": [
+        313.3,
+        194.3,
+        539.3,
+        217.0
+      ],
+      "page": 1,
+      "required": false,
+      "validation": null,
+      "group": null,
+      "options": null,
+      "depends_on": null,
+      "_source": "doc_intelligence"
+    }
+  ],
+  "2": [],
+  "3": [],
+  "4": [],
+  "5": [],
+  "6": [],
+  "7": [],
+  "8": [],
+  "9": [],
+  "10": [],
+  "11": [],
+  "12": []
+}

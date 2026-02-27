@@ -1,0 +1,1614 @@
+{
+  "form_id": "environmental_checklist_final_approved_07032025",
+  "form_name": "Environmental_Checklist - FINAL APPROVED 07032025",
+  "version": "1.0",
+  "generated": true,
+  "rules": [
+    {
+      "rule_id": "REQ_001",
+      "name": "Project Title Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_cell_194_313",
+        "operator": "is_not_empty"
+      },
+      "message": "Project Title is required"
+    },
+    {
+      "rule_id": "REQ_002",
+      "name": "Award Recipient Authorized Official Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_label_435_227",
+        "operator": "is_not_empty"
+      },
+      "message": "Award Recipient Authorized Official is required"
+    },
+    {
+      "rule_id": "REQ_003",
+      "name": "Award Recipient EID Preparer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_label_483_202",
+        "operator": "is_not_empty"
+      },
+      "message": "Award Recipient EID Preparer is required"
+    },
+    {
+      "rule_id": "REQ_004",
+      "name": "Award Recipient Name Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_gap_100_313",
+        "operator": "is_not_empty"
+      },
+      "message": "Award Recipient Name is required"
+    },
+    {
+      "rule_id": "REQ_005",
+      "name": "Program/Fundin g Opportunity Number Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_gap_130_313",
+        "operator": "is_not_empty"
+      },
+      "message": "Program/Fundin g Opportunity Number is required"
+    },
+    {
+      "rule_id": "REQ_006",
+      "name": "Application Tracking # Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_gap_130_486",
+        "operator": "is_not_empty"
+      },
+      "message": "Application Tracking # is required"
+    },
+    {
+      "rule_id": "REQ_007",
+      "name": "Project # Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_gap_171_313",
+        "operator": "is_not_empty"
+      },
+      "message": "Project # is required"
+    },
+    {
+      "rule_id": "REQ_008",
+      "name": "Project Type Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p1_gap_171_486",
+        "operator": "is_not_empty"
+      },
+      "message": "Project Type is required"
+    },
+    {
+      "rule_id": "WARN_009",
+      "name": "Land use on site Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": {
+        "field": "p2_label_135_144",
+        "operator": "is_not_empty"
+      },
+      "message": "Land use on site is recommended"
+    },
+    {
+      "rule_id": "WARN_010",
+      "name": "Land use surrounding site (current use, zoning and proposed changes if applicable) Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": {
+        "field": "p2_label_159_415",
+        "operator": "is_not_empty"
+      },
+      "message": "Land use surrounding site (current use, zoning and proposed changes if applicable) is recommended"
+    },
+    {
+      "rule_id": "WARN_011",
+      "name": "Buildings currently on site (stories, height, age, total sq. footage) Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": {
+        "field": "p2_label_184_341",
+        "operator": "is_not_empty"
+      },
+      "message": "Buildings currently on site (stories, height, age, total sq. footage) is recommended"
+    },
+    {
+      "rule_id": "WARN_012",
+      "name": "Vegetation on site (e.g. grasses, shrub, heavily wooded, none because it's paved, etc.) Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": {
+        "field": "p2_label_208_427",
+        "operator": "is_not_empty"
+      },
+      "message": "Vegetation on site (e.g. grasses, shrub, heavily wooded, none because it's paved, etc.) is recommended"
+    },
+    {
+      "rule_id": "WARN_013",
+      "name": "Streams/wetlands on site or adjacent to the site Recommended",
+      "type": "simple",
+      "severity": "warning",
+      "condition": {
+        "field": "p2_label_233_274",
+        "operator": "is_not_empty"
+      },
+      "message": "Streams/wetlands on site or adjacent to the site is recommended"
+    },
+    {
+      "rule_id": "REQ_014",
+      "name": "Title or Position Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_label_127_332",
+        "operator": "is_not_empty"
+      },
+      "message": "Title or Position is required"
+    },
+    {
+      "rule_id": "REQ_015",
+      "name": "Date Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_label_127_495",
+        "operator": "is_not_empty"
+      },
+      "message": "Date is required"
+    },
+    {
+      "rule_id": "REQ_016",
+      "name": "Title or Position Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_label_195_331",
+        "operator": "is_not_empty"
+      },
+      "message": "Title or Position is required"
+    },
+    {
+      "rule_id": "REQ_017",
+      "name": "Date Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_label_195_494",
+        "operator": "is_not_empty"
+      },
+      "message": "Date is required"
+    },
+    {
+      "rule_id": "REQ_RADIO_018",
+      "name": "trailers), or substantially increase the capacity of an exis... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p2_bracket_radio_342",
+        "operator": "is_not_empty"
+      },
+      "message": "trailers), or substantially increase the capacity of an exis... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_019",
+      "name": "significant unusual characteristics? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p2_bracket_radio_450",
+        "operator": "is_not_empty"
+      },
+      "message": "significant unusual characteristics? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_020",
+      "name": "cultural resources based on reasonable and substantial issue... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p2_bracket_radio_602",
+        "operator": "is_not_empty"
+      },
+      "message": "cultural resources based on reasonable and substantial issue... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_021",
+      "name": "or from local, State, or Federal agencies? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p3_bracket_radio_98",
+        "operator": "is_not_empty"
+      },
+      "message": "or from local, State, or Federal agencies? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_022",
+      "name": "sources (e.g., lab fume hoods, HVAC systems, etc.)? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p3_bracket_radio_251",
+        "operator": "is_not_empty"
+      },
+      "message": "sources (e.g., lab fume hoods, HVAC systems, etc.)? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_023",
+      "name": "or a large number of deliveries to the site? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p3_bracket_radio_340",
+        "operator": "is_not_empty"
+      },
+      "message": "or a large number of deliveries to the site? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_024",
+      "name": "C.3. Will the action exceed city or State health or Federal ... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p3_bracket_radio_399",
+        "operator": "is_not_empty"
+      },
+      "message": "C.3. Will the action exceed city or State health or Federal ... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_025",
+      "name": "C.4. Will the action cause or increase soil erosion? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p3_bracket_radio_494",
+        "operator": "is_not_empty"
+      },
+      "message": "C.4. Will the action cause or increase soil erosion? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_026",
+      "name": "C.5. Will the action discharge stormwater or pollutants into... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p3_bracket_radio_571",
+        "operator": "is_not_empty"
+      },
+      "message": "C.5. Will the action discharge stormwater or pollutants into... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_027",
+      "name": "etc.)? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p4_bracket_radio_98",
+        "operator": "is_not_empty"
+      },
+      "message": "etc.)? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_028",
+      "name": "C.7. Will the action allow seepage of contaminants into the ... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p4_bracket_radio_194",
+        "operator": "is_not_empty"
+      },
+      "message": "C.7. Will the action allow seepage of contaminants into the ... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_029",
+      "name": "D.1. Will the action involve the purchase or use of new or u... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p4_bracket_radio_334",
+        "operator": "is_not_empty"
+      },
+      "message": "D.1. Will the action involve the purchase or use of new or u... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_030",
+      "name": "D.2. Will the action involve the purchase or use of technolo... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p4_bracket_radio_429",
+        "operator": "is_not_empty"
+      },
+      "message": "D.2. Will the action involve the purchase or use of technolo... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_031",
+      "name": "of real property? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p4_bracket_radio_630",
+        "operator": "is_not_empty"
+      },
+      "message": "of real property? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_032",
+      "name": "Historic Places? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p5_bracket_radio_98",
+        "operator": "is_not_empty"
+      },
+      "message": "Historic Places? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_033",
+      "name": "Historic Places? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p5_bracket_radio_181",
+        "operator": "is_not_empty"
+      },
+      "message": "Historic Places? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_034",
+      "name": "archeological cultural property? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p5_bracket_radio_289",
+        "operator": "is_not_empty"
+      },
+      "message": "archeological cultural property? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_035",
+      "name": "Wildlife Service. Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p5_bracket_radio_465",
+        "operator": "is_not_empty"
+      },
+      "message": "Wildlife Service. must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_036",
+      "name": "F.2. Will the action adversely affect nesting Bald Eagles or... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p5_bracket_radio_561",
+        "operator": "is_not_empty"
+      },
+      "message": "F.2. Will the action adversely affect nesting Bald Eagles or... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_037",
+      "name": "G.1. Are there wetlands or waters of the U.S. on or adjacent... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p6_bracket_radio_86",
+        "operator": "is_not_empty"
+      },
+      "message": "G.1. Are there wetlands or waters of the U.S. on or adjacent... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_038",
+      "name": "G.2. Will the action include discharge to or the filling or ... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p6_bracket_radio_181",
+        "operator": "is_not_empty"
+      },
+      "message": "G.2. Will the action include discharge to or the filling or ... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_039",
+      "name": "wet or dry waterway, stream crossings, intake structures, ou... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p6_bracket_radio_313",
+        "operator": "is_not_empty"
+      },
+      "message": "wet or dry waterway, stream crossings, intake structures, ou... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_040",
+      "name": "G.4. Is the project site located in either a 100-year or a 5... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p6_bracket_radio_408",
+        "operator": "is_not_empty"
+      },
+      "message": "G.4. Is the project site located in either a 100-year or a 5... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_041",
+      "name": "parking lots, signage, etc.) in the floodplain? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p6_bracket_radio_565",
+        "operator": "is_not_empty"
+      },
+      "message": "parking lots, signage, etc.) in the floodplain? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_042",
+      "name": "G.6. Will the proposed action adversely impact flood flows i... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p7_bracket_radio_86",
+        "operator": "is_not_empty"
+      },
+      "message": "G.6. Will the proposed action adversely impact flood flows i... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_043",
+      "name": "G.7. Will the proposed action alter floodplain levels? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p7_bracket_radio_181",
+        "operator": "is_not_empty"
+      },
+      "message": "G.7. Will the proposed action alter floodplain levels? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_044",
+      "name": "G.8. Will the proposed action discharge stormwater to the fl... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p7_bracket_radio_277",
+        "operator": "is_not_empty"
+      },
+      "message": "G.8. Will the proposed action discharge stormwater to the fl... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_045",
+      "name": "or Gulf of America? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p7_bracket_radio_384",
+        "operator": "is_not_empty"
+      },
+      "message": "or Gulf of America? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_046",
+      "name": "If yes, is your project located in the state's coastal zone? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p7_bracket_radio_433",
+        "operator": "is_not_empty"
+      },
+      "message": "If yes, is your project located in the state's coastal zone? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_047",
+      "name": "Service, Bureau of Land Management, U.S. Forest Service, or ... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p7_bracket_radio_553",
+        "operator": "is_not_empty"
+      },
+      "message": "Service, Bureau of Land Management, U.S. Forest Service, or ... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_048",
+      "name": "including construction of stream/river crossings, intake str... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p8_bracket_radio_111",
+        "operator": "is_not_empty"
+      },
+      "message": "including construction of stream/river crossings, intake str... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_049",
+      "name": "puts restrictions and conditions on Federal expenditures, pr... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p8_bracket_radio_218",
+        "operator": "is_not_empty"
+      },
+      "message": "puts restrictions and conditions on Federal expenditures, pr... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_050",
+      "name": "H.1. Will the action include renovation of an existing build... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p8_bracket_radio_358",
+        "operator": "is_not_empty"
+      },
+      "message": "H.1. Will the action include renovation of an existing build... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_051",
+      "name": "or groundwater? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p8_bracket_radio_465",
+        "operator": "is_not_empty"
+      },
+      "message": "or groundwater? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_052",
+      "name": "I.1. Will the action introduce major new sources of unshield... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p8_bracket_radio_605",
+        "operator": "is_not_empty"
+      },
+      "message": "I.1. Will the action introduce major new sources of unshield... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_053",
+      "name": "I.2. Will the action require storage of waste pending techno... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p9_bracket_radio_86",
+        "operator": "is_not_empty"
+      },
+      "message": "I.2. Will the action require storage of waste pending techno... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_054",
+      "name": "I.3. Will the action adversely affect access to transportati... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p9_bracket_radio_181",
+        "operator": "is_not_empty"
+      },
+      "message": "I.3. Will the action adversely affect access to transportati... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_055",
+      "name": "I.4. Will the action result in changes in genetic engineerin... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p9_bracket_radio_277",
+        "operator": "is_not_empty"
+      },
+      "message": "I.4. Will the action result in changes in genetic engineerin... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_056",
+      "name": "I.5. Will the action cause a new, large volume of production... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p9_bracket_radio_372",
+        "operator": "is_not_empty"
+      },
+      "message": "I.5. Will the action cause a new, large volume of production... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_057",
+      "name": "I.6. Could the action disrupt existing health services' resp... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p9_bracket_radio_467",
+        "operator": "is_not_empty"
+      },
+      "message": "I.6. Could the action disrupt existing health services' resp... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_058",
+      "name": "I.7. Will the action decrease accessibility to routine healt... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p9_bracket_radio_562",
+        "operator": "is_not_empty"
+      },
+      "message": "I.7. Will the action decrease accessibility to routine healt... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_059",
+      "name": "I.8. Will the action increase by more than 5% the patient lo... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p10_bracket_radio_86",
+        "operator": "is_not_empty"
+      },
+      "message": "I.8. Will the action increase by more than 5% the patient lo... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_060",
+      "name": "Solis of Statewide Importance? Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p10_bracket_radio_238",
+        "operator": "is_not_empty"
+      },
+      "message": "Solis of Statewide Importance? must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_061",
+      "name": "J.2. Will the action change traditional use of the land parc... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p10_bracket_radio_334",
+        "operator": "is_not_empty"
+      },
+      "message": "J.2. Will the action change traditional use of the land parc... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_062",
+      "name": "recognized scenic or recreational value? (For example, consi... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p10_bracket_radio_504",
+        "operator": "is_not_empty"
+      },
+      "message": "recognized scenic or recreational value? (For example, consi... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_063",
+      "name": "materials are not considered mineral deposits.) Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p10_bracket_radio_612",
+        "operator": "is_not_empty"
+      },
+      "message": "materials are not considered mineral deposits.) must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_064",
+      "name": "K.1. Has the area around the project undergone major changes... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p11_bracket_radio_127",
+        "operator": "is_not_empty"
+      },
+      "message": "K.1. Has the area around the project undergone major changes... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_065",
+      "name": "K.2. Are major changes in land use/development planned for t... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p11_bracket_radio_222",
+        "operator": "is_not_empty"
+      },
+      "message": "K.2. Are major changes in land use/development planned for t... must be answered"
+    },
+    {
+      "rule_id": "REQ_RADIO_066",
+      "name": "K.3. Will the action alter the use of other land by related ... Answer Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p11_bracket_radio_317",
+        "operator": "is_not_empty"
+      },
+      "message": "K.3. Will the action alter the use of other land by related ... must be answered"
+    },
+    {
+      "rule_id": "COND_067",
+      "name": "If Yes on 'trailers), or substantially increase the capacity of an exis', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p2_bracket_radio_342",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p2_yes_explain_342",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'trailers), or substantially increase the capacity of an exis', explanation is required"
+    },
+    {
+      "rule_id": "COND_068",
+      "name": "If Yes on 'significant unusual characteristics?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p2_bracket_radio_450",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p2_yes_explain_450",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'significant unusual characteristics?', explanation is required"
+    },
+    {
+      "rule_id": "COND_069",
+      "name": "If Yes on 'or from local, State, or Federal agencies?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p3_bracket_radio_98",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p3_yes_explain_98",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'or from local, State, or Federal agencies?', explanation is required"
+    },
+    {
+      "rule_id": "COND_070",
+      "name": "If Yes on 'C.3. Will the action exceed city or State health or Federal ', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p3_bracket_radio_399",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p3_yes_explain_399",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'C.3. Will the action exceed city or State health or Federal ', explanation is required"
+    },
+    {
+      "rule_id": "COND_071",
+      "name": "If Yes on 'C.5. Will the action discharge stormwater or pollutants into', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p3_bracket_radio_571",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p3_yes_explain_571",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'C.5. Will the action discharge stormwater or pollutants into', explanation is required"
+    },
+    {
+      "rule_id": "COND_072",
+      "name": "If Yes on 'etc.)?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p4_bracket_radio_98",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p4_yes_explain_98",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'etc.)?', explanation is required"
+    },
+    {
+      "rule_id": "COND_073",
+      "name": "If Yes on 'C.7. Will the action allow seepage of contaminants into the ', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p4_bracket_radio_194",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p4_yes_explain_194",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'C.7. Will the action allow seepage of contaminants into the ', explanation is required"
+    },
+    {
+      "rule_id": "COND_074",
+      "name": "If Yes on 'D.1. Will the action involve the purchase or use of new or u', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p4_bracket_radio_334",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p4_yes_explain_334",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'D.1. Will the action involve the purchase or use of new or u', explanation is required"
+    },
+    {
+      "rule_id": "COND_075",
+      "name": "If Yes on 'D.2. Will the action involve the purchase or use of technolo', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p4_bracket_radio_429",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p4_yes_explain_429",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'D.2. Will the action involve the purchase or use of technolo', explanation is required"
+    },
+    {
+      "rule_id": "COND_076",
+      "name": "If Yes on 'of real property?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p4_bracket_radio_630",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p4_yes_explain_630",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'of real property?', explanation is required"
+    },
+    {
+      "rule_id": "COND_077",
+      "name": "If Yes on 'Historic Places?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p5_bracket_radio_181",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p5_yes_explain_181",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'Historic Places?', explanation is required"
+    },
+    {
+      "rule_id": "COND_078",
+      "name": "If Yes on 'archeological cultural property?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p5_bracket_radio_289",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p5_yes_explain_289",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'archeological cultural property?', explanation is required"
+    },
+    {
+      "rule_id": "COND_079",
+      "name": "If Yes on 'Wildlife Service.', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p5_bracket_radio_465",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p5_yes_explain_465",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'Wildlife Service.', explanation is required"
+    },
+    {
+      "rule_id": "COND_080",
+      "name": "If Yes on 'F.2. Will the action adversely affect nesting Bald Eagles or', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p5_bracket_radio_561",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p5_yes_explain_561",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'F.2. Will the action adversely affect nesting Bald Eagles or', explanation is required"
+    },
+    {
+      "rule_id": "COND_081",
+      "name": "If Yes on 'G.1. Are there wetlands or waters of the U.S. on or adjacent', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p6_bracket_radio_86",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p6_yes_explain_86",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'G.1. Are there wetlands or waters of the U.S. on or adjacent', explanation is required"
+    },
+    {
+      "rule_id": "COND_082",
+      "name": "If Yes on 'G.2. Will the action include discharge to or the filling or ', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p6_bracket_radio_181",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p6_yes_explain_181",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'G.2. Will the action include discharge to or the filling or ', explanation is required"
+    },
+    {
+      "rule_id": "COND_083",
+      "name": "If Yes on 'wet or dry waterway, stream crossings, intake structures, ou', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p6_bracket_radio_313",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p6_yes_explain_313",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'wet or dry waterway, stream crossings, intake structures, ou', explanation is required"
+    },
+    {
+      "rule_id": "COND_084",
+      "name": "If Yes on 'parking lots, signage, etc.) in the floodplain?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p6_bracket_radio_565",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p6_yes_explain_565",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'parking lots, signage, etc.) in the floodplain?', explanation is required"
+    },
+    {
+      "rule_id": "COND_085",
+      "name": "If Yes on 'G.6. Will the proposed action adversely impact flood flows i', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p7_bracket_radio_86",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p7_yes_explain_86",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'G.6. Will the proposed action adversely impact flood flows i', explanation is required"
+    },
+    {
+      "rule_id": "COND_086",
+      "name": "If Yes on 'G.7. Will the proposed action alter floodplain levels?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p7_bracket_radio_181",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p7_yes_explain_181",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'G.7. Will the proposed action alter floodplain levels?', explanation is required"
+    },
+    {
+      "rule_id": "COND_087",
+      "name": "If Yes on 'G.8. Will the proposed action discharge stormwater to the fl', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p7_bracket_radio_277",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p7_yes_explain_277",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'G.8. Will the proposed action discharge stormwater to the fl', explanation is required"
+    },
+    {
+      "rule_id": "COND_088",
+      "name": "If Yes on 'or Gulf of America?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p7_bracket_radio_384",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p7_yes_explain_384",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'or Gulf of America?', explanation is required"
+    },
+    {
+      "rule_id": "COND_089",
+      "name": "If Yes on 'If yes, is your project located in the state's coastal zone?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p7_bracket_radio_433",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p7_yes_explain_433",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'If yes, is your project located in the state's coastal zone?', explanation is required"
+    },
+    {
+      "rule_id": "COND_090",
+      "name": "If Yes on 'Service, Bureau of Land Management, U.S. Forest Service, or ', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p7_bracket_radio_553",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p7_yes_explain_553",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'Service, Bureau of Land Management, U.S. Forest Service, or ', explanation is required"
+    },
+    {
+      "rule_id": "COND_091",
+      "name": "If Yes on 'including construction of stream/river crossings, intake str', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p8_bracket_radio_111",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p8_yes_explain_111",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'including construction of stream/river crossings, intake str', explanation is required"
+    },
+    {
+      "rule_id": "COND_092",
+      "name": "If Yes on 'puts restrictions and conditions on Federal expenditures, pr', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p8_bracket_radio_218",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p8_yes_explain_218",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'puts restrictions and conditions on Federal expenditures, pr', explanation is required"
+    },
+    {
+      "rule_id": "COND_093",
+      "name": "If Yes on 'H.1. Will the action include renovation of an existing build', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p8_bracket_radio_358",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p8_yes_explain_358",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'H.1. Will the action include renovation of an existing build', explanation is required"
+    },
+    {
+      "rule_id": "COND_094",
+      "name": "If Yes on 'or groundwater?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p8_bracket_radio_465",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p8_yes_explain_465",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'or groundwater?', explanation is required"
+    },
+    {
+      "rule_id": "COND_095",
+      "name": "If Yes on 'I.1. Will the action introduce major new sources of unshield', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p8_bracket_radio_605",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p8_yes_explain_605",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.1. Will the action introduce major new sources of unshield', explanation is required"
+    },
+    {
+      "rule_id": "COND_096",
+      "name": "If Yes on 'I.2. Will the action require storage of waste pending techno', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p9_bracket_radio_86",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p9_yes_explain_86",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.2. Will the action require storage of waste pending techno', explanation is required"
+    },
+    {
+      "rule_id": "COND_097",
+      "name": "If Yes on 'I.3. Will the action adversely affect access to transportati', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p9_bracket_radio_181",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p9_yes_explain_181",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.3. Will the action adversely affect access to transportati', explanation is required"
+    },
+    {
+      "rule_id": "COND_098",
+      "name": "If Yes on 'I.4. Will the action result in changes in genetic engineerin', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p9_bracket_radio_277",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p9_yes_explain_277",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.4. Will the action result in changes in genetic engineerin', explanation is required"
+    },
+    {
+      "rule_id": "COND_099",
+      "name": "If Yes on 'I.5. Will the action cause a new, large volume of production', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p9_bracket_radio_372",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p9_yes_explain_372",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.5. Will the action cause a new, large volume of production', explanation is required"
+    },
+    {
+      "rule_id": "COND_100",
+      "name": "If Yes on 'I.6. Could the action disrupt existing health services' resp', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p9_bracket_radio_467",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p9_yes_explain_467",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.6. Could the action disrupt existing health services' resp', explanation is required"
+    },
+    {
+      "rule_id": "COND_101",
+      "name": "If Yes on 'I.7. Will the action decrease accessibility to routine healt', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p9_bracket_radio_562",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p9_yes_explain_562",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.7. Will the action decrease accessibility to routine healt', explanation is required"
+    },
+    {
+      "rule_id": "COND_102",
+      "name": "If Yes on 'I.8. Will the action increase by more than 5% the patient lo', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p10_bracket_radio_86",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p10_yes_explain_86",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'I.8. Will the action increase by more than 5% the patient lo', explanation is required"
+    },
+    {
+      "rule_id": "COND_103",
+      "name": "If Yes on 'Solis of Statewide Importance?', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p10_bracket_radio_238",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p10_yes_explain_238",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'Solis of Statewide Importance?', explanation is required"
+    },
+    {
+      "rule_id": "COND_104",
+      "name": "If Yes on 'J.2. Will the action change traditional use of the land parc', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p10_bracket_radio_334",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p10_yes_explain_334",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'J.2. Will the action change traditional use of the land parc', explanation is required"
+    },
+    {
+      "rule_id": "COND_105",
+      "name": "If Yes on 'recognized scenic or recreational value? (For example, consi', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p10_bracket_radio_504",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p10_yes_explain_504",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'recognized scenic or recreational value? (For example, consi', explanation is required"
+    },
+    {
+      "rule_id": "COND_106",
+      "name": "If Yes on 'materials are not considered mineral deposits.)', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p10_bracket_radio_612",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p10_yes_explain_612",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'materials are not considered mineral deposits.)', explanation is required"
+    },
+    {
+      "rule_id": "COND_107",
+      "name": "If Yes on 'K.1. Has the area around the project undergone major changes', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p11_bracket_radio_127",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p11_yes_explain_127",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'K.1. Has the area around the project undergone major changes', explanation is required"
+    },
+    {
+      "rule_id": "COND_108",
+      "name": "If Yes on 'K.2. Are major changes in land use/development planned for t', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p11_bracket_radio_222",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p11_yes_explain_222",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'K.2. Are major changes in land use/development planned for t', explanation is required"
+    },
+    {
+      "rule_id": "COND_109",
+      "name": "If Yes on 'K.3. Will the action alter the use of other land by related ', explanation required",
+      "type": "conditional",
+      "severity": "error",
+      "condition": {
+        "if": {
+          "field": "p11_bracket_radio_317",
+          "operator": "equals",
+          "value": "Yes"
+        },
+        "then": {
+          "field": "p11_yes_explain_317",
+          "operator": "is_not_empty"
+        }
+      },
+      "message": "If Yes on 'K.3. Will the action alter the use of other land by related ', explanation is required"
+    },
+    {
+      "rule_id": "FMT_110",
+      "name": "Email Email Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": {
+          "field": "p1_label_459_102",
+          "operator": "is_not_empty"
+        },
+        "then": {
+          "field": "p1_label_459_102",
+          "operator": "matches",
+          "value": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+        }
+      },
+      "message": "Email does not appear to be a valid email"
+    },
+    {
+      "rule_id": "FMT_111",
+      "name": "Email Email Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": {
+          "field": "p1_label_508_99",
+          "operator": "is_not_empty"
+        },
+        "then": {
+          "field": "p1_label_508_99",
+          "operator": "matches",
+          "value": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+        }
+      },
+      "message": "Email does not appear to be a valid email"
+    },
+    {
+      "rule_id": "FMT_112",
+      "name": "Phone Phone Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": {
+          "field": "p1_label_447_106",
+          "operator": "is_not_empty"
+        },
+        "then": {
+          "field": "p1_label_447_106",
+          "operator": "min_length",
+          "value": 7
+        }
+      },
+      "message": "Phone must be at least 7 characters"
+    },
+    {
+      "rule_id": "FMT_113",
+      "name": "Phone Phone Format",
+      "type": "conditional",
+      "severity": "warning",
+      "condition": {
+        "if": {
+          "field": "p1_label_496_106",
+          "operator": "is_not_empty"
+        },
+        "then": {
+          "field": "p1_label_496_106",
+          "operator": "min_length",
+          "value": 7
+        }
+      },
+      "message": "Phone must be at least 7 characters"
+    },
+    {
+      "rule_id": "CERT_114",
+      "name": "Certification Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_bracket_checkbox_74",
+        "operator": "equals",
+        "value": "true"
+      },
+      "message": "Certification checkbox must be checked"
+    },
+    {
+      "rule_id": "SIGN_115",
+      "name": "Title or Position Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_label_127_332",
+        "operator": "is_not_empty"
+      },
+      "message": "Title or Position is required on the signature page"
+    },
+    {
+      "rule_id": "SIGN_116",
+      "name": "Title or Position Required",
+      "type": "simple",
+      "severity": "error",
+      "condition": {
+        "field": "p12_label_195_331",
+        "operator": "is_not_empty"
+      },
+      "message": "Title or Position is required on the signature page"
+    }
+  ]
+}
