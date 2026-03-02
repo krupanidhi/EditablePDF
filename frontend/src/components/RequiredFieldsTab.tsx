@@ -56,6 +56,15 @@ export default function RequiredFieldsTab() {
     setApplyRequiredResult(null);
   }, []);
 
+  const handleChangeMaxLength = useCallback((index: number, value: string) => {
+    setEditedFields(prev => prev.map((f, i) => {
+      if (i !== index) return f;
+      const parsed = value === '' ? null : parseInt(value, 10);
+      return { ...f, max_length: (parsed !== null && !isNaN(parsed) && parsed > 0) ? parsed : null };
+    }));
+    setApplyRequiredResult(null);
+  }, []);
+
   const handleToggleReadonly = useCallback((index: number) => {
     setEditedFields(prev => prev.map((f, i) =>
       i === index ? { ...f, readonly: !f.readonly, required: !f.readonly ? false : f.required } : f
@@ -275,6 +284,7 @@ export default function RequiredFieldsTab() {
                   <th className="px-3 py-2 text-left font-semibold text-gray-600">Type</th>
                   <th className="px-3 py-2 text-left font-semibold text-gray-600">Data Type</th>
                   <th className="px-3 py-2 text-center font-semibold text-gray-600">Page</th>
+                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-24">Max Length</th>
                   <th className="px-3 py-2 text-center font-semibold text-gray-600">
                     <span title="Read-Only: disable editing and skip all validation">Read-Only</span>
                   </th>
@@ -335,6 +345,21 @@ export default function RequiredFieldsTab() {
                     </td>
                     <td className="px-3 py-2 text-center text-gray-500">{field.page}</td>
                     <td className="px-3 py-2 text-center">
+                      {(field.field_type === 'text' || field.field_type === 'textarea') && !field.readonly ? (
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="—"
+                          value={field.max_length ?? ''}
+                          onChange={(e) => handleChangeMaxLength(field._origIndex, e.target.value)}
+                          className="w-16 text-xs text-center bg-white border border-gray-200 rounded px-1.5 py-0.5 text-gray-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                          title="Maximum number of characters allowed"
+                        />
+                      ) : (
+                        <span className="text-gray-300 text-[10px]">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-center">
                       <input
                         type="checkbox"
                         checked={field.readonly}
@@ -353,9 +378,10 @@ export default function RequiredFieldsTab() {
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
             <strong>What happens when you apply:</strong>
             <ul className="mt-1.5 ml-3 space-y-0.5 list-disc">
-              <li><strong>Required fields</strong> — red border when empty (clears when filled), save &amp; print blocked with alert, close warning</li>
+              <li><strong>Required fields</strong> — red border on open if empty, save &amp; print blocked with alert listing missing fields, close warning</li>
               <li><strong>Integer fields</strong> — only digits allowed (keystroke filtered by data type)</li>
               <li><strong>Read-only fields</strong> — left untouched, no validation applied</li>
+              <li><strong>Max length</strong> — limits character input (e.g. 4000 chars, 5 digits)</li>
               <li><strong>Text overflow</strong> — horizontal scroll enabled for all text fields</li>
             </ul>
             <p className="mt-1.5">Control placement is never changed.</p>

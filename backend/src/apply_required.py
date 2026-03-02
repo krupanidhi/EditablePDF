@@ -517,6 +517,14 @@ def apply_required(pdf_path: str, fields: list[dict],
             # does not visually repaint annotations from JS event handlers.
             need_update = False
             is_integer = is_text and data_type == "integer"
+            max_length = fdata.get("max_length")
+            if max_length is not None:
+                try:
+                    max_length = int(max_length)
+                    if max_length <= 0:
+                        max_length = None
+                except (ValueError, TypeError):
+                    max_length = None
 
             # Integer-only: keystroke filter + format
             if is_integer:
@@ -529,6 +537,23 @@ def apply_required(pdf_path: str, fields: list[dict],
                     widget.script_stroke = int_js
                 need_update = True
 
+            # Max length JS guard: block keystrokes that would exceed limit
+            # Chains with existing keystroke handler (integer or char counter)
+            if is_text and max_length is not None:
+                max_js = (
+                    'if(!event.willCommit){'
+                    'var proposed=AFMergeChange(event);'
+                    f'if(proposed.length>{max_length})'
+                    '{event.rc=false;}'
+                    '}'
+                )
+                existing_ks = widget.script_stroke or ""
+                if existing_ks:
+                    widget.script_stroke = existing_ks + "\n" + max_js
+                else:
+                    widget.script_stroke = max_js
+                need_update = True
+
             if need_update:
                 widget.update()
 
@@ -536,6 +561,16 @@ def apply_required(pdf_path: str, fields: list[dict],
             #     because update() regenerates /DA) ---
             if is_text:
                 _fix_font_for_scroll(doc, widget)
+
+            # --- Max length: set /MaxLen on widget (AFTER all updates) ---
+            if is_text and max_length is not None:
+                xref = widget.xref
+                obj_str = doc.xref_object(xref)
+                if re.search(r'/MaxLen\s+\d+', obj_str):
+                    obj_str = re.sub(r'/MaxLen\s+\d+', f'/MaxLen {max_length}', obj_str)
+                else:
+                    obj_str = obj_str.rstrip().rstrip('>') + f' /MaxLen {max_length} >>'
+                doc.update_object(xref, obj_str)
 
     # Inject document-level actions: OpenAction, WillSave, WillPrint, WillClose
     if required_field_info:
