@@ -4,6 +4,8 @@ import type {
   FolderConvertResponse,
   Job,
   ExtractedData,
+  ExtractFieldsResponse,
+  ApplyRequiredResponse,
   ValidationResult,
   AddRowsResponse,
   HealthCheck,
@@ -67,6 +69,24 @@ export async function addRows(
   form.append('file', file);
   form.append('rows_to_add', String(rowsToAdd));
   const { data } = await api.post<AddRowsResponse>('/add-rows', form);
+  return data;
+}
+
+export async function extractFields(file: File): Promise<ExtractFieldsResponse> {
+  const form = new FormData();
+  form.append('file', file);
+  const { data } = await api.post<ExtractFieldsResponse>('/extract-fields', form);
+  return data;
+}
+
+export async function applyRequired(
+  file: File,
+  fieldsJson: Blob
+): Promise<ApplyRequiredResponse> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('fields_json', fieldsJson, 'fields.json');
+  const { data } = await api.post<ApplyRequiredResponse>('/apply-required', form);
   return data;
 }
 

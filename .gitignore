@@ -12,3 +12,13 @@ node_modules/
 # IDE
 .vscode/
 .idea/
+
+# Generated/temp files
+output/*_required*.pdf
+output/*_editable_editable.pdf
+di_cache/
+extracted_data/
+input/*/
+debug_*.py
+test_*.py
+fix_*.py

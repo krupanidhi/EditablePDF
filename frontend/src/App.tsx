@@ -10,6 +10,7 @@ import {
   Plus,
   Download,
   TableProperties,
+  ListChecks,
 } from 'lucide-react';
 import { healthCheck, convertFile, convertFolder, extractData, validateData, addRows, getDownloadUrl } from './api';
 import type { FormSchema, ExtractedData, ValidationResult, AddRowsResponse, HealthCheck } from './types';
@@ -18,8 +19,9 @@ import JobTracker from './components/JobTracker';
 import SchemaViewer from './components/SchemaViewer';
 import ExtractedDataViewer from './components/ExtractedDataViewer';
 import ValidationViewer from './components/ValidationViewer';
+import RequiredFieldsTab from './components/RequiredFieldsTab';
 
-type Tab = 'convert' | 'extract' | 'validate' | 'add-rows';
+type Tab = 'convert' | 'extract' | 'required' | 'validate' | 'add-rows';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('convert');
@@ -135,6 +137,7 @@ function App() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'convert', label: 'Convert', icon: <FileUp className="w-4 h-4" /> },
     { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
+    { id: 'required', label: 'Field Validation', icon: <ListChecks className="w-4 h-4" /> },
     { id: 'validate', label: 'Validate', icon: <ShieldCheck className="w-4 h-4" /> },
     { id: 'add-rows', label: 'Add Rows', icon: <TableProperties className="w-4 h-4" /> },
   ];
@@ -266,13 +269,14 @@ function App() {
         {/* Extract Tab */}
         {activeTab === 'extract' && (
           <div className="space-y-6">
+            {/* Extract filled data */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <FileSearch className="w-4 h-4 text-green-500" />
-                Extract Form Data from Filled PDF
+              <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
+                <FileSearch className="w-4 h-4 text-blue-500" />
+                Extract Filled Values from PDF
               </h2>
               <p className="text-xs text-gray-500 mb-4">
-                Upload a filled editable PDF to extract all field values as JSON.
+                Upload a <strong>filled</strong> editable PDF to extract user-entered values with schema enrichment.
               </p>
               <FileUploader
                 onFilesSelected={handleExtract}
@@ -335,6 +339,9 @@ function App() {
             )}
           </div>
         )}
+
+        {/* Required Fields Tab */}
+        {activeTab === 'required' && <RequiredFieldsTab />}
 
         {/* Validate Tab */}
         {activeTab === 'validate' && (

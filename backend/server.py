@@ -5,6 +5,8 @@ Endpoints:
   POST /api/convert          — Convert a single PDF/DOCX to editable PDF
   POST /api/convert-folder   — Convert all files in a folder
   POST /api/extract          — Extract form data from a filled PDF
+  POST /api/extract-fields   — Extract field metadata as clean JSON
+  POST /api/apply-required   — Apply required flags to PDF from fields JSON
   POST /api/validate         — Validate extracted data against rules
   GET  /api/jobs/{job_id}    — Get job status and results
   GET  /api/health           — Health check
@@ -31,6 +33,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from src import config
 from src.converter import convert
 from src.form_extractor import extract_form_data
+from src.extract_fields import extract_fields
+from src.apply_required import apply_required
 from src.rule_engine import RuleEngine
 from src.rules_generator import generate_rules, generate_rules_for_all
 from src.dynamic_rows import add_dynamic_rows
@@ -216,6 +220,90 @@ async def extract_data(
     return data
 
 
+@app.post("/api/extract-fields")
+async def extract_fields_endpoint(
+    file: UploadFile = File(...),
+):
+    """Extract field metadata from an editable PDF as clean JSON.
+    
+    Returns labels, field_ids, field types, values, page numbers,
+    required status, data types, and readonly flags.
+    """
+    filename = file.filename or "editable.pdf"
+    if not filename.lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported")
+    
+    tmp_dir = os.path.join(config.INPUT_DIR, f"extfields_{uuid.uuid4().hex[:8]}")
+    os.makedirs(tmp_dir, exist_ok=True)
+    pdf_path = os.path.join(tmp_dir, filename)
+    with open(pdf_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+    
+    try:
+        data = extract_fields(pdf_path)
+    except Exception as e:
+        raise HTTPException(500, f"Field extraction failed: {e}")
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+    
+    return data
+
+
+@app.post("/api/apply-required")
+async def apply_required_endpoint(
+    file: UploadFile = File(...),
+    fields_json: UploadFile = File(...),
+):
+    """Apply required flags to an editable PDF based on a fields JSON.
+    
+    Accepts:
+      - file: The editable PDF
+      - fields_json: The fields JSON with required flags set
+    
+    Returns the modified PDF as a download.
+    """
+    filename = file.filename or "editable.pdf"
+    if not filename.lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported")
+    
+    # Parse JSON
+    try:
+        fields_data = json.loads(await fields_json.read())
+    except json.JSONDecodeError as e:
+        raise HTTPException(400, f"Invalid fields JSON: {e}")
+    
+    fields_list = fields_data.get("fields", fields_data) if isinstance(fields_data, dict) else fields_data
+    
+    # Debug logging
+    req_count = sum(1 for f in fields_list if f.get("required"))
+    int_count = sum(1 for f in fields_list if f.get("data_type") == "integer" and not f.get("readonly"))
+    ro_count = sum(1 for f in fields_list if f.get("readonly"))
+    print(f"[apply-required] {filename}: {len(fields_list)} fields, {req_count} required, {int_count} integer, {ro_count} readonly")
+    
+    # Save uploaded PDF
+    tmp_dir = os.path.join(config.INPUT_DIR, f"required_{uuid.uuid4().hex[:8]}")
+    os.makedirs(tmp_dir, exist_ok=True)
+    pdf_path = os.path.join(tmp_dir, filename)
+    with open(pdf_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+    
+    try:
+        out_name = os.path.splitext(filename)[0] + f"_required_{uuid.uuid4().hex[:6]}.pdf"
+        out_path = os.path.join(config.OUTPUT_DIR, out_name)
+        result = apply_required(pdf_path, fields_list, out_path)
+        print(f"[apply-required] Result: {result}")
+        result["download_url"] = f"/api/download/{out_name}"
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(500, f"Failed to apply required flags: {e}")
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
 @app.post("/api/validate")
 async def validate_data(
     form_data_file: UploadFile = File(...),
@@ -343,7 +431,15 @@ async def download_file(filename: str):
     for directory in [config.OUTPUT_DIR, config.SCHEMAS_DIR]:
         file_path = os.path.join(directory, filename)
         if os.path.exists(file_path):
-            return FileResponse(file_path, filename=os.path.basename(file_path))
+            return FileResponse(
+                file_path,
+                filename=os.path.basename(file_path),
+                headers={
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache",
+                    "Expires": "0",
+                },
+            )
     raise HTTPException(404, f"File not found: {filename}")
 
 

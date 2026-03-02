@@ -118,6 +118,36 @@ export interface AddRowsResponse {
   download_url: string;
 }
 
+export interface ExtractedFieldClean {
+  label: string;
+  field_id: string;
+  field_type: string;
+  value: string | boolean | null;
+  page: number;
+  required: boolean;
+  data_type: string;
+  readonly: boolean;
+  xfa_name?: string;
+}
+
+export interface ExtractFieldsResponse {
+  metadata: {
+    source_file: string;
+    extracted_at: string;
+    page_count: number;
+    total_fields: number;
+  };
+  fields: ExtractedFieldClean[];
+}
+
+export interface ApplyRequiredResponse {
+  status: string;
+  output_file: string;
+  fields_updated: number;
+  fields_total: number;
+  download_url: string;
+}
+
 export interface HealthCheck {
   status: string;
   version: string;
