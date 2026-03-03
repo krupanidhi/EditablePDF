@@ -429,10 +429,7 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     # programmatic way to re-apply it; only Adobe Acrobat Pro can do that.
     # We save with encryption=KEEP so any remaining PDF security is
     # preserved.
-    if output_path is None or output_path == pdf_path:
-        doc.saveIncr()
-    else:
-        doc.save(output_path, encryption=fitz.PDF_ENCRYPT_KEEP)
+    doc.save(output_path, encryption=fitz.PDF_ENCRYPT_KEEP)
     doc.close()
 
     return {
