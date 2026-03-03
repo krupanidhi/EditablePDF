@@ -646,6 +646,8 @@ def apply_required(pdf_path: str, fields: list[dict],
                         if cw.field_name == counter_name:
                             cw.field_value = f"0 of {max_length} max"
                             cw.update()
+                            # Re-set right-alignment (Q=2) — update() resets it
+                            doc.xref_set_key(cw.xref, "Q", "2")
                             break
                 else:
                     # Simple max length guard (no counter)
@@ -681,31 +683,47 @@ def apply_required(pdf_path: str, fields: list[dict],
                     obj_str = obj_str.rstrip().rstrip('>') + f' /MaxLen {max_length} >>'
                 doc.update_object(xref, obj_str)
 
-    # --- Per-radio validate JS: toggle red/gray on dependent textareas ---
+    # --- Per-radio MouseUp JS: toggle red/gray on dependent textareas ---
+    # Must use direct xref manipulation — widget.update() corrupts radio
+    # appearance streams (both Yes and No appear selected).
+    # We use /AA /U (MouseUp) with a tiny delay so the radio value has
+    # committed by the time the check runs.
     if radio_dependents:
-        for page_num in range(doc.page_count):
-            page = doc[page_num]
-            for widget in page.widgets():
-                fn = widget.field_name or ""
-                if fn not in radio_dependents:
-                    continue
-                deps = radio_dependents[fn]
-                # Build JS that checks radio value and sets borders on dependents
-                lines = []
-                for ta_name, _lbl in deps:
-                    lines.append(
-                        f'var t=this.getField("{ta_name}");'
-                        f'if(event.value!=="Off"&&event.value!==""&&event.value!=null){{'
-                        f'if(t&&(t.value===""||t.value==null))'
-                        f'{{t.strokeColor=color.red;t.fillColor=["RGB",1,0.93,0.93];}}'
-                        f'}}else{{'
-                        f'if(t){{t.strokeColor={_GRAY_BORDER};t.fillColor={_ORIG_FILL};}}'
-                        f'}}'
-                    )
-                js = '\n'.join(lines)
-                # Use script (validate action /AA /V) which fires on value commit
-                widget.script = js
-                widget.update()
+        for radio_pdf_name, deps in radio_dependents.items():
+            # Build the delayed check function body
+            inner_lines = []
+            for ta_name, _lbl in deps:
+                inner_lines.append(
+                    f'var t=this.getField("{ta_name}");'
+                    f'var r=this.getField("{radio_pdf_name}");'
+                    f'if(r&&r.value!=="Off"&&r.value!==""&&r.value!=null){{'
+                    f'if(t&&(t.value===""||t.value==null))'
+                    f'{{t.strokeColor=color.red;t.fillColor=["RGB",1,0.93,0.93];}}'
+                    f'}}else{{'
+                    f'if(t){{t.strokeColor={_GRAY_BORDER};t.fillColor={_ORIG_FILL};}}'
+                    f'}}'
+                )
+            js = '\n'.join(inner_lines)
+            action_xref = _make_js_action_xref(doc, js)
+
+            # Attach to every child widget of this radio group
+            for page_num in range(doc.page_count):
+                page = doc[page_num]
+                for widget in page.widgets():
+                    if (widget.field_name or "") != radio_pdf_name:
+                        continue
+                    xref = widget.xref
+                    obj_str = doc.xref_object(xref)
+                    if '/AA' in obj_str:
+                        # Append /U to existing /AA dict
+                        obj_str = re.sub(
+                            r'/AA\s*<<', f'/AA << /U {action_xref} 0 R',
+                            obj_str)
+                    else:
+                        # Add /AA dict with /U action
+                        obj_str = obj_str.rstrip().rstrip('>>')
+                        obj_str += f' /AA << /U {action_xref} 0 R >> >>'
+                    doc.update_object(xref, obj_str)
 
     # --- Delete marked widgets by removing them from page /Annots ---
     if delete_xrefs:
