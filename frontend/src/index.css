@@ -1,8 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 @import "tailwindcss";
+
+:root {
+  font-family: "Source Sans 3", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light;
+  color: #0B4778;
+  background-color: #EFF6FB;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, sans-serif;
-  background-color: #f8fafc;
+  background-color: #EFF6FB;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Custom scrollbar — HRSA light theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #EFF6FB;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9E8F6;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #93C5FD;
 }

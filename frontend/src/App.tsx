@@ -6,7 +6,6 @@ import {
   FileSearch,
   ShieldCheck,
   Activity,
-  FileText,
   ListChecks,
 } from 'lucide-react';
 import { healthCheck, convertFile, convertFolder, extractFields, validateData } from './api';
@@ -135,54 +134,89 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileText className="w-7 h-7 text-blue-600" />
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">AI Based Universal 1-Tier Application Submission Assistant</h1>
-              <p className="text-xs text-gray-500">Document → Editable Form Converter & Digitalization</p>
+    <div style={{ minHeight: '100vh', background: '#EFF6FB', color: '#0B4778' }}>
+      {/* Container */}
+      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '20px 20px 0 20px' }}>
+        {/* HRSA Header */}
+        <div style={{
+          backgroundColor: '#0B4778',
+          color: '#FFFFFF',
+          padding: '20px 30px',
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+          position: 'relative',
+        }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img src="/image/HRSA_Logo.png" alt="HRSA" style={{ height: '48px', flexShrink: 0 }} />
+              <div>
+                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.3 }}>
+                  AI Based Universal 1-Tier Application Submission Assistant
+                </h1>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#FFFFFF', opacity: 0.9, lineHeight: 1.3 }}>
+                  Document → Editable Form Converter & Digitalization Workflow
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2" style={{ flexShrink: 0 }}>
+              <Activity
+                className={`w-4 h-4`}
+                style={{ color: health?.status === 'ok' ? '#4ade80' : '#f87171' }}
+              />
+              <span style={{ fontSize: '0.75rem', color: '#FFFFFF', opacity: 0.8 }}>
+                {health?.status === 'ok'
+                  ? `API v${health.version}${health.azure_configured ? '' : ' (Azure N/A)'}`
+                  : 'API offline'}
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Activity
-              className={`w-4 h-4 ${
-                health?.status === 'ok' ? 'text-green-500' : 'text-red-400'
-              }`}
-            />
-            <span className="text-xs text-gray-500">
-              {health?.status === 'ok'
-                ? `API v${health.version}${health.azure_configured ? '' : ' (Azure not configured)'}`
-                : 'API offline'}
-            </span>
+        </div>
+
+        {/* Card with red top accent */}
+        <div style={{
+          background: '#FFFFFF',
+          borderBottomRightRadius: '12px',
+          borderBottomLeftRadius: '12px',
+          padding: '24px 30px 30px 30px',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+          marginBottom: '20px',
+          border: '1px solid #D9E8F6',
+          borderTop: '5px solid #990000',
+        }}>
+          {/* Tabs */}
+          <div style={{
+            display: 'flex', gap: '4px', marginBottom: '20px',
+            background: '#f1f5f9', borderRadius: '10px', padding: '4px',
+            width: 'fit-content',
+          }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '10px 24px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  transition: 'all 0.3s',
+                  background: activeTab === tab.id ? '#0B4778' : 'transparent',
+                  color: activeTab === tab.id ? '#FFFFFF' : '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
           </div>
-        </div>
-      </header>
 
-      {/* Tabs */}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-white text-blue-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Content */}
-      <main className="max-w-6xl mx-auto px-6 py-6">
+          {/* Content */}
+          <div>
         {/* Convert Tab */}
         {activeTab === 'convert' && (
           <div className="space-y-6">
@@ -400,7 +434,9 @@ function App() {
             result={validationResult}
           />
         )}
-      </main>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
