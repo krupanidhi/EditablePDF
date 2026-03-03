@@ -558,10 +558,11 @@ def apply_required(pdf_path: str, fields: list[dict],
             dep_fid = fdata.get("depends_on")
             is_conditional_required = is_required and bool(dep_fid)
 
-            # --- Scroll: set multiline + clear DoNotScroll on ALL text fields ---
+            # --- Scroll: set or clear scroll flags based on user toggle ---
             # Must be BEFORE readonly skip so readonly fields also get scroll
+            scroll_enabled = fdata.get("scroll_enabled", True)
             if is_text:
-                _prepare_text_scroll(widget)
+                _prepare_text_scroll(widget, doc=doc, enabled=scroll_enabled)
 
             # --- Apply readonly flag (user may have toggled it) ---
             if not is_conditional_required:
@@ -686,13 +687,14 @@ def apply_required(pdf_path: str, fields: list[dict],
                     obj_str = obj_str.rstrip().rstrip('>') + f' /MaxLen {max_length} >>'
                 doc.update_object(xref, obj_str)
 
-    # --- Final pass: fix scroll + font on ALL text widgets (catches unresolved) ---
+    # --- Final pass: fix font on ALL text widgets (catches unresolved ones) ---
+    # Scroll flags are already set per-field in the main loop (or baked in
+    # at creation time by widget_creator.py).  Only font needs a catch-all.
     for page_num in range(doc.page_count):
         page = doc[page_num]
         for widget in page.widgets():
             if widget.field_type != fitz.PDF_WIDGET_TYPE_TEXT:
                 continue
-            _prepare_text_scroll(widget)
             _fix_font_for_scroll(doc, widget)
 
     # --- Per-radio MouseUp JS: toggle red/gray on dependent textareas ---
@@ -937,21 +939,30 @@ def _fix_tab_order(doc, exclude_xrefs=None):
             doc.update_object(page_xref, page_obj)
 
 
-def _prepare_text_scroll(widget):
-    """Set multiline + clear DoNotScroll flags via widget API.
+def _prepare_text_scroll(widget, doc=None, enabled: bool = True):
+    """Set or clear multiline + DoNotScroll flags.
 
-    Called BEFORE widget.update() so that flag changes are included
-    in the same update that writes /AA for scripts.
-    Applies to ALL text fields including readonly ones.
+    When enabled=True:  set Multiline + clear DoNotScroll (allow scroll).
+    When enabled=False: set DoNotScroll (clip at boundary, no scroll).
+                        Does NOT remove Multiline since textareas need it.
+
+    Sets flags both in-memory (for any subsequent widget.update()) and
+    directly on the xref (so the change persists even without update()).
     """
     if widget.field_type != fitz.PDF_WIDGET_TYPE_TEXT:
         return
 
     new_flags = widget.field_flags
-    new_flags |= (1 << 12)               # Multiline
-    new_flags &= ~_PDF_TX_DO_NOT_SCROLL   # allow scroll
+    if enabled:
+        new_flags |= (1 << 12)               # Multiline
+        new_flags &= ~_PDF_TX_DO_NOT_SCROLL   # allow scroll
+    else:
+        new_flags |= _PDF_TX_DO_NOT_SCROLL    # clip at boundary
     if new_flags != widget.field_flags:
         widget.field_flags = new_flags
+        # Persist directly to PDF so the change sticks without widget.update()
+        if doc is not None:
+            doc.xref_set_key(widget.xref, "Ff", str(new_flags))
 
 
 # Consistent font size for all text fields (prevents auto-shrink on wrap)

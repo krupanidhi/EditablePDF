@@ -79,6 +79,13 @@ export default function RequiredFieldsTab() {
     setApplyRequiredResult(null);
   }, []);
 
+  const handleToggleScroll = useCallback((index: number) => {
+    setEditedFields(prev => prev.map((f, i) =>
+      i === index ? { ...f, scroll_enabled: !f.scroll_enabled } : f
+    ));
+    setApplyRequiredResult(null);
+  }, []);
+
   const handleSelectAll = useCallback(() => {
     setEditedFields(prev => prev.map(f => f.readonly ? f : { ...f, required: true }));
     setApplyRequiredResult(null);
@@ -296,6 +303,9 @@ export default function RequiredFieldsTab() {
                     <span title="Read-Only: disable editing and skip all validation">Read-Only</span>
                   </th>
                   <th className="px-3 py-2 text-center font-semibold text-gray-600 w-16">
+                    <span title="Enable scroll bars for text overflow">Scroll</span>
+                  </th>
+                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-16">
                     <span className="text-red-400" title="Mark field for deletion from PDF">Delete</span>
                   </th>
                 </tr>
@@ -390,6 +400,19 @@ export default function RequiredFieldsTab() {
                       />
                     </td>
                     <td className="px-3 py-2 text-center">
+                      {(field.field_type === 'text' || field.field_type === 'textarea') ? (
+                        <input
+                          type="checkbox"
+                          checked={field.scroll_enabled}
+                          onChange={() => handleToggleScroll(field._origIndex)}
+                          className="w-4 h-4 rounded border-gray-300 text-sky-500 focus:ring-sky-400 cursor-pointer"
+                          title={field.scroll_enabled ? 'Scroll enabled: text will scroll when it overflows' : 'Scroll disabled: text may be clipped'}
+                        />
+                      ) : (
+                        <span className="text-gray-300 text-[10px]">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-center">
                       <button
                         onClick={() => handleToggleDeleted(field._origIndex)}
                         className={`p-1 rounded transition-colors ${
@@ -417,7 +440,8 @@ export default function RequiredFieldsTab() {
               <li><strong>Read-only fields</strong> — left untouched, no validation applied</li>
               <li><strong>Delete fields</strong> — permanently removes the control from the PDF</li>
               <li><strong>Max length</strong> — limits character input (e.g. 4000 chars, 5 digits)</li>
-              <li><strong>Text overflow</strong> — horizontal scroll enabled for all text fields</li>
+              <li><strong>Scroll bars</strong> — vertical scroll for text boxes, horizontal scroll for text areas (toggle per field)</li>
+              <li><strong>Fixed font</strong> — consistent 10pt font on all text fields (no auto-shrink on overflow)</li>
             </ul>
             <p className="mt-1.5">Control placement is never changed.</p>
           </div>

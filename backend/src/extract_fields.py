@@ -271,6 +271,7 @@ def _extract_xfa_fields(doc) -> list[dict]:
             "readonly": is_readonly,
             "max_length": None,
             "deleted": False,
+            "scroll_enabled": field_type in ("text", "textarea"),
             "xfa_name": name,  # preserve original XFA field name
         }
         fields.append(entry)
@@ -338,6 +339,7 @@ def extract_fields(pdf_path: str) -> dict:
                     "readonly": bool(widget.field_flags & fitz.PDF_FIELD_IS_READ_ONLY),
                     "max_length": None,
                     "deleted": False,
+                    "scroll_enabled": False,
                 }
                 entry["field_id"] = _label_to_field_id(clean_label) or field_name
                 seen_radio_groups[field_name] = entry
@@ -359,6 +361,7 @@ def extract_fields(pdf_path: str) -> dict:
                     "readonly": bool(widget.field_flags & fitz.PDF_FIELD_IS_READ_ONLY),
                     "max_length": None,
                     "deleted": False,
+                    "scroll_enabled": False,
                 }
                 fields.append(entry)
                 continue
@@ -380,6 +383,7 @@ def extract_fields(pdf_path: str) -> dict:
                 "readonly": bool(widget.field_flags & fitz.PDF_FIELD_IS_READ_ONLY),
                 "max_length": None,
                 "deleted": False,
+                "scroll_enabled": True,
             }
 
             # Link conditional "If yes, explain" fields to parent radio

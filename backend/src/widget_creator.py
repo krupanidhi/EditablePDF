@@ -10,7 +10,13 @@ Each widget type has its own creation function that applies:
 """
 
 import fitz
+import re
 from . import config
+
+
+# PDF text field flag constants
+_PDF_TX_DO_NOT_SCROLL = 1 << 23  # bit 24
+_FIXED_FONT_SIZE = 10  # consistent font size for all text fields
 
 
 # ----------------------------
@@ -97,8 +103,9 @@ def _apply_inset(bbox, field_type="text"):
     rect = fitz.Rect(x0 + inset, y0 + inset, x1 - inset, y1 - inset)
     
     if field_type in ("radio", "checkbox"):
-        # Ensure minimum 10x10 for clickability, expanding from center
-        min_size = 10
+        # Ensure minimum 8x8 for clickability, expanding from center
+        # (8pt keeps widgets inside ~11pt row cells without overlapping lines)
+        min_size = 8
         cx = (rect.x0 + rect.x1) / 2
         cy = (rect.y0 + rect.y1) / 2
         half = min_size / 2
@@ -130,6 +137,26 @@ def _sanitize_field_name(name):
 # WIDGET CREATION FUNCTIONS
 # ----------------------------
 
+def _fix_widget_font(doc, widget):
+    """Re-set font size to _FIXED_FONT_SIZE after widget.update().
+
+    widget.update() regenerates /DA and may reset font size to 0 (auto-size).
+    Auto-size causes font to shrink when text wraps to multiple lines.
+    Surgically replaces only the /DA string.
+    """
+    xref = widget.xref
+    obj_str = doc.xref_object(xref)
+    da_match = re.search(r'/DA\s*\(([^)]*)\)', obj_str)
+    if not da_match:
+        return
+    da = da_match.group(1)
+    if not re.search(r'\b0\s+Tf\b', da):
+        return  # already has a non-zero font size
+    new_da = re.sub(r'\b0\s+Tf\b', f'{_FIXED_FONT_SIZE} Tf', da)
+    new_obj = obj_str.replace(f'({da})', f'({new_da})', 1)
+    doc.update_object(xref, new_obj)
+
+
 def create_text_field(page, field, used_names):
     """Create a text input field with validation.
     
@@ -154,7 +181,11 @@ def create_text_field(page, field, used_names):
     w.border_width = config.WIDGET_BORDER_WIDTH
     w.border_color = (0.6, 0.6, 0.6)
     w.fill_color = (0.98, 0.98, 1.0)  # very light blue tint for input areas
-    w.text_fontsize = 0  # auto-size
+    w.text_fontsize = _FIXED_FONT_SIZE
+
+    # Enable scroll on all text fields: set multiline + clear DoNotScroll
+    w.field_flags |= fitz.PDF_TX_FIELD_IS_MULTILINE
+    w.field_flags &= ~_PDF_TX_DO_NOT_SCROLL
     
     # Set tooltip to human-readable label so users know what this field is for
     label = field.get("label", "")
@@ -210,7 +241,11 @@ def create_text_field(page, field, used_names):
     
     page.add_widget(w)
     w.update()
-    
+
+    # widget.update() may reset font size to 0 (auto-size).
+    # Re-set to fixed size so font stays consistent when text wraps.
+    _fix_widget_font(page.parent, w)
+
     # Create a visible character counter just above the textarea's top-right corner
     if counter_name:
         cw = fitz.Widget()
@@ -282,7 +317,7 @@ def create_radio_group(page, field, used_names):
         w.rect = rect
         w.border_width = 1.0
         w.border_color = (0.2, 0.4, 0.7)  # blue border for visibility
-        w.fill_color = (0.95, 0.97, 1.0)  # light blue fill
+        w.fill_color = None  # transparent background — lines show through
         
         # Set tooltip: "Question Label: Option Value"
         label = field.get("label", "").rstrip(": ")
@@ -321,7 +356,7 @@ def create_checkbox(page, field, used_names):
     w.field_value = "Off"
     w.border_width = 1.0
     w.border_color = (0.2, 0.4, 0.7)  # blue border for visibility
-    w.fill_color = (0.95, 0.97, 1.0)  # light blue fill
+    w.fill_color = None  # transparent background — lines show through
     
     # Set tooltip to label
     label = field.get("label", "")
@@ -372,7 +407,7 @@ def create_checkbox_group(page, field, used_names):
         w.field_value = "Off"
         w.border_width = 1.0
         w.border_color = (0.2, 0.4, 0.7)  # blue border for visibility
-        w.fill_color = (0.95, 0.97, 1.0)  # light blue fill
+        w.fill_color = None  # transparent background — lines show through
         
         # Set tooltip: "Group Label: Option Value"
         group_label = field.get("label", "")

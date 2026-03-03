@@ -129,6 +129,7 @@ export interface ExtractedFieldClean {
   readonly: boolean;
   max_length: number | null;
   deleted: boolean;
+  scroll_enabled: boolean;
   depends_on?: string | null;
   xfa_name?: string;
 }
