@@ -506,7 +506,7 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 pic.text = "z,zz9"
             any_change = True
 
-        # ----- Currency: add exit event to round to 2 decimal places -----
+        # ----- Currency: append rounding to exit event -----
         if data_type == "currency":
             round_js = (
                 'if(this.rawValue != null && this.rawValue !== "") {\n'
@@ -514,7 +514,6 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 '  if(!isNaN(v)) this.rawValue = v;\n'
                 '}'
             )
-            # Reuse existing exit event if present, otherwise create one
             existing_exit = None
             for ev in field_elem.findall(f"{ns}event"):
                 if ev.get("activity") == "exit":
@@ -527,10 +526,13 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             if sc is None:
                 sc = ET.SubElement(existing_exit, f"{ns}script")
                 sc.set("contentType", "application/x-javascript")
-            sc.text = round_js
+                sc.text = round_js
+            else:
+                # PREPEND so rounding happens before existing calc scripts
+                sc.text = round_js + "\n" + (sc.text or "")
             any_change = True
 
-        # ----- Integer: block zero-only values on exit -----
+        # ----- Integer: append zero-block to exit event -----
         if data_type == "integer":
             zero_js = (
                 'if(this.rawValue != null && this.rawValue !== "") {\n'
@@ -553,7 +555,10 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             if sc is None:
                 sc = ET.SubElement(existing_exit, f"{ns}script")
                 sc.set("contentType", "application/x-javascript")
-            sc.text = zero_js
+                sc.text = zero_js
+            else:
+                # APPEND to preserve existing script (e.g. GrandQuantity calc)
+                sc.text = (sc.text or "") + "\n" + zero_js
             any_change = True
 
         if any_change:
