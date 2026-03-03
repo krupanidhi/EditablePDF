@@ -424,12 +424,22 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     # ET strips the xml declaration; XFA template doesn't need one
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
 
-    # Save as a clean copy — do NOT use encryption=KEEP because that
-    # preserves the (now-invalid) Adobe Reader Extensions usage-rights
-    # signature.  Saving without it strips the stale signature so Adobe
-    # Acrobat Pro can cleanly re-apply Reader Extensions on the output.
-    # garbage=3 removes unreferenced objects; deflate=True compresses.
-    doc.save(output_path, garbage=3, deflate=True)
+    # Strip the Adobe Reader Extensions usage-rights signature (/Perms)
+    # from the catalog.  This UR3 signature was applied when the original
+    # PDF was "Reader Extended" in Adobe Acrobat Pro.  Modifying the XFA
+    # template invalidates it, and leaving it causes the error
+    # "This document already has enabled usage rights in Adobe Acrobat
+    # Reader" which blocks re-applying Reader Extensions.
+    cat_xref = doc.pdf_catalog()
+    cat_str = doc.xref_object(cat_xref)
+    if "/Perms" in cat_str:
+        # Replace /Perms with an empty dict to strip the UR3 signature
+        # while keeping the key structure valid.
+        doc.xref_set_key(cat_xref, "Perms", "<<>>")
+        print("[XFA] Stripped /Perms (Reader Extensions signature) from catalog")
+
+    # Save without garbage collection to preserve XFA streams.
+    doc.save(output_path, deflate=True)
     doc.close()
 
     return {
