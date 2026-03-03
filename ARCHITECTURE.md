@@ -2,7 +2,7 @@
 
 ## Overview
 
-EditablePDF is a full-stack application that converts static PDF documents into editable PDF forms, extracts form data, validates it against business rules, and applies field-level validation rules (required, integer-only, readonly, scroll). It uses Azure Document Intelligence for layout detection, PyMuPDF (fitz) for PDF manipulation, and a React/TypeScript frontend.
+EditablePDF is a full-stack application that converts static PDF documents into editable PDF forms, extracts form data, validates it against business rules, and applies **Doc Digitalization** rules (required, integer-only, max length, delete fields, readonly, scroll). It uses Azure Document Intelligence for layout detection, PyMuPDF (fitz) for PDF manipulation, and a React/TypeScript frontend.
 
 ---
 
@@ -20,7 +20,7 @@ EditablePDF/
 │       ├── docx_converter.py     # DOCX → PDF via LibreOffice
 │       ├── dynamic_rows.py       # Add rows to table-based PDFs
 │       ├── extract_fields.py     # Extract form fields (AcroForm + XFA)
-│       ├── apply_required.py     # Apply validation rules to PDF fields
+│       ├── apply_required.py     # Apply Doc Digitalization rules to PDF fields
 │       ├── form_extractor.py     # Extract filled form data
 │       ├── rule_engine.py        # Business rule validation engine
 │       ├── rules_generator.py    # Auto-generate validation rules
@@ -37,7 +37,7 @@ EditablePDF/
 │       ├── api.ts                # API client (axios)
 │       ├── types.ts              # TypeScript type definitions
 │       └── components/
-│           ├── RequiredFieldsTab.tsx   # Field Validation tab UI
+│           ├── RequiredFieldsTab.tsx   # Doc Digitalization tab UI
 │           ├── FileUploader.tsx        # Drag-and-drop file upload
 │           ├── ExtractedDataViewer.tsx # View extracted form data
 │           ├── JobTracker.tsx          # Track conversion jobs
@@ -82,11 +82,11 @@ EditablePDF/
 | POST   | `/api/extract`      | Extract filled form data from PDF    |
 | POST   | `/api/validate`     | Validate extracted data against rules|
 
-### Field Validation (New)
+### Doc Digitalization
 | Method | Path                  | Description                          |
 |--------|-----------------------|--------------------------------------|
 | POST   | `/api/extract-fields` | Extract field metadata from editable PDF |
-| POST   | `/api/apply-required` | Apply validation rules and regenerate PDF |
+| POST   | `/api/apply-required` | Apply digitalization rules and regenerate PDF |
 
 ### Utility
 | Method | Path                      | Description                  |
@@ -111,54 +111,67 @@ Extracts field metadata from editable PDFs. Supports both **AcroForm** (standard
 - `field_id` — normalized snake_case identifier
 - `field_name` — internal PDF field name
 - `label` — display label
-- `type` — text, checkbox, radio, dropdown, listbox
+- `type` — text, textarea, checkbox, radio
 - `page` — 1-indexed page number
 - `required` — boolean
 - `readonly` — boolean
-- `data_type` — "text" (default), can be set to "integer" by user
+- `data_type` — "text" (default), "integer", "number", "date", etc.
+- `max_length` — number or null (character limit)
+- `deleted` — boolean (mark for removal)
 
 ### `apply_required.py`
 
-Applies user-configured validation rules to an editable PDF. This is the most complex module.
+Applies user-configured **Doc Digitalization** rules to an editable PDF. This is the most complex module.
 
 **Features implemented:**
 1. **Required fields** — Sets `PDF_FIELD_IS_REQUIRED` flag
-2. **Red border on empty** — OpenAction JS highlights empty required fields on open
-3. **Border clearing on blur** — `widget.script_blur` JS restores original border when field is filled (WIP — Adobe trigger reliability issue)
-4. **Save/Print blocking** — WillSave/WillPrint JS blocks if required fields are empty
-5. **Close warning** — WillClose JS warns about empty required fields
-6. **Integer-only input** — `AFNumber_Keystroke(0,0,0,0,"",true)` via `widget.script_stroke`
-7. **Readonly enforcement** — Sets `PDF_FIELD_IS_READ_ONLY`, skips all validation
-8. **Multiline scroll** — Converts single-line text fields to multiline with fixed font for visible scrollbar
-9. **Tab order** — Reorders `/Annots` array by widget position (top-to-bottom, left-to-right), sets `/Tabs /R`
+2. **Red border on open** — OpenAction JS highlights empty required fields when document opens
+3. **Save/Print blocking** — WillSave/WillPrint JS blocks if required fields are empty, shows alert listing missing fields
+4. **Close warning** — WillClose JS warns about empty required fields
+5. **Integer-only input** — `AFNumber_Keystroke(0,0,0,0,"",true)` via `widget.script_stroke`
+6. **Max length** — Sets PDF `/MaxLen` property + JS keystroke guard; for textareas with counters, updates both the keystroke script and counter display label dynamically (e.g. "0 of 2000 max")
+7. **Delete fields** — Removes widget annotations from page `/Annots` array (including all radio group children)
+8. **Readonly enforcement** — Sets `PDF_FIELD_IS_READ_ONLY`, skips all rules
+9. **Multiline scroll** — Converts single-line text fields to multiline with fixed font for visible scrollbar
+10. **Tab order** — Reorders `/Annots` array by widget position (top-to-bottom, left-to-right), sets `/Tabs /R`
 
-**Architecture of validation JS injection:**
+**Known limitation:** Adobe Acrobat does not repaint widget `strokeColor` changes from JavaScript event handlers. Red borders only appear on document open (via OpenAction); they do not dynamically clear on blur/keystroke. Save and print are still blocked with alerts.
+
+**Architecture of JS injection:**
 
 ```
 Document Level:
   /Names/JavaScript  → app.setInterval to keep doc.dirty=true
   /OpenAction        → Check all required fields, set red/gray borders
-  /AA /WS            → WillSave: block save + alert if empty
-  /AA /WP            → WillPrint: block print + alert if empty  
+  /AA /WS            → WillSave: block save + alert listing missing fields
+  /AA /WP            → WillPrint: block print + alert listing missing fields
   /AA /DC            → WillClose: warn about empty fields
 
 Per-Widget Level (via PyMuPDF widget API):
-  widget.script_blur   → /AA /Bl: clear red border on exit if filled
-  widget.script_stroke → /AA /K:  AFNumber_Keystroke for integer fields
-  widget.script_format → /AA /F:  AFNumber_Format for integer fields
+  widget.script_stroke → /AA /K: AFNumber_Keystroke (integer), max length guard,
+                                  textarea counter update
+  widget.script_format → /AA /F: AFNumber_Format for integer fields
 ```
 
-**Known issue:** Adobe Acrobat does not reliably fire `/Bl` (blur) annotation actions on all field types, particularly multiline text fields. The `/K` (keystroke) with `event.willCommit` check may be a more reliable alternative. Investigation ongoing.
-
 **Execution order in `apply_required()`:**
-1. Iterate all widgets, resolve field metadata from user config
-2. Set readonly/required flags
-3. `_prepare_text_scroll(widget)` — set multiline + DoNotScroll flags via widget API
-4. Set `widget.script_blur`, `widget.script_stroke`, `widget.script_format`
-5. `widget.update()` — atomically writes all changes including `/AA`
-6. `_fix_font_for_scroll(doc, widget)` — surgical `/DA` font fix (preserves `/AA`)
-7. `_inject_catalog_actions()` — document-level JS
-8. `_fix_tab_order(doc)` — reorder annotations per page
+1. Build field_id → metadata lookup from user JSON
+2. Iterate all widgets, resolve field metadata (type-aware for shared labels)
+3. Collect xrefs of deleted fields
+4. Set readonly/required flags
+5. `_prepare_text_scroll(widget)` — set multiline + DoNotScroll flags
+6. Set `widget.script_stroke`, `widget.script_format` (integer, max length, counter)
+7. `widget.update()` — atomically writes all changes including `/AA`
+8. `_fix_font_for_scroll(doc, widget)` — surgical `/DA` font fix (preserves `/AA`)
+9. Set `/MaxLen` on widget xref (after update to avoid overwrite)
+10. Remove deleted xrefs from page `/Annots` arrays
+11. `_inject_catalog_actions()` — document-level JS for required fields
+12. `_fix_tab_order(doc, exclude_xrefs)` — reorder annotations, skip deleted
+
+**Field resolution (`_resolve_field`):** Tries exact `field_id` match first, then suffixed variants (`_2`, `_3`, ...). Accepts optional `widget_type` to disambiguate when a text field and radio group share the same label.
+
+### `widget_creator.py`
+
+Creates PDF form widgets during conversion. Handles text fields (with max length), textareas (with character counter widgets), checkboxes, radio buttons. Textarea counter fields display "X of N max" and are updated via keystroke scripts.
 
 ### `converter.py`
 
@@ -175,18 +188,20 @@ FastAPI application with CORS support. Proxied by Vite dev server at `localhost:
 ### Tab Structure (`App.tsx`)
 1. **Convert PDF** — Upload static PDF, convert to editable
 2. **Extract Data** — Extract filled form data from editable PDF
-3. **Validate** — Validate extracted data against rules
-4. **Field Validation** — Configure required/integer/readonly per field, regenerate PDF
+3. **Doc Digitalization** — Configure required/integer/max length/delete/readonly per field, regenerate PDF
+4. **Validate** — Validate extracted data against rules
 5. **Add Rows** — Add rows to table-based PDFs
 
-### Field Validation Tab (`RequiredFieldsTab.tsx`)
+### Doc Digitalization Tab (`RequiredFieldsTab.tsx`)
 - **Step 1**: Upload editable PDF → calls `/api/extract-fields`
 - **Step 2**: Configure fields in a table:
   - Toggle **Required** (checkbox)
-  - Set **Data Type** (text/integer dropdown)
+  - Set **Data Type** (text/integer/number/date/email/phone/currency/boolean/selection)
+  - Set **Max Length** (number input, text/textarea only)
   - Toggle **Readonly** (checkbox, mutually exclusive with required)
+  - **Delete** field (trash icon toggle, removes widget from PDF)
   - Page filter, Select All/Deselect All
-- **Step 3**: Apply → calls `/api/apply-required` with PDF + fields JSON
+- **Step 3**: Apply & Regenerate PDF → calls `/api/apply-required` with PDF + fields JSON
 - **Step 4**: Download regenerated PDF
 
 ### State Management

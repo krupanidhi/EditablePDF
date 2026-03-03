@@ -410,15 +410,18 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
 
 def apply_required(pdf_path: str, fields: list[dict],
                    output_path: str | None = None) -> dict:
-    """Apply field validation rules to an editable PDF:
-    - Required flag + red border (clears on fill, re-appears on blur if empty)
+    """Apply Doc Digitalization rules to an editable PDF:
+    - Required flag + red border on open (save/print blocked if empty)
     - Integer-only keystroke filter for data_type='integer' fields
+    - Max length enforcement with dynamic counter labels
+    - Delete fields: remove widget annotations from the PDF
     - Horizontal scroll enabled on all text widgets
-    - Readonly fields are left untouched (no validation)
+    - Readonly fields are left untouched (no rules applied)
 
     Args:
         pdf_path:    Path to the editable PDF.
-        fields:      List of field dicts with field_id, required, data_type, readonly.
+        fields:      List of field dicts with field_id, required, data_type, readonly,
+                     max_length, deleted.
         output_path: Where to save. If None, overwrites in-place.
 
     Returns:
@@ -511,7 +514,7 @@ def apply_required(pdf_path: str, fields: list[dict],
             # --- Apply readonly flag (user may have toggled it) ---
             _set_readonly_flag(doc, widget, is_readonly)
 
-            # --- Readonly fields: skip all validation ---
+            # --- Readonly fields: skip all digitalization rules ---
             if is_readonly:
                 # Clear any required flag if readonly
                 _set_required_flag(doc, widget, False)
