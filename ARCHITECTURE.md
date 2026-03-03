@@ -1,8 +1,8 @@
-# EditablePDF — Architecture
+# AI Based Universal 1-Tier Application Submission Assistant — Architecture
 
 ## Overview
 
-EditablePDF is a full-stack application that converts static PDF documents into editable PDF forms, extracts form data, validates it against business rules, and applies **Doc Digitalization** rules (required, integer-only, max length, delete fields, readonly, scroll). It uses Azure Document Intelligence for layout detection, PyMuPDF (fitz) for PDF manipulation, and a React/TypeScript frontend.
+AI Based Universal 1-Tier Application Submission Assistant is a full-stack application that converts static PDF documents into editable PDF forms, extracts form data, validates it against business rules, and applies **Digitalization Workflow** rules (required, integer-only, max length, delete fields, readonly, scroll). It uses Azure Document Intelligence for layout detection, PyMuPDF (fitz) for PDF manipulation, and a React/TypeScript frontend.
 
 ---
 
@@ -20,7 +20,7 @@ EditablePDF/
 │       ├── docx_converter.py     # DOCX → PDF via LibreOffice
 │       ├── dynamic_rows.py       # Add rows to table-based PDFs
 │       ├── extract_fields.py     # Extract form fields (AcroForm + XFA)
-│       ├── apply_required.py     # Apply Doc Digitalization rules to PDF fields
+│       ├── apply_required.py     # Apply Digitalization Workflow rules to PDF fields
 │       ├── form_extractor.py     # Extract filled form data
 │       ├── rule_engine.py        # Business rule validation engine
 │       ├── rules_generator.py    # Auto-generate validation rules
@@ -37,7 +37,7 @@ EditablePDF/
 │       ├── api.ts                # API client (axios)
 │       ├── types.ts              # TypeScript type definitions
 │       └── components/
-│           ├── RequiredFieldsTab.tsx   # Doc Digitalization tab UI
+│           ├── RequiredFieldsTab.tsx   # Digitalization Workflow tab UI
 │           ├── FileUploader.tsx        # Drag-and-drop file upload
 │           ├── ExtractedDataViewer.tsx # View extracted form data
 │           ├── JobTracker.tsx          # Track conversion jobs
@@ -82,11 +82,11 @@ EditablePDF/
 | POST   | `/api/extract`      | Extract filled form data from PDF    |
 | POST   | `/api/validate`     | Validate extracted data against rules|
 
-### Doc Digitalization
+### Digitalization Workflow
 | Method | Path                  | Description                          |
 |--------|-----------------------|--------------------------------------|
 | POST   | `/api/extract-fields` | Extract field metadata from editable PDF |
-| POST   | `/api/apply-required` | Apply digitalization rules and regenerate PDF |
+| POST   | `/api/apply-required` | Apply Digitalization Workflow rules and regenerate PDF |
 
 ### Utility
 | Method | Path                      | Description                  |
@@ -188,11 +188,11 @@ FastAPI application with CORS support. Proxied by Vite dev server at `localhost:
 ### Tab Structure (`App.tsx`)
 1. **Convert PDF** — Upload static PDF, convert to editable
 2. **Extract Data** — Extract filled form data from editable PDF
-3. **Doc Digitalization** — Configure required/integer/max length/delete/readonly per field, regenerate PDF
+3. **Digitalization Workflow** — Configure required/integer/max length/delete/readonly per field, regenerate PDF
 4. **Validate** — Validate extracted data against rules
 5. **Add Rows** — Add rows to table-based PDFs
 
-### Doc Digitalization Tab (`RequiredFieldsTab.tsx`)
+### Digitalization Workflow Tab (`RequiredFieldsTab.tsx`)
 - **Step 1**: Upload editable PDF → calls `/api/extract-fields`
 - **Step 2**: Configure fields in a table:
   - Toggle **Required** (checkbox)

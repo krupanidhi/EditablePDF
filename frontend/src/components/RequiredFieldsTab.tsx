@@ -154,11 +154,11 @@ export default function RequiredFieldsTab() {
           <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-100 text-red-600 text-xs font-bold">1</div>
           <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
             <Upload className="w-4 h-4 text-red-500" />
-            Upload Editable PDF
+            Upload PDF
           </h2>
         </div>
         <p className="text-xs text-gray-500 mb-4 ml-10">
-          Upload any editable PDF to extract its fields. Configure required fields, integer-only inputs, and more — then regenerate the PDF with digitalization rules applied.
+          Upload any editable PDF to extract its fields. Configure required fields, integer-only inputs, and more — then regenerate the PDF with Digitalization Workflow rules applied.
         </p>
         <div className="ml-10">
           <FileUploader
@@ -184,7 +184,7 @@ export default function RequiredFieldsTab() {
             <div className="flex-1">
               <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
                 <Settings2 className="w-4 h-4 text-red-500" />
-                Configure Doc Digitalization
+                Configure Digitalization Workflow
               </h2>
               <p className="text-xs text-gray-500 mt-0.5">
                 {extractFieldsData.metadata.source_file} — {extractFieldsData.metadata.page_count} page{extractFieldsData.metadata.page_count > 1 ? 's' : ''}, {extractFieldsData.metadata.total_fields} fields
@@ -459,7 +459,7 @@ export default function RequiredFieldsTab() {
                 Regenerate PDF
               </h2>
               <p className="text-xs text-gray-500 mt-0.5">
-                Apply digitalization rules and download the updated PDF.
+                Apply Digitalization Workflow rules and download the updated PDF.
               </p>
             </div>
           </div>
@@ -492,7 +492,7 @@ export default function RequiredFieldsTab() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-green-800">
-                    PDF regenerated with digitalization rules
+                    PDF regenerated with Digitalization Workflow rules
                   </p>
                   <p className="text-xs text-green-600 mt-0.5">
                     {applyRequiredResult.fields_updated} of {applyRequiredResult.fields_total} fields updated

@@ -137,7 +137,7 @@ function App() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'convert', label: 'Convert', icon: <FileUp className="w-4 h-4" /> },
     { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
-    { id: 'required', label: 'Doc Digitalization', icon: <ListChecks className="w-4 h-4" /> },
+    { id: 'required', label: 'Digitalization Workflow', icon: <ListChecks className="w-4 h-4" /> },
     { id: 'validate', label: 'Validate', icon: <ShieldCheck className="w-4 h-4" /> },
     { id: 'add-rows', label: 'Add Rows', icon: <TableProperties className="w-4 h-4" /> },
   ];
@@ -150,8 +150,8 @@ function App() {
           <div className="flex items-center gap-3">
             <FileText className="w-7 h-7 text-blue-600" />
             <div>
-              <h1 className="text-lg font-bold text-gray-900">EditablePDF</h1>
-              <p className="text-xs text-gray-500">Document → Editable Form Converter</p>
+              <h1 className="text-lg font-bold text-gray-900">AI Based Universal 1-Tier Application Submission Assistant</h1>
+              <p className="text-xs text-gray-500">Document → Editable Form Converter & Digitalization</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -438,7 +438,7 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
 
 def apply_required(pdf_path: str, fields: list[dict],
                    output_path: str | None = None) -> dict:
-    """Apply Doc Digitalization rules to an editable PDF:
+    """Apply Digitalization Workflow rules to an editable PDF:
     - Required flag + red border on open (save/print blocked if empty)
     - Integer-only keystroke filter for data_type='integer' fields
     - Max length enforcement with dynamic counter labels
