@@ -63,7 +63,7 @@ def _build_field_check(fname: str, dlabel: str, is_radio: bool,
     if depends_on_pdf_name:
         return (
             f'var dep=this.getField("{depends_on_pdf_name}");'
-            f'if(dep&&dep.value!=="Off"&&dep.value!==""&&dep.value!=null){{'
+            f'if(dep&&dep.value==="Yes"){{'
             + check
             + '}'
             + (f'else{{f=this.getField("{fname}");if(f){{{clear_red}}}}}' if highlight else '}')
@@ -104,7 +104,7 @@ def _build_open_js(required_fields: list[tuple]) -> str:
         if dep_name:
             mark = (
                 f'var dep=this.getField("{dep_name}");'
-                f'if(dep&&dep.value!=="Off"&&dep.value!==""&&dep.value!=null){{'
+                f'if(dep&&dep.value==="Yes"){{'
                 + mark + '}'
                 f'else{{f=this.getField("{fname}");if(f){{f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};}}}}'
             )
@@ -710,7 +710,7 @@ def apply_required(pdf_path: str, fields: list[dict],
                 inner_lines.append(
                     f'var t=this.getField("{ta_name}");'
                     f'var r=this.getField("{radio_pdf_name}");'
-                    f'if(r&&r.value!=="Off"&&r.value!==""&&r.value!=null){{'
+                    f'if(r&&r.value==="Yes"){{'
                     f'if(t&&(t.value===""||t.value==null))'
                     f'{{t.strokeColor=color.red;t.fillColor=["RGB",1,0.93,0.93];}}'
                     f'}}else{{'
