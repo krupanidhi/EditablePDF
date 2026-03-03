@@ -296,18 +296,55 @@ def _find_xfa_template_xref(doc) -> int | None:
     return None
 
 
+def _xfa_build_som_paths(root, ns: str) -> dict[str, str]:
+    """Walk the XFA template tree and return {field_name: full.SOM.path}.
+
+    SOM (Scripting Object Model) paths are dot-separated chains of named
+    subform ancestors.  E.g. ``EquipmentListForm.EL_Main.Header.GrantNumber``.
+    """
+    paths: dict[str, str] = {}
+
+    def _walk(elem, parts: list[str]):
+        tag = elem.tag.replace(f"{{{_XFA_NS}}}", "")
+        name = elem.get("name", "")
+        if tag == "subform" and name:
+            parts = parts + [name]
+        if tag == "field" and name:
+            paths[name] = ".".join(parts + [name])
+        for child in elem:
+            _walk(child, parts)
+
+    _walk(root, [])
+    return paths
+
+
+def _xfa_find_field_metadata(fields: list[dict], xfa_name: str) -> dict | None:
+    """Look up user-edited field metadata by XFA field name or field_id."""
+    for f in fields:
+        if f.get("xfa_name", "") == xfa_name:
+            return f
+        if f.get("field_id", "") == xfa_name:
+            return f
+        # Try normalised field_id
+        if _label_to_field_id(xfa_name) == f.get("field_id", ""):
+            return f
+    return None
+
+
 def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
-    """Apply required flags to an XFA form by modifying the template XML.
+    """Apply Digitalization Workflow rules to an XFA form.
 
-    For each required field:
-      - Adds or updates <validate nullTest="error"> on the field element
-      - Adds a validation message
-
-    Also injects a preSave event script that checks required fields and
-    cancels the save if any are empty.
+    Handles:
+      - Required fields: ``<validate nullTest="error">`` + validation message
+      - Max length: ``maxChars`` attribute on ``<textEdit>`` + change event JS
+      - Integer-only: ``<validate>`` with ``<picture>`` and change event JS
+      - Red border on required fields (``<border>`` with red ``<edge>``)
+      - preSave / prePrint event scripts to block save/print if empty
+      - Dynamic SOM path resolution (no hardcoded form paths)
 
     Returns:
-        { "status": "ok", "output_file": ..., "fields_updated": N, "fields_total": N }
+        { "status": "ok", "output_file": ..., "fields_updated": N,
+          "fields_total": N, "xfa_warning": ... }
     """
     tmpl_xref = _find_xfa_template_xref(doc)
     if tmpl_xref is None:
@@ -317,112 +354,226 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     if not xml_bytes:
         raise ValueError("XFA template stream is empty")
 
-    # Build lookup: xfa_name -> required flag
-    # Fields may have xfa_name (from XFA extraction) or we match by field_id
-    required_by_xfa_name = {}
-    label_by_xfa_name = {}
-    for f in fields:
-        xfa_name = f.get("xfa_name", "")
-        fid = f.get("field_id", "")
-        lbl = f.get("label", fid)
-        is_req = bool(f.get("required", False))
-        if xfa_name:
-            required_by_xfa_name[xfa_name] = is_req
-            label_by_xfa_name[xfa_name] = lbl
-        if fid:
-            required_by_xfa_name[fid] = is_req
-            label_by_xfa_name[fid] = lbl
-
     # Register namespace to avoid ns0: prefix in output
     ET.register_namespace("", _XFA_NS)
 
     root = ET.fromstring(xml_bytes)
     ns = f"{{{_XFA_NS}}}"
 
+    # Build SOM paths for every field in the template
+    som_paths = _xfa_build_som_paths(root, ns)
+    print(f"[XFA] Found {len(som_paths)} fields in template: "
+          f"{list(som_paths.keys())}")
+
     updated_count = 0
-    required_xfa_names = []  # for script generation
+    required_fields = []   # (som_path, display_label) for script generation
+    max_len_fields = []    # (som_path, display_label, max_length)
 
     for field_elem in root.iter(f"{ns}field"):
         name = field_elem.get("name", "")
         if not name:
             continue
 
-        # Look up by xfa_name first, then by normalized field_id
-        is_required = required_by_xfa_name.get(name)
-        if is_required is None:
-            # Try lowercase match
-            norm = _label_to_field_id(name)
-            is_required = required_by_xfa_name.get(norm)
-        if is_required is None:
+        # Look up user configuration for this XFA field
+        fdata = _xfa_find_field_metadata(fields, name)
+        if fdata is None:
             continue
 
-        # Find or create <validate> element
-        validate = field_elem.find(f"{ns}validate")
+        is_required = bool(fdata.get("required", False))
+        is_readonly = bool(fdata.get("readonly", False))
+        data_type = fdata.get("data_type", "text")
+        display_label = fdata.get("label", name)
+        som_path = som_paths.get(name, name)
 
+        # Parse max_length
+        max_length = fdata.get("max_length")
+        if max_length is not None:
+            try:
+                max_length = int(max_length)
+                if max_length <= 0:
+                    max_length = None
+            except (ValueError, TypeError):
+                max_length = None
+
+        # Skip readonly fields
+        if is_readonly:
+            continue
+
+        any_change = False
+
+        # ----- Required: <validate nullTest="error"> -----
+        validate = field_elem.find(f"{ns}validate")
         if is_required:
             if validate is None:
                 validate = ET.SubElement(field_elem, f"{ns}validate")
             validate.set("nullTest", "error")
 
-            # Add or update validation message
+            # Validation message
             msg_elem = validate.find(f"{ns}message")
             if msg_elem is None:
                 msg_elem = ET.SubElement(validate, f"{ns}message")
             text_elem = msg_elem.find(f"{ns}text")
             if text_elem is None:
                 text_elem = ET.SubElement(msg_elem, f"{ns}text")
-            lbl = label_by_xfa_name.get(name, name)
-            text_elem.text = f"{lbl} is required."
+            text_elem.text = f"{display_label} is required."
 
-            required_xfa_names.append((name, lbl))
-            updated_count += 1
+            required_fields.append((som_path, display_label))
+            any_change = True
+
+            # Red border on required fields
+            border = field_elem.find(f"{ns}border")
+            if border is None:
+                border = ET.SubElement(field_elem, f"{ns}border")
+            edge = border.find(f"{ns}edge")
+            if edge is None:
+                edge = ET.SubElement(border, f"{ns}edge")
+            edge_color = edge.find(f"{ns}color")
+            if edge_color is None:
+                edge_color = ET.SubElement(edge, f"{ns}color")
+            edge_color.set("value", "255,0,0")  # red border
         else:
-            # Remove nullTest if present
+            # Clear nullTest if previously set
             if validate is not None and validate.get("nullTest"):
                 del validate.attrib["nullTest"]
 
-    # Inject a preSave event script on the root subform to block save
-    if required_xfa_names:
-        # Find the first subform (root form)
-        root_subform = root.find(f"{ns}subform")
-        if root_subform is None:
-            root_subform = root
+        # ----- Max length: maxChars on <textEdit> -----
+        if max_length is not None:
+            ui = field_elem.find(f"{ns}ui")
+            if ui is not None:
+                text_edit = ui.find(f"{ns}textEdit")
+                if text_edit is not None:
+                    text_edit.set("maxChars", str(max_length))
+                    max_len_fields.append((som_path, display_label, max_length))
+                    any_change = True
 
-        # Build validation script
+        # ----- Integer-only: numeric picture clause -----
+        if data_type == "integer":
+            if validate is None:
+                validate = ET.SubElement(field_elem, f"{ns}validate")
+            # Add formatTest so non-numeric input is rejected
+            validate.set("formatTest", "error")
+            # Add picture for numeric formatting
+            pic = field_elem.find(f"{ns}format/{ns}picture")
+            if pic is None:
+                fmt = field_elem.find(f"{ns}format")
+                if fmt is None:
+                    fmt = ET.SubElement(field_elem, f"{ns}format")
+                pic = ET.SubElement(fmt, f"{ns}picture")
+            pic.text = "num{z,zzz,zzz,zzz}"
+            any_change = True
+
+        if any_change:
+            updated_count += 1
+
+    # ----- Inject preSave / prePrint event scripts on root subform -----
+    root_subform = root.find(f"{ns}subform")
+    if root_subform is None:
+        root_subform = root
+
+    script_parts = []
+
+    # Required-field check
+    if required_fields:
         checks = []
-        for xfa_name, lbl in required_xfa_names:
+        for som_path, lbl in required_fields:
+            # Use xfa.resolveNodes to handle repeating subforms (multiple rows)
             checks.append(
-                f'var f = xfa.resolveNode("EquipmentListForm.EL_Main.EquipmentRow.{xfa_name}");'
-                f'if(f && (!f.rawValue || f.rawValue === "")) missing.push("{lbl}");'
+                f'var nodes = xfa.resolveNodes("{som_path}[*]");\n'
+                f'for(var i=0; i<nodes.length; i++){{\n'
+                f'  var f = nodes.item(i);\n'
+                f'  if(f && (!f.rawValue || f.rawValue === ""))\n'
+                f'    missing.push("{lbl}" + (nodes.length>1 ? " (row "+(i+1)+")" : ""));\n'
+                f'}}'
             )
-        script_body = (
+        script_parts.append(
             'var missing = [];\n'
             + '\n'.join(checks)
-            + '\nif(missing.length > 0) {'
-            'xfa.host.messageBox("Cannot save. Required fields are empty:\\n\\n" + missing.join("\\n"), '
-            '"Validation Error", 0);'
-            'xfa.event.cancelAction = true;'
+            + '\nif(missing.length > 0) {\n'
+            '  xfa.host.messageBox('
+            '"Cannot save. The following required fields are empty:\\n\\n"'
+            ' + missing.join("\\n"), "Validation Error", 0);\n'
+            '  xfa.event.cancelAction = true;\n'
             '}'
         )
 
-        # Add event element for preSave
+    # Max-length check (belt-and-suspenders alongside maxChars)
+    if max_len_fields:
+        len_checks = []
+        for som_path, lbl, ml in max_len_fields:
+            len_checks.append(
+                f'var nodes = xfa.resolveNodes("{som_path}[*]");\n'
+                f'for(var i=0; i<nodes.length; i++){{\n'
+                f'  var f = nodes.item(i);\n'
+                f'  if(f && f.rawValue && f.rawValue.length > {ml})\n'
+                f'    tooLong.push("{lbl}" + (nodes.length>1 ? " (row "+(i+1)+")" : "")'
+                f' + " — max {ml} chars, has " + f.rawValue.length);\n'
+                f'}}'
+            )
+        script_parts.append(
+            'var tooLong = [];\n'
+            + '\n'.join(len_checks)
+            + '\nif(tooLong.length > 0) {\n'
+            '  xfa.host.messageBox('
+            '"Cannot save. The following fields exceed their character limit:\\n\\n"'
+            ' + tooLong.join("\\n"), "Validation Error", 0);\n'
+            '  xfa.event.cancelAction = true;\n'
+            '}'
+        )
+
+    if script_parts:
+        full_script = '\n\n'.join(script_parts)
+
+        # preSave event
         event_elem = ET.SubElement(root_subform, f"{ns}event")
         event_elem.set("activity", "preSave")
         script_elem = ET.SubElement(event_elem, f"{ns}script")
         script_elem.set("contentType", "application/x-javascript")
-        script_elem.text = script_body
+        script_elem.text = full_script
 
-        # Also add prePrint event
+        # prePrint event
         event_print = ET.SubElement(root_subform, f"{ns}event")
         event_print.set("activity", "prePrint")
         script_print = ET.SubElement(event_print, f"{ns}script")
         script_print.set("contentType", "application/x-javascript")
-        script_print.text = script_body.replace("Cannot save", "Cannot print")
+        script_print.text = full_script.replace("Cannot save", "Cannot print")
 
-    # Serialize back to XML and update the stream
+    # ----- Per-field change event for max_length live enforcement -----
+    for field_elem in root.iter(f"{ns}field"):
+        name = field_elem.get("name", "")
+        fdata = _xfa_find_field_metadata(fields, name) if name else None
+        if fdata is None:
+            continue
+        max_length = fdata.get("max_length")
+        if max_length is None:
+            continue
+        try:
+            max_length = int(max_length)
+            if max_length <= 0:
+                continue
+        except (ValueError, TypeError):
+            continue
+        display_label = fdata.get("label", name)
+
+        # Add a change event that truncates input beyond max_length
+        change_js = (
+            f'if(xfa.event.newText && xfa.event.newText.length > {max_length}) {{\n'
+            f'  xfa.event.change = "";\n'
+            f'  xfa.host.messageBox("{display_label}: Maximum {max_length} characters allowed.", '
+            f'"Character Limit", 0);\n'
+            f'}}'
+        )
+        event_change = ET.SubElement(field_elem, f"{ns}event")
+        event_change.set("activity", "change")
+        sc = ET.SubElement(event_change, f"{ns}script")
+        sc.set("contentType", "application/x-javascript")
+        sc.text = change_js
+
+    # ----- Serialize and save -----
     new_xml = ET.tostring(root, encoding="unicode", xml_declaration=False)
-    # ET strips the xml declaration; XFA template doesn't need one
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
+
+    print(f"[XFA] Updated {updated_count} fields: "
+          f"{len(required_fields)} required, {len(max_len_fields)} max-length")
 
     # Strip the Adobe Reader Extensions usage-rights signature (/Perms)
     # from the catalog.  This UR3 signature was applied when the original
@@ -433,8 +584,6 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     cat_xref = doc.pdf_catalog()
     cat_str = doc.xref_object(cat_xref)
     if "/Perms" in cat_str:
-        # Replace /Perms with an empty dict to strip the UR3 signature
-        # while keeping the key structure valid.
         doc.xref_set_key(cat_xref, "Perms", "<<>>")
         print("[XFA] Stripped /Perms (Reader Extensions signature) from catalog")
 
