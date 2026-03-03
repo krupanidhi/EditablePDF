@@ -424,12 +424,12 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     # ET strips the xml declaration; XFA template doesn't need one
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
 
-    # Save — modifying the XFA template stream always invalidates the
-    # Adobe Reader Extensions usage-rights signature.  There is no
-    # programmatic way to re-apply it; only Adobe Acrobat Pro can do that.
-    # We save with encryption=KEEP so any remaining PDF security is
-    # preserved.
-    doc.save(output_path, encryption=fitz.PDF_ENCRYPT_KEEP)
+    # Save as a clean copy — do NOT use encryption=KEEP because that
+    # preserves the (now-invalid) Adobe Reader Extensions usage-rights
+    # signature.  Saving without it strips the stale signature so Adobe
+    # Acrobat Pro can cleanly re-apply Reader Extensions on the output.
+    # garbage=3 removes unreferenced objects; deflate=True compresses.
+    doc.save(output_path, garbage=3, deflate=True)
     doc.close()
 
     return {
