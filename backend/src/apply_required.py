@@ -436,13 +436,19 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             if validate is not None and validate.get("nullTest"):
                 del validate.attrib["nullTest"]
 
-        # ----- Max length: maxChars on <textEdit> -----
+        # ----- Max length -----
         if max_length is not None:
             ui = field_elem.find(f"{ns}ui")
             if ui is not None:
                 text_edit = ui.find(f"{ns}textEdit")
                 if text_edit is not None:
+                    # maxChars works directly on <textEdit>
                     text_edit.set("maxChars", str(max_length))
+                    max_len_fields.append((som_path, display_label, max_length))
+                    any_change = True
+                elif ui.find(f"{ns}numericEdit") is not None:
+                    # <numericEdit> doesn't support maxChars — enforce
+                    # via a change event that checks string length
                     max_len_fields.append((som_path, display_label, max_length))
                     any_change = True
 
@@ -451,6 +457,16 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             if validate is None:
                 validate = ET.SubElement(field_elem, f"{ns}validate")
             validate.set("formatTest", "error")
+
+            # For currency/number, convert <value><integer/> → <value><decimal/>
+            # so the XFA engine accepts fractional input
+            if data_type in ("currency", "number"):
+                val_elem = field_elem.find(f"{ns}value")
+                if val_elem is not None:
+                    int_elem = val_elem.find(f"{ns}integer")
+                    if int_elem is not None:
+                        val_elem.remove(int_elem)
+                        ET.SubElement(val_elem, f"{ns}decimal")
 
             # Picture clause controls display formatting
             pic = field_elem.find(f"{ns}format/{ns}picture")
@@ -461,14 +477,11 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 pic = ET.SubElement(fmt, f"{ns}picture")
 
             if data_type == "currency":
-                # Currency: 2 decimal places with comma grouping
-                pic.text = "num{z,zzz,zzz,zz9.99}"
+                pic.text = "$z,zzz,zz9.99"
             elif data_type == "number":
-                # Generic number: allow decimals
-                pic.text = "num{z,zzz,zzz,zz9.99}"
+                pic.text = "z,zzz,zzz,zz9.99"
             else:
-                # Integer: whole numbers only
-                pic.text = "num{z,zzz,zzz,zzz}"
+                pic.text = "z,zz9"
             any_change = True
 
         # ----- Currency: add exit event to round to 2 decimal places -----
@@ -493,6 +506,32 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 sc = ET.SubElement(existing_exit, f"{ns}script")
                 sc.set("contentType", "application/x-javascript")
             sc.text = round_js
+            any_change = True
+
+        # ----- Integer: block zero-only values on exit -----
+        if data_type == "integer":
+            zero_js = (
+                'if(this.rawValue != null && this.rawValue !== "") {\n'
+                '  if(parseInt(this.rawValue) === 0) {\n'
+                '    xfa.host.messageBox("' + display_label + ': Zero is not allowed.", '
+                '"Validation Error", 0);\n'
+                '    this.rawValue = null;\n'
+                '  }\n'
+                '}'
+            )
+            existing_exit = None
+            for ev in field_elem.findall(f"{ns}event"):
+                if ev.get("activity") == "exit":
+                    existing_exit = ev
+                    break
+            if existing_exit is None:
+                existing_exit = ET.SubElement(field_elem, f"{ns}event")
+                existing_exit.set("activity", "exit")
+            sc = existing_exit.find(f"{ns}script")
+            if sc is None:
+                sc = ET.SubElement(existing_exit, f"{ns}script")
+                sc.set("contentType", "application/x-javascript")
+            sc.text = zero_js
             any_change = True
 
         if any_change:
