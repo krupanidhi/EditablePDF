@@ -279,7 +279,12 @@ async def apply_required_endpoint(
     req_count = sum(1 for f in fields_list if f.get("required"))
     int_count = sum(1 for f in fields_list if f.get("data_type") == "integer" and not f.get("readonly"))
     ro_count = sum(1 for f in fields_list if f.get("readonly"))
-    print(f"[apply-required] {filename}: {len(fields_list)} fields, {req_count} required, {int_count} integer, {ro_count} readonly")
+    del_count = sum(1 for f in fields_list if f.get("deleted"))
+    print(f"[apply-required] {filename}: {len(fields_list)} fields, {req_count} required, {int_count} integer, {ro_count} readonly, {del_count} deleted")
+    if del_count:
+        for f in fields_list:
+            if f.get("deleted"):
+                print(f"  DELETE: {f.get('field_id')} ({f.get('label')})")
     
     # Save uploaded PDF
     tmp_dir = os.path.join(config.INPUT_DIR, f"required_{uuid.uuid4().hex[:8]}")

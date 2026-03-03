@@ -557,20 +557,53 @@ def apply_required(pdf_path: str, fields: list[dict],
                 need_update = True
 
             # Max length JS guard: block keystrokes that would exceed limit
-            # Chains with existing keystroke handler (integer or char counter)
             if is_text and max_length is not None:
-                max_js = (
-                    'if(!event.willCommit){'
-                    'var proposed=AFMergeChange(event);'
-                    f'if(proposed.length>{max_length})'
-                    '{event.rc=false;}'
-                    '}'
-                )
-                existing_ks = widget.script_stroke or ""
-                if existing_ks:
-                    widget.script_stroke = existing_ks + "\n" + max_js
+                # Check if this is a textarea with a counter field
+                counter_name = field_name + "_counter"
+                has_counter = False
+                # Look for counter widget on the same page
+                for cw in page.widgets():
+                    if cw.field_name == counter_name:
+                        has_counter = True
+                        break
+
+                if has_counter:
+                    # Replace the entire keystroke script with new max value
+                    widget.script_stroke = (
+                        f'if (!event.willCommit) {{\n'
+                        f'    var proposed = AFMergeChange(event);\n'
+                        f'    if (proposed.length > {max_length}) {{\n'
+                        f'        app.alert("Maximum {max_length} characters allowed.  You have reached the limit.");\n'
+                        f'        event.rc = false;\n'
+                        f'    }}\n'
+                        f'    var c = this.getField("{counter_name}");\n'
+                        f'    if (c) c.value = proposed.length + " of {max_length} max";\n'
+                        f'}} else {{\n'
+                        f'    var len = event.value ? event.value.length : 0;\n'
+                        f'    var c = this.getField("{counter_name}");\n'
+                        f'    if (c) c.value = len + " of {max_length} max";\n'
+                        f'}}'
+                    )
+                    # Update the counter widget's display value
+                    for cw in page.widgets():
+                        if cw.field_name == counter_name:
+                            cw.field_value = f"0 of {max_length} max"
+                            cw.update()
+                            break
                 else:
-                    widget.script_stroke = max_js
+                    # Simple max length guard (no counter)
+                    max_js = (
+                        'if(!event.willCommit){'
+                        'var proposed=AFMergeChange(event);'
+                        f'if(proposed.length>{max_length})'
+                        '{event.rc=false;}'
+                        '}'
+                    )
+                    existing_ks = widget.script_stroke or ""
+                    if existing_ks:
+                        widget.script_stroke = existing_ks + "\n" + max_js
+                    else:
+                        widget.script_stroke = max_js
                 need_update = True
 
             if need_update:
