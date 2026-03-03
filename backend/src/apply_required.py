@@ -611,7 +611,7 @@ def apply_required(pdf_path: str, fields: list[dict],
         _inject_catalog_actions(doc, required_field_info)
 
     # Fix tab order on every page: sort annotations by position (row order)
-    _fix_tab_order(doc)
+    _fix_tab_order(doc, exclude_xrefs=set(delete_xrefs) if delete_xrefs else None)
 
     # Save
     if output_path is None:
@@ -666,7 +666,7 @@ def _set_readonly_flag(doc, widget, is_readonly: bool):
         widget.update()
 
 
-def _fix_tab_order(doc):
+def _fix_tab_order(doc, exclude_xrefs=None):
     """Reorder annotations on every page so Tab key follows visual layout.
 
     Sorts widget annotations by position (top-to-bottom, left-to-right)
@@ -692,9 +692,12 @@ def _fix_tab_order(doc):
             continue
 
         # Build list of (xref, y, x) for widget annotations
+        _skip = exclude_xrefs or set()
         widget_items = []
         for w in page.widgets():
             if w.rect.x0 < 0:
+                continue
+            if w.xref in _skip:
                 continue
             # Sort by: y-position (top of field), then x-position (left edge)
             # Use a tolerance band for y to group fields on the same row
@@ -725,9 +728,9 @@ def _fix_tab_order(doc):
         # Parse all xrefs from the annots array
         all_annot_xrefs = [int(m.group(1)) for m in re.finditer(r'(\d+)\s+0\s+R', annots_str)]
 
-        # Separate widget xrefs from non-widget xrefs
+        # Separate widget xrefs from non-widget xrefs (also exclude deleted)
         sorted_set = set(sorted_xrefs)
-        non_widget_xrefs = [x for x in all_annot_xrefs if x not in sorted_set]
+        non_widget_xrefs = [x for x in all_annot_xrefs if x not in sorted_set and x not in _skip]
 
         # Build new annots array: sorted widgets first, then non-widgets
         new_annots = sorted_xrefs + non_widget_xrefs
