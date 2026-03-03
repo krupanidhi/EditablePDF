@@ -446,20 +446,53 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                     max_len_fields.append((som_path, display_label, max_length))
                     any_change = True
 
-        # ----- Integer-only: numeric picture clause -----
-        if data_type == "integer":
+        # ----- Numeric type handling: integer / currency / number -----
+        if data_type in ("integer", "currency", "number"):
             if validate is None:
                 validate = ET.SubElement(field_elem, f"{ns}validate")
-            # Add formatTest so non-numeric input is rejected
             validate.set("formatTest", "error")
-            # Add picture for numeric formatting
+
+            # Picture clause controls display formatting
             pic = field_elem.find(f"{ns}format/{ns}picture")
             if pic is None:
                 fmt = field_elem.find(f"{ns}format")
                 if fmt is None:
                     fmt = ET.SubElement(field_elem, f"{ns}format")
                 pic = ET.SubElement(fmt, f"{ns}picture")
-            pic.text = "num{z,zzz,zzz,zzz}"
+
+            if data_type == "currency":
+                # Currency: 2 decimal places with comma grouping
+                pic.text = "num{z,zzz,zzz,zz9.99}"
+            elif data_type == "number":
+                # Generic number: allow decimals
+                pic.text = "num{z,zzz,zzz,zz9.99}"
+            else:
+                # Integer: whole numbers only
+                pic.text = "num{z,zzz,zzz,zzz}"
+            any_change = True
+
+        # ----- Currency: add exit event to round to 2 decimal places -----
+        if data_type == "currency":
+            round_js = (
+                'if(this.rawValue != null && this.rawValue !== "") {\n'
+                '  var v = Math.round(parseFloat(this.rawValue) * 100) / 100;\n'
+                '  if(!isNaN(v)) this.rawValue = v;\n'
+                '}'
+            )
+            # Reuse existing exit event if present, otherwise create one
+            existing_exit = None
+            for ev in field_elem.findall(f"{ns}event"):
+                if ev.get("activity") == "exit":
+                    existing_exit = ev
+                    break
+            if existing_exit is None:
+                existing_exit = ET.SubElement(field_elem, f"{ns}event")
+                existing_exit.set("activity", "exit")
+            sc = existing_exit.find(f"{ns}script")
+            if sc is None:
+                sc = ET.SubElement(existing_exit, f"{ns}script")
+                sc.set("contentType", "application/x-javascript")
+            sc.text = round_js
             any_change = True
 
         if any_change:
@@ -772,6 +805,8 @@ def apply_required(pdf_path: str, fields: list[dict],
             # does not visually repaint annotations from JS event handlers.
             need_update = False
             is_integer = is_text and data_type == "integer"
+            is_currency = is_text and data_type == "currency"
+            is_number = is_text and data_type == "number"
             max_length = fdata.get("max_length")
             if max_length is not None:
                 try:
@@ -781,7 +816,7 @@ def apply_required(pdf_path: str, fields: list[dict],
                 except (ValueError, TypeError):
                     max_length = None
 
-            # Integer-only: keystroke filter + format
+            # Integer-only: keystroke filter + format (0 decimal places)
             if is_integer:
                 widget.script_format = 'AFNumber_Format(0,0,0,0,"",true);'
                 existing_ks = widget.script_stroke or ""
@@ -790,6 +825,28 @@ def apply_required(pdf_path: str, fields: list[dict],
                     widget.script_stroke = int_js + "\n" + existing_ks
                 else:
                     widget.script_stroke = int_js
+                need_update = True
+
+            # Currency: keystroke filter + format (2 decimal places) + rounding
+            if is_currency:
+                widget.script_format = 'AFNumber_Format(2,0,0,0,"",true);'
+                existing_ks = widget.script_stroke or ""
+                cur_js = 'AFNumber_Keystroke(2,0,0,0,"",true);'
+                if existing_ks:
+                    widget.script_stroke = cur_js + "\n" + existing_ks
+                else:
+                    widget.script_stroke = cur_js
+                need_update = True
+
+            # Generic number: allow decimals, format with 2 decimal places
+            if is_number:
+                widget.script_format = 'AFNumber_Format(2,0,0,0,"",true);'
+                existing_ks = widget.script_stroke or ""
+                num_js = 'AFNumber_Keystroke(2,0,0,0,"",true);'
+                if existing_ks:
+                    widget.script_stroke = num_js + "\n" + existing_ks
+                else:
+                    widget.script_stroke = num_js
                 need_update = True
 
             # Max length JS guard: block keystrokes that would exceed limit
