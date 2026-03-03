@@ -419,6 +419,26 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 else:
                     pic.text = "z,zzz,zzz,zz9.99"
                 updated_count += 1
+
+            # Fix calculate scripts that may be broken in the original
+            # template.  Common issue: script starts with ">" instead of a
+            # proper expression (e.g. ">(expr) ? a : b" should be
+            # "(expr) ? a : b").
+            calc = field_elem.find(f"{ns}calculate")
+            if calc is not None:
+                sc = calc.find(f"{ns}script")
+                if sc is not None and sc.text:
+                    lines = sc.text.split("\n")
+                    fixed_lines = []
+                    for line in lines:
+                        stripped = line.lstrip()
+                        # Remove stray leading ">" that isn't part of JS
+                        if stripped.startswith(">(") or stripped.startswith("> ("):
+                            line = line.replace(">", "", 1)
+                        fixed_lines.append(line)
+                    fixed = "\n".join(fixed_lines)
+                    if fixed != sc.text:
+                        sc.text = fixed
             continue
 
         any_change = False
