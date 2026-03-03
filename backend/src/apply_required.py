@@ -442,6 +442,7 @@ def apply_required(pdf_path: str, fields: list[dict],
     updated_count = 0
     seen_radio_groups = set()
     required_field_info = []  # (field_name, display_label, is_radio)
+    delete_xrefs = []  # xrefs of widgets marked for deletion
     
 
     for page_num in range(doc.page_count):
@@ -462,8 +463,13 @@ def apply_required(pdf_path: str, fields: list[dict],
                 clean_label = label.split(":")[0].strip() if ":" in label else label
                 candidate_id = _label_to_field_id(clean_label) or field_name
                 if field_name in seen_radio_groups:
-                    # Still apply required flag to duplicate radio children
+                    # Check if radio group is deleted — collect all children
                     fdata = _resolve_field(field_lookup, candidate_id)
+                    if fdata and bool(fdata.get("deleted", False)):
+                        delete_xrefs.append(widget.xref)
+                        is_radio_dup = True
+                        continue
+                    # Still apply required flag to duplicate radio children
                     if fdata and not fdata.get("readonly", False):
                         is_req = bool(fdata.get("required", False))
                         _set_required_flag(doc, widget, is_req)
@@ -482,6 +488,12 @@ def apply_required(pdf_path: str, fields: list[dict],
             # Resolve field metadata from the JSON
             fdata = _resolve_field(field_lookup, candidate_id)
             if fdata is None:
+                continue
+
+            # --- Delete field if user marked it for deletion ---
+            is_deleted = bool(fdata.get("deleted", False))
+            if is_deleted:
+                delete_xrefs.append(widget.xref)
                 continue
 
             display_label = fdata.get("label", label or field_name)
@@ -571,6 +583,28 @@ def apply_required(pdf_path: str, fields: list[dict],
                 else:
                     obj_str = obj_str.rstrip().rstrip('>') + f' /MaxLen {max_length} >>'
                 doc.update_object(xref, obj_str)
+
+    # --- Delete marked widgets by removing them from page /Annots ---
+    if delete_xrefs:
+        delete_set = set(delete_xrefs)
+        for page_num in range(doc.page_count):
+            page = doc[page_num]
+            page_xref = page.xref
+            page_obj = doc.xref_object(page_xref)
+            # Find all annotation refs in /Annots
+            annots_match = re.search(r'/Annots\s*\[([^\]]*)\]', page_obj)
+            if not annots_match:
+                continue
+            annots_str = annots_match.group(1)
+            refs = re.findall(r'(\d+)\s+0\s+R', annots_str)
+            new_refs = [r for r in refs if int(r) not in delete_set]
+            if len(new_refs) == len(refs):
+                continue  # no deletions on this page
+            new_annots = ' '.join(f'{r} 0 R' for r in new_refs)
+            new_page_obj = page_obj.replace(
+                annots_match.group(0), f'/Annots [{new_annots}]'
+            )
+            doc.update_object(page_xref, new_page_obj)
 
     # Inject document-level actions: OpenAction, WillSave, WillPrint, WillClose
     if required_field_info:

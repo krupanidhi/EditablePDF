@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { ShieldCheck, Download, FileSearch, Upload, Settings2 } from 'lucide-react';
+import { ShieldCheck, Download, FileSearch, Upload, Settings2, Trash2, RotateCcw } from 'lucide-react';
 import { extractFields, applyRequired, getDownloadUrl } from '../api';
 import type { ExtractFieldsResponse, ExtractedFieldClean, ApplyRequiredResponse } from '../types';
 import FileUploader from './FileUploader';
@@ -52,6 +52,13 @@ export default function RequiredFieldsTab() {
   const handleChangeDataType = useCallback((index: number, value: string) => {
     setEditedFields(prev => prev.map((f, i) =>
       i === index ? { ...f, data_type: value } : f
+    ));
+    setApplyRequiredResult(null);
+  }, []);
+
+  const handleToggleDeleted = useCallback((index: number) => {
+    setEditedFields(prev => prev.map((f, i) =>
+      i === index ? { ...f, deleted: !f.deleted, required: !f.deleted ? false : f.required } : f
     ));
     setApplyRequiredResult(null);
   }, []);
@@ -288,13 +295,16 @@ export default function RequiredFieldsTab() {
                   <th className="px-3 py-2 text-center font-semibold text-gray-600">
                     <span title="Read-Only: disable editing and skip all validation">Read-Only</span>
                   </th>
+                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-16">
+                    <span className="text-red-400" title="Mark field for deletion from PDF">Delete</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {displayedFields.map((field) => (
                   <tr
                     key={field._origIndex}
-                    className={`hover:bg-slate-50 transition-colors ${field.required ? 'bg-red-50/40' : ''}`}
+                    className={`hover:bg-slate-50 transition-colors ${field.deleted ? 'bg-red-50/60 opacity-60' : field.required ? 'bg-red-50/40' : ''}`}
                   >
                     <td className="px-3 py-2 text-center">
                       {field.readonly ? (
@@ -308,9 +318,10 @@ export default function RequiredFieldsTab() {
                         />
                       )}
                     </td>
-                    <td className="px-3 py-2 text-gray-800 font-medium max-w-[200px] truncate" title={field.label}>
+                    <td className={`px-3 py-2 text-gray-800 font-medium max-w-[200px] truncate ${field.deleted ? 'line-through text-gray-400' : ''}`} title={field.label}>
                       {field.label || <span className="text-gray-300 italic">—</span>}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
+                      {field.deleted && <span className="text-red-400 ml-1 text-[10px] no-underline">(deleted)</span>}
                     </td>
                     <td className="px-3 py-2 font-mono text-gray-500 max-w-[160px] truncate" title={field.field_id}>
                       {field.field_id}
@@ -368,6 +379,19 @@ export default function RequiredFieldsTab() {
                         title={field.readonly ? 'Read-only: no validation applied' : 'Editable'}
                       />
                     </td>
+                    <td className="px-3 py-2 text-center">
+                      <button
+                        onClick={() => handleToggleDeleted(field._origIndex)}
+                        className={`p-1 rounded transition-colors ${
+                          field.deleted
+                            ? 'text-green-600 hover:bg-green-50'
+                            : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                        }`}
+                        title={field.deleted ? 'Restore field' : 'Delete field from PDF'}
+                      >
+                        {field.deleted ? <RotateCcw className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -381,6 +405,7 @@ export default function RequiredFieldsTab() {
               <li><strong>Required fields</strong> — red border on open if empty, save &amp; print blocked with alert listing missing fields, close warning</li>
               <li><strong>Integer fields</strong> — only digits allowed (keystroke filtered by data type)</li>
               <li><strong>Read-only fields</strong> — left untouched, no validation applied</li>
+              <li><strong>Delete fields</strong> — permanently removes the control from the PDF</li>
               <li><strong>Max length</strong> — limits character input (e.g. 4000 chars, 5 digits)</li>
               <li><strong>Text overflow</strong> — horizontal scroll enabled for all text fields</li>
             </ul>
@@ -409,6 +434,9 @@ export default function RequiredFieldsTab() {
             <div className="text-xs text-gray-500 space-y-0.5">
               <p><span className="text-red-600 font-bold text-lg">{requiredCount}</span><span className="ml-1.5">required field{requiredCount !== 1 ? 's' : ''}</span></p>
               <p><span className="text-blue-600 font-bold text-lg">{editedFields.filter(f => f.data_type === 'integer' && !f.readonly).length}</span><span className="ml-1.5">integer-only field{editedFields.filter(f => f.data_type === 'integer' && !f.readonly).length !== 1 ? 's' : ''}</span></p>
+              {editedFields.filter(f => f.deleted).length > 0 && (
+                <p><span className="text-red-400 font-bold text-lg">{editedFields.filter(f => f.deleted).length}</span><span className="ml-1.5">field{editedFields.filter(f => f.deleted).length !== 1 ? 's' : ''} to delete</span></p>
+              )}
             </div>
             <button
               onClick={handleApplyRequired}

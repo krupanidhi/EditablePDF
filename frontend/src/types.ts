@@ -128,6 +128,7 @@ export interface ExtractedFieldClean {
   data_type: string;
   readonly: boolean;
   max_length: number | null;
+  deleted: boolean;
   xfa_name?: string;
 }
 
