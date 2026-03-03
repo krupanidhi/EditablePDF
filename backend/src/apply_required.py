@@ -475,6 +475,8 @@ def apply_required(pdf_path: str, fields: list[dict],
     required_field_info = []  # (field_name, display_label, is_radio, depends_on_pdf_name)
     delete_xrefs = []  # xrefs of widgets marked for deletion
     field_id_to_pdf_name = {}  # field_id -> PDF field_name (for depends_on lookups)
+    consumed_field_ids = set()  # field_ids already matched to a widget
+    radio_dependents = {}  # parent radio PDF name -> [(textarea PDF name, display_label)]
     
 
     for page_num in range(doc.page_count):
@@ -525,9 +527,12 @@ def apply_required(pdf_path: str, fields: list[dict],
                 continue
 
             # Resolve field metadata from the JSON
-            fdata = _resolve_field(field_lookup, candidate_id, widget_type=_wtype)
+            fdata = _resolve_field(field_lookup, candidate_id,
+                                   widget_type=_wtype,
+                                   consumed=consumed_field_ids)
             if fdata is None:
                 continue
+            consumed_field_ids.add(fdata.get("field_id", ""))
 
             # --- Delete field if user marked it for deletion ---
             is_deleted = bool(fdata.get("deleted", False))
@@ -572,6 +577,10 @@ def apply_required(pdf_path: str, fields: list[dict],
                 # Resolve depends_on to a PDF field_name
                 dep_pdf_name = field_id_to_pdf_name.get(dep_fid) if dep_fid else None
                 required_field_info.append((field_name, display_label, is_radio, dep_pdf_name))
+                # Track radio -> dependent textarea mapping for per-radio JS
+                if dep_pdf_name:
+                    radio_dependents.setdefault(dep_pdf_name, []).append(
+                        (field_name, display_label))
 
             # --- Scroll: set multiline + clear DoNotScroll on text fields ---
             # Done BEFORE widget.update() so flag changes are included
@@ -672,6 +681,32 @@ def apply_required(pdf_path: str, fields: list[dict],
                     obj_str = obj_str.rstrip().rstrip('>') + f' /MaxLen {max_length} >>'
                 doc.update_object(xref, obj_str)
 
+    # --- Per-radio validate JS: toggle red/gray on dependent textareas ---
+    if radio_dependents:
+        for page_num in range(doc.page_count):
+            page = doc[page_num]
+            for widget in page.widgets():
+                fn = widget.field_name or ""
+                if fn not in radio_dependents:
+                    continue
+                deps = radio_dependents[fn]
+                # Build JS that checks radio value and sets borders on dependents
+                lines = []
+                for ta_name, _lbl in deps:
+                    lines.append(
+                        f'var t=this.getField("{ta_name}");'
+                        f'if(event.value!=="Off"&&event.value!==""&&event.value!=null){{'
+                        f'if(t&&(t.value===""||t.value==null))'
+                        f'{{t.strokeColor=color.red;t.fillColor=["RGB",1,0.93,0.93];}}'
+                        f'}}else{{'
+                        f'if(t){{t.strokeColor={_GRAY_BORDER};t.fillColor={_ORIG_FILL};}}'
+                        f'}}'
+                    )
+                js = '\n'.join(lines)
+                # Use script (validate action /AA /V) which fires on value commit
+                widget.script = js
+                widget.update()
+
     # --- Delete marked widgets by removing them from page /Annots ---
     if delete_xrefs:
         delete_set = set(delete_xrefs)
@@ -717,27 +752,47 @@ def apply_required(pdf_path: str, fields: list[dict],
 
 
 def _resolve_field(field_lookup: dict, candidate_id: str,
-                   widget_type: str | None = None) -> dict | None:
+                   widget_type: str | None = None,
+                   consumed: set | None = None) -> dict | None:
     """Look up a field in the lookup dict, trying suffixed variants.
 
     If *widget_type* is given (e.g. "text", "radio") and the base match
     has a different field_type, skip it and try suffixed variants.  This
     handles the case where a text field and a radio group share the same
     label — the extractor gives the text field a ``_2`` suffix.
+
+    If *consumed* is given, skip field_ids already in the set.  This
+    ensures that duplicate labels (e.g. multiple "If yes explain"
+    textareas) resolve to ``_2``, ``_3``, etc. in order.
     """
+    _consumed = consumed or set()
+    fallback = None  # best match ignoring consumed
     fdata = field_lookup.get(candidate_id)
     if fdata is not None:
-        if widget_type is None or fdata.get("field_type", "") == widget_type:
-            return fdata
-        # Type mismatch — fall through to suffixed search
-    for suffix in range(2, 20):
+        fid = fdata.get("field_id", "")
+        type_ok = (widget_type is None or fdata.get("field_type", "") == widget_type)
+        if type_ok:
+            if fid not in _consumed:
+                return fdata
+            if fallback is None:
+                fallback = fdata
+        # Type mismatch or consumed — fall through to suffixed search
+    for suffix in range(2, 50):
         alt_id = f"{candidate_id}_{suffix}"
         fd = field_lookup.get(alt_id)
-        if fd is not None:
-            if widget_type is None or fd.get("field_type", "") == widget_type:
+        if fd is None:
+            break  # no more suffixed variants
+        afid = fd.get("field_id", "")
+        type_ok = (widget_type is None or fd.get("field_type", "") == widget_type)
+        if type_ok:
+            if afid not in _consumed:
                 return fd
-    # If nothing matched with type filter, return the base match anyway
-    # (better than None — lets other logic still apply)
+            if fallback is None:
+                fallback = fd
+    # If nothing unconsumed matched, return fallback (better than None)
+    if fallback is not None:
+        return fallback
+    # Last resort: return the base match even if type mismatched
     if fdata is not None:
         return fdata
     return None
