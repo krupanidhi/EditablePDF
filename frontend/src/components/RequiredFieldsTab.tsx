@@ -310,17 +310,27 @@ export default function RequiredFieldsTab() {
                       {field.readonly ? (
                         <span className="text-gray-300 text-[10px]">N/A</span>
                       ) : (
-                        <input
-                          type="checkbox"
-                          checked={field.required}
-                          onChange={() => handleToggleRequired(field._origIndex)}
-                          className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
-                        />
+                        <div className="flex flex-col items-center gap-0.5">
+                          <input
+                            type="checkbox"
+                            checked={field.required}
+                            onChange={() => handleToggleRequired(field._origIndex)}
+                            className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                          />
+                          {field.required && field.depends_on && (
+                            <span className="text-[8px] text-orange-600 whitespace-nowrap" title={`Required only when "${editedFields.find(f => f.field_id === field.depends_on)?.label || field.depends_on}" = Yes`}>
+                              if Yes
+                            </span>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className={`px-3 py-2 text-gray-800 font-medium max-w-[200px] truncate ${field.deleted ? 'line-through text-gray-400' : ''}`} title={field.label}>
                       {field.label || <span className="text-gray-300 italic">—</span>}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
+                      {field.depends_on && (
+                        <span className="text-orange-500 ml-1 text-[9px]" title={`Linked to: ${editedFields.find(f => f.field_id === field.depends_on)?.label || field.depends_on}`}>&#x1F517;</span>
+                      )}
                       {field.deleted && <span className="text-red-400 ml-1 text-[10px] no-underline">(deleted)</span>}
                     </td>
                     <td className="px-3 py-2 font-mono text-gray-500 max-w-[160px] truncate" title={field.field_id}>
@@ -402,7 +412,7 @@ export default function RequiredFieldsTab() {
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
             <strong>What happens when you apply:</strong>
             <ul className="mt-1.5 ml-3 space-y-0.5 list-disc">
-              <li><strong>Required fields</strong> — red border on open if empty, save &amp; print blocked with alert listing missing fields, close warning</li>
+              <li><strong>Required fields</strong> — red border on open if empty, save &amp; print blocked with alert listing missing fields, close warning. Fields linked to a radio group (&#x1F517;) are only required when the radio = Yes</li>
               <li><strong>Integer fields</strong> — only digits allowed (keystroke filtered by data type)</li>
               <li><strong>Read-only fields</strong> — left untouched, no validation applied</li>
               <li><strong>Delete fields</strong> — permanently removes the control from the PDF</li>

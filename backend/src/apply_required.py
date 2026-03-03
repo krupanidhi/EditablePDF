@@ -37,9 +37,11 @@ _ORIG_FILL   = '["RGB",0.98,0.98,1.0]'
 
 
 def _build_field_check(fname: str, dlabel: str, is_radio: bool,
-                       highlight: bool = True) -> str:
+                       highlight: bool = True,
+                       depends_on_pdf_name: str | None = None) -> str:
     """Build a single field empty-check JS snippet.
-    When highlight=True, also CLEAR the red styling if the field IS filled."""
+    When highlight=True, also CLEAR the red styling if the field IS filled.
+    If depends_on_pdf_name is set, only check when the parent radio = Yes."""
     if is_radio:
         cond = 'f.value==="Off"||f.value===""||f.value==null'
     else:
@@ -52,11 +54,21 @@ def _build_field_check(fname: str, dlabel: str, is_radio: bool,
         f'f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};'
         if highlight else ''
     )
-    return (
+    check = (
         f'f=this.getField("{fname}");'
         f'if(f&&({cond})){{missing.push("{dlabel}");{mark_red}}}'
         + (f'else if(f){{{clear_red}}}' if highlight else '')
     )
+    # Wrap in conditional: only enforce if parent radio = Yes
+    if depends_on_pdf_name:
+        return (
+            f'var dep=this.getField("{depends_on_pdf_name}");'
+            f'if(dep&&dep.value!=="Off"&&dep.value!==""&&dep.value!=null){{'
+            + check
+            + '}'
+            + (f'else{{f=this.getField("{fname}");if(f){{{clear_red}}}}}' if highlight else '}')
+        )
+    return check
 
 
 def _build_names_js() -> str:
@@ -69,23 +81,34 @@ def _build_names_js() -> str:
 
 
 
-def _build_open_js(required_fields: list[tuple[str, str, bool]]) -> str:
+def _build_open_js(required_fields: list[tuple]) -> str:
     """JS that runs on document open:
     - Red border + pink fill on empty required fields
     - Clear red styling on filled required fields (in case re-opened after partial fill)
+    - Conditional fields: only highlight if parent radio != Off
     """
     lines = []
-    for fname, _dlabel, is_radio in required_fields:
+    for entry in required_fields:
+        fname, _dlabel, is_radio = entry[0], entry[1], entry[2]
+        dep_name = entry[3] if len(entry) > 3 else None
         if is_radio:
             cond = 'f.value==="Off"||f.value===""||f.value==null'
         else:
             cond = 'f.value===""||f.value==null'
-        lines.append(
+        mark = (
             f'f=this.getField("{fname}");'
             f'if(f&&({cond}))'
             f'{{f.strokeColor=color.red;f.fillColor=["RGB",1,0.93,0.93];}}'
             f'else if(f){{f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};}}'
         )
+        if dep_name:
+            mark = (
+                f'var dep=this.getField("{dep_name}");'
+                f'if(dep&&dep.value!=="Off"&&dep.value!==""&&dep.value!=null){{'
+                + mark + '}'
+                f'else{{f=this.getField("{fname}");if(f){{f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};}}}}'
+            )
+        lines.append(mark)
     return 'var f;\n' + '\n'.join(lines)
 
 
@@ -119,13 +142,15 @@ def _build_format_integer_js() -> str:
 _PDF_TX_DO_NOT_SCROLL = 1 << 23  # bit 24
 
 
-def _build_will_save_js(required_fields: list[tuple[str, str, bool]]) -> str:
+def _build_will_save_js(required_fields: list[tuple]) -> str:
     """WillSave JS: block save if required fields are empty.
 
     The Names/JavaScript interval keeps the doc dirty, so repeated Ctrl+S
     always triggers this handler. No need for setTimeOut hacks.
     """
-    checks = [_build_field_check(fn, dl, ir) for fn, dl, ir in required_fields]
+    checks = [_build_field_check(e[0], e[1], e[2],
+              depends_on_pdf_name=e[3] if len(e) > 3 else None)
+              for e in required_fields]
     return (
         'var missing=[];var f;\n'
         + '\n'.join(checks)
@@ -137,9 +162,11 @@ def _build_will_save_js(required_fields: list[tuple[str, str, bool]]) -> str:
     )
 
 
-def _build_will_print_js(required_fields: list[tuple[str, str, bool]]) -> str:
+def _build_will_print_js(required_fields: list[tuple]) -> str:
     """WillPrint JS: block print if required fields are empty."""
-    checks = [_build_field_check(fn, dl, ir) for fn, dl, ir in required_fields]
+    checks = [_build_field_check(e[0], e[1], e[2],
+              depends_on_pdf_name=e[3] if len(e) > 3 else None)
+              for e in required_fields]
     return (
         'var missing=[];var f;\n'
         + '\n'.join(checks)
@@ -151,14 +178,15 @@ def _build_will_print_js(required_fields: list[tuple[str, str, bool]]) -> str:
     )
 
 
-def _build_will_close_js(required_fields: list[tuple[str, str, bool]]) -> str:
+def _build_will_close_js(required_fields: list[tuple]) -> str:
     """WillClose JS: warn user about empty required fields on close.
 
     Adobe does not support blocking document close from JavaScript.
     We show an OK-only alert listing the empty fields as a final warning.
     """
-    checks = [_build_field_check(fn, dl, ir, highlight=False)
-              for fn, dl, ir in required_fields]
+    checks = [_build_field_check(e[0], e[1], e[2], highlight=False,
+              depends_on_pdf_name=e[3] if len(e) > 3 else None)
+              for e in required_fields]
     return (
         'var missing=[];var f;\n'
         + '\n'.join(checks)
@@ -444,8 +472,9 @@ def apply_required(pdf_path: str, fields: list[dict],
 
     updated_count = 0
     seen_radio_groups = set()
-    required_field_info = []  # (field_name, display_label, is_radio)
+    required_field_info = []  # (field_name, display_label, is_radio, depends_on_pdf_name)
     delete_xrefs = []  # xrefs of widgets marked for deletion
+    field_id_to_pdf_name = {}  # field_id -> PDF field_name (for depends_on lookups)
     
 
     for page_num in range(doc.page_count):
@@ -511,11 +540,25 @@ def apply_required(pdf_path: str, fields: list[dict],
             data_type = fdata.get("data_type", "text")
             is_required = bool(fdata.get("required", False))
 
+            # Track field_id → PDF field_name for depends_on resolution
+            # Must be BEFORE readonly skip so parent radios are always mapped
+            resolved_fid = fdata.get("field_id", "")
+            if resolved_fid:
+                field_id_to_pdf_name[resolved_fid] = field_name
+
+            # Conditional required: field has depends_on + required.
+            # These fields are readonly in the original PDF (greyed out until
+            # parent radio = Yes), but we still need to register them for
+            # document-level required JS.  Don't skip them.
+            dep_fid = fdata.get("depends_on")
+            is_conditional_required = is_required and bool(dep_fid)
+
             # --- Apply readonly flag (user may have toggled it) ---
-            _set_readonly_flag(doc, widget, is_readonly)
+            if not is_conditional_required:
+                _set_readonly_flag(doc, widget, is_readonly)
 
             # --- Readonly fields: skip all digitalization rules ---
-            if is_readonly:
+            if is_readonly and not is_conditional_required:
                 # Clear any required flag if readonly
                 _set_required_flag(doc, widget, False)
                 continue
@@ -526,7 +569,9 @@ def apply_required(pdf_path: str, fields: list[dict],
                 updated_count += 1
 
             if is_required:
-                required_field_info.append((field_name, display_label, is_radio))
+                # Resolve depends_on to a PDF field_name
+                dep_pdf_name = field_id_to_pdf_name.get(dep_fid) if dep_fid else None
+                required_field_info.append((field_name, display_label, is_radio, dep_pdf_name))
 
             # --- Scroll: set multiline + clear DoNotScroll on text fields ---
             # Done BEFORE widget.update() so flag changes are included
