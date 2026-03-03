@@ -457,6 +457,13 @@ def apply_required(pdf_path: str, fields: list[dict],
             is_checkbox = widget.field_type == fitz.PDF_WIDGET_TYPE_CHECKBOX
             is_text = widget.field_type == fitz.PDF_WIDGET_TYPE_TEXT
 
+            # Map widget type to extractor's field_type string
+            is_multiline = is_text and bool(widget.field_flags & (1 << 12))
+            _wtype = ("radio" if is_radio else
+                      "checkbox" if is_checkbox else
+                      "textarea" if is_multiline else
+                      "text" if is_text else None)
+
             # Build the same field_id the extractor would produce
             is_radio_dup = False
             if is_radio:
@@ -486,7 +493,7 @@ def apply_required(pdf_path: str, fields: list[dict],
                 continue
 
             # Resolve field metadata from the JSON
-            fdata = _resolve_field(field_lookup, candidate_id)
+            fdata = _resolve_field(field_lookup, candidate_id, widget_type=_wtype)
             if fdata is None:
                 continue
 
@@ -628,15 +635,30 @@ def apply_required(pdf_path: str, fields: list[dict],
     }
 
 
-def _resolve_field(field_lookup: dict, candidate_id: str) -> dict | None:
-    """Look up a field in the lookup dict, trying suffixed variants."""
+def _resolve_field(field_lookup: dict, candidate_id: str,
+                   widget_type: str | None = None) -> dict | None:
+    """Look up a field in the lookup dict, trying suffixed variants.
+
+    If *widget_type* is given (e.g. "text", "radio") and the base match
+    has a different field_type, skip it and try suffixed variants.  This
+    handles the case where a text field and a radio group share the same
+    label — the extractor gives the text field a ``_2`` suffix.
+    """
     fdata = field_lookup.get(candidate_id)
     if fdata is not None:
-        return fdata
+        if widget_type is None or fdata.get("field_type", "") == widget_type:
+            return fdata
+        # Type mismatch — fall through to suffixed search
     for suffix in range(2, 20):
         alt_id = f"{candidate_id}_{suffix}"
-        if alt_id in field_lookup:
-            return field_lookup[alt_id]
+        fd = field_lookup.get(alt_id)
+        if fd is not None:
+            if widget_type is None or fd.get("field_type", "") == widget_type:
+                return fd
+    # If nothing matched with type filter, return the base match anyway
+    # (better than None — lets other logic still apply)
+    if fdata is not None:
+        return fdata
     return None
 
 
