@@ -704,21 +704,28 @@ def apply_required(pdf_path: str, fields: list[dict],
     # committed by the time the check runs.
     if radio_dependents:
         for radio_pdf_name, deps in radio_dependents.items():
-            # Build the delayed check function body
+            # Build the check function body.
+            # We read event.target to get the clicked radio widget, then
+            # use its value.  For the "else" (No / Off) branch we always
+            # clear the dependent textarea's red border.
             inner_lines = []
             for ta_name, _lbl in deps:
+                # After changing colors, toggle display to force Adobe to
+                # regenerate the cached appearance stream (fixes re-open
+                # scenario where border color change isn't visually applied).
+                refresh = 't.display=display.hidden;t.display=display.visible;'
                 inner_lines.append(
                     f'var t=this.getField("{ta_name}");'
                     f'var r=this.getField("{radio_pdf_name}");'
                     f'if(r&&r.value==="Yes"){{'
                     f'if(t&&(t.value===""||t.value==null))'
-                    f'{{t.strokeColor=color.red;t.fillColor=["RGB",1,0.93,0.93];}}'
+                    f'{{t.strokeColor=color.red;t.fillColor=["RGB",1,0.93,0.93];{refresh}}}'
                     f'}}else{{'
-                    f'if(t){{t.strokeColor={_GRAY_BORDER};t.fillColor={_ORIG_FILL};}}'
+                    f'if(t){{t.strokeColor={_GRAY_BORDER};t.fillColor={_ORIG_FILL};{refresh}}}'
                     f'}}'
                 )
-            js = '\n'.join(inner_lines)
-            action_xref = _make_js_action_xref(doc, js)
+            direct_js = '\n'.join(inner_lines)
+            action_xref = _make_js_action_xref(doc, direct_js)
 
             # Attach to every child widget of this radio group
             for page_num in range(doc.page_count):
