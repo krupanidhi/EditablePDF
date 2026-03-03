@@ -137,7 +137,7 @@ function App() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'convert', label: 'Convert', icon: <FileUp className="w-4 h-4" /> },
     { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
-    { id: 'required', label: 'Field Validation', icon: <ListChecks className="w-4 h-4" /> },
+    { id: 'required', label: 'Doc Digitalization', icon: <ListChecks className="w-4 h-4" /> },
     { id: 'validate', label: 'Validate', icon: <ShieldCheck className="w-4 h-4" /> },
     { id: 'add-rows', label: 'Add Rows', icon: <TableProperties className="w-4 h-4" /> },
   ];
