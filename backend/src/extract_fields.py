@@ -92,12 +92,12 @@ def _infer_data_type(value: str, label: str = "") -> str:
         return "phone"
     if any(k in lbl for k in ("zip", "zip code")):
         return "integer"
-    if any(k in lbl for k in ("price", "cost", "amount", "budget",
-                               "total", "dollar", "funding", "federal share")):
-        return "currency"
     if any(k in lbl for k in ("quantity", "number of", "how many",
                                "square footage", "sq ft", "count")):
         return "integer"
+    if any(k in lbl for k in ("price", "cost", "amount", "budget",
+                               "total", "dollar", "funding", "federal share")):
+        return "currency"
 
     if not value or not value.strip():
         return "text"
@@ -209,13 +209,15 @@ def _xfa_infer_data_type(ui_elem, label: str) -> str:
             tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
             if tag == "numericEdit":
                 # Use label to distinguish currency from integer
+                # Check integer keywords FIRST so "Grand Total Quantity"
+                # matches "quantity" before "total"
                 lbl = label.lower()
-                if any(k in lbl for k in ("price", "cost", "amount",
-                                          "budget", "total", "dollar")):
-                    return "currency"
                 if any(k in lbl for k in ("quantity", "count",
                                           "number of", "how many")):
                     return "integer"
+                if any(k in lbl for k in ("price", "cost", "amount",
+                                          "budget", "total", "dollar")):
+                    return "currency"
                 return "number"
             if tag == "dateTimeEdit":
                 return "date"

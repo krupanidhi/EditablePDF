@@ -395,8 +395,30 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             except (ValueError, TypeError):
                 max_length = None
 
-        # Skip readonly fields
+        # Readonly fields: still apply numeric formatting (value type +
+        # picture) so calculated fields like TotalPrice display decimals
+        # correctly when their source fields change from integer to decimal.
         if is_readonly:
+            if data_type in ("currency", "number"):
+                # Convert <value><integer/> → <value><decimal/>
+                val_elem = field_elem.find(f"{ns}value")
+                if val_elem is not None:
+                    int_elem = val_elem.find(f"{ns}integer")
+                    if int_elem is not None:
+                        val_elem.remove(int_elem)
+                        ET.SubElement(val_elem, f"{ns}decimal")
+                # Update picture clause
+                pic = field_elem.find(f"{ns}format/{ns}picture")
+                if pic is None:
+                    fmt = field_elem.find(f"{ns}format")
+                    if fmt is None:
+                        fmt = ET.SubElement(field_elem, f"{ns}format")
+                    pic = ET.SubElement(fmt, f"{ns}picture")
+                if data_type == "currency":
+                    pic.text = "$z,zzz,zz9.99"
+                else:
+                    pic.text = "z,zzz,zzz,zz9.99"
+                updated_count += 1
             continue
 
         any_change = False
