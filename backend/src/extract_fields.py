@@ -423,15 +423,26 @@ def extract_fields(pdf_path: str) -> dict:
         print(f"  Filtered {len(skipped)} noise field(s): {skipped[:5]}"
               f"{'...' if len(skipped) > 5 else ''}")
 
-    return {
+    result = {
         "metadata": {
             "source_file": os.path.basename(pdf_path),
             "extracted_at": datetime.now(timezone.utc).isoformat(),
             "page_count": page_count,
             "total_fields": len(fields),
+            "is_xfa": doc_is_xfa,
         },
         "fields": fields,
     }
+    if doc_is_xfa:
+        result["xfa_warning"] = (
+            "This is an XFA form (dynamic PDF). After applying Digitalization "
+            "Workflow rules and downloading, you MUST open the output PDF in "
+            "Adobe Acrobat Pro and re-apply Reader Extensions:\n"
+            "  File → Save As Other → Reader Extended PDF → Enable More Tools\n"
+            "Without this step, users with free Adobe Reader will not be able "
+            "to edit fields, add rows, or delete rows."
+        )
+    return result
 
 
 def main():

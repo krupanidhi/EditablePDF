@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { ShieldCheck, Download, FileSearch, Upload, Settings2, Trash2, RotateCcw } from 'lucide-react';
+import { ShieldCheck, Download, FileSearch, Upload, Settings2, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
 import { extractFields, applyRequired, getDownloadUrl } from '../api';
 import type { ExtractFieldsResponse, ExtractedFieldClean, ApplyRequiredResponse } from '../types';
 import FileUploader from './FileUploader';
@@ -206,6 +206,17 @@ export default function RequiredFieldsTab() {
               </button>
             </div>
           </div>
+
+          {/* XFA warning */}
+          {extractFieldsData.xfa_warning && (
+            <div className="bg-[#FFF7ED] border border-[#FDBA74] rounded-lg p-3 mb-4 flex items-start gap-2.5">
+              <AlertTriangle className="w-5 h-5 text-[#EA580C] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#9A3412]">
+                <strong className="text-sm">XFA Form — Reader Extensions Required</strong>
+                <p className="mt-1 whitespace-pre-line">{extractFieldsData.xfa_warning}</p>
+              </div>
+            </div>
+          )}
 
           {/* Summary cards */}
           <div className="grid grid-cols-5 gap-3 mb-4">
@@ -488,25 +499,39 @@ export default function RequiredFieldsTab() {
 
           {/* Result */}
           {applyRequiredResult && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-green-800">
-                    PDF regenerated with Digitalization Workflow rules
-                  </p>
-                  <p className="text-xs text-green-600 mt-0.5">
-                    {applyRequiredResult.fields_updated} of {applyRequiredResult.fields_total} fields updated
-                  </p>
+            <div className="mt-4 space-y-3">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-green-800">
+                      PDF regenerated with Digitalization Workflow rules
+                    </p>
+                    <p className="text-xs text-green-600 mt-0.5">
+                      {applyRequiredResult.fields_updated} of {applyRequiredResult.fields_total} fields updated
+                    </p>
+                  </div>
+                  <a
+                    href={getDownloadUrl(applyRequiredResult.output_file)}
+                    download
+                    className="px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download PDF
+                  </a>
                 </div>
-                <a
-                  href={getDownloadUrl(applyRequiredResult.output_file)}
-                  download
-                  className="px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  Download PDF
-                </a>
               </div>
+              {applyRequiredResult.xfa_warning && (
+                <div className="p-4 bg-[#FFF7ED] border-2 border-[#EA580C] rounded-lg flex items-start gap-3">
+                  <AlertTriangle className="w-6 h-6 text-[#EA580C] shrink-0 mt-0.5" />
+                  <div className="text-sm text-[#9A3412]">
+                    <strong className="text-base">⚠ Important: Re-apply Reader Extensions</strong>
+                    <p className="mt-1.5 whitespace-pre-line">{applyRequiredResult.xfa_warning}</p>
+                    <p className="mt-2 font-semibold">
+                      Steps: Open in Adobe Acrobat Pro → File → Save As Other → Reader Extended PDF → Enable More Tools
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

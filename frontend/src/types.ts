@@ -140,8 +140,10 @@ export interface ExtractFieldsResponse {
     extracted_at: string;
     page_count: number;
     total_fields: number;
+    is_xfa?: boolean;
   };
   fields: ExtractedFieldClean[];
+  xfa_warning?: string;
 }
 
 export interface ApplyRequiredResponse {
@@ -150,6 +152,7 @@ export interface ApplyRequiredResponse {
   fields_updated: number;
   fields_total: number;
   download_url: string;
+  xfa_warning?: string;
 }
 
 export interface HealthCheck {

@@ -424,8 +424,15 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     # ET strips the xml declaration; XFA template doesn't need one
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
 
-    # Save
-    doc.save(output_path)
+    # Save — modifying the XFA template stream always invalidates the
+    # Adobe Reader Extensions usage-rights signature.  There is no
+    # programmatic way to re-apply it; only Adobe Acrobat Pro can do that.
+    # We save with encryption=KEEP so any remaining PDF security is
+    # preserved.
+    if output_path is None or output_path == pdf_path:
+        doc.saveIncr()
+    else:
+        doc.save(output_path, encryption=fitz.PDF_ENCRYPT_KEEP)
     doc.close()
 
     return {
@@ -433,6 +440,13 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         "output_file": os.path.basename(output_path),
         "fields_updated": updated_count,
         "fields_total": len([f for f in fields if f.get("field_id")]),
+        "xfa_warning": (
+            "This is an XFA form. After downloading, you MUST open it in "
+            "Adobe Acrobat Pro and re-apply Reader Extensions:\n"
+            "  File → Save As Other → Reader Extended PDF → Enable More Tools\n"
+            "Without this step, users with free Adobe Reader will not be able "
+            "to edit fields, add rows, or delete rows."
+        ),
     }
 
 
