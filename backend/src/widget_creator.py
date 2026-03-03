@@ -17,6 +17,19 @@ from . import config
 # PDF text field flag constants
 _PDF_TX_DO_NOT_SCROLL = 1 << 23  # bit 24
 _FIXED_FONT_SIZE = 10  # consistent font size for all text fields
+_MIN_FONT_SIZE = 6    # never go below this even for very tiny widgets
+
+
+def _font_size_for_widget(widget_height: float) -> int:
+    """Return best font size for a widget given its height.
+
+    For tall widgets (textareas, normal text boxes) use _FIXED_FONT_SIZE.
+    For tiny single-line text boxes, scale down so the text fits inside
+    the widget boundary with some padding.
+    """
+    height_based = int(widget_height * 0.6)
+    size = min(_FIXED_FONT_SIZE, max(_MIN_FONT_SIZE, height_based))
+    return size
 
 
 # ----------------------------
@@ -138,10 +151,11 @@ def _sanitize_field_name(name):
 # ----------------------------
 
 def _fix_widget_font(doc, widget):
-    """Re-set font size to _FIXED_FONT_SIZE after widget.update().
+    """Re-set font size after widget.update().
 
     widget.update() regenerates /DA and may reset font size to 0 (auto-size).
     Auto-size causes font to shrink when text wraps to multiple lines.
+    Uses widget height to pick an appropriate size for tiny text boxes.
     Surgically replaces only the /DA string.
     """
     xref = widget.xref
@@ -152,7 +166,9 @@ def _fix_widget_font(doc, widget):
     da = da_match.group(1)
     if not re.search(r'\b0\s+Tf\b', da):
         return  # already has a non-zero font size
-    new_da = re.sub(r'\b0\s+Tf\b', f'{_FIXED_FONT_SIZE} Tf', da)
+    h = abs(widget.rect.y1 - widget.rect.y0)
+    size = _font_size_for_widget(h)
+    new_da = re.sub(r'\b0\s+Tf\b', f'{size} Tf', da)
     new_obj = obj_str.replace(f'({da})', f'({new_da})', 1)
     doc.update_object(xref, new_obj)
 
@@ -181,7 +197,7 @@ def create_text_field(page, field, used_names):
     w.border_width = config.WIDGET_BORDER_WIDTH
     w.border_color = (0.6, 0.6, 0.6)
     w.fill_color = (0.98, 0.98, 1.0)  # very light blue tint for input areas
-    w.text_fontsize = _FIXED_FONT_SIZE
+    w.text_fontsize = _font_size_for_widget(rect.height)
 
     # Enable scroll on all text fields: set multiline + clear DoNotScroll
     w.field_flags |= fitz.PDF_TX_FIELD_IS_MULTILINE

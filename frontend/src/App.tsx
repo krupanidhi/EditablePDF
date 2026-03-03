@@ -7,13 +7,10 @@ import {
   ShieldCheck,
   Activity,
   FileText,
-  Plus,
-  Download,
-  TableProperties,
   ListChecks,
 } from 'lucide-react';
-import { healthCheck, convertFile, convertFolder, extractData, validateData, addRows, getDownloadUrl } from './api';
-import type { FormSchema, ExtractedData, ValidationResult, AddRowsResponse, HealthCheck } from './types';
+import { healthCheck, convertFile, convertFolder, extractData, validateData } from './api';
+import type { FormSchema, ExtractedData, ValidationResult, HealthCheck } from './types';
 import FileUploader from './components/FileUploader';
 import JobTracker from './components/JobTracker';
 import SchemaViewer from './components/SchemaViewer';
@@ -21,7 +18,7 @@ import ExtractedDataViewer from './components/ExtractedDataViewer';
 import ValidationViewer from './components/ValidationViewer';
 import RequiredFieldsTab from './components/RequiredFieldsTab';
 
-type Tab = 'convert' | 'extract' | 'required' | 'validate' | 'add-rows';
+type Tab = 'convert' | 'extract' | 'required' | 'validate';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('convert');
@@ -41,9 +38,6 @@ function App() {
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [validating, setValidating] = useState(false);
 
-  // Add Rows state
-  const [addRowsResult, setAddRowsResult] = useState<AddRowsResponse | null>(null);
-  const [addingRows, setAddingRows] = useState(false);
 
   useEffect(() => {
     healthCheck()
@@ -139,7 +133,6 @@ function App() {
     { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
     { id: 'required', label: 'Digitalization Workflow', icon: <ListChecks className="w-4 h-4" /> },
     { id: 'validate', label: 'Validate', icon: <ShieldCheck className="w-4 h-4" /> },
-    { id: 'add-rows', label: 'Add Rows', icon: <TableProperties className="w-4 h-4" /> },
   ];
 
   return (
@@ -351,16 +344,6 @@ function App() {
             result={validationResult}
           />
         )}
-
-        {/* Add Rows Tab */}
-        {activeTab === 'add-rows' && (
-          <AddRowsTab
-            addingRows={addingRows}
-            setAddingRows={setAddingRows}
-            result={addRowsResult}
-            setResult={setAddRowsResult}
-          />
-        )}
       </main>
     </div>
   );
@@ -431,145 +414,6 @@ function ValidateTab({
             Validation Results
           </h2>
           <ValidationViewer result={result} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function AddRowsTab({
-  addingRows,
-  setAddingRows,
-  result,
-  setResult,
-}: {
-  addingRows: boolean;
-  setAddingRows: (v: boolean) => void;
-  result: AddRowsResponse | null;
-  setResult: (v: AddRowsResponse | null) => void;
-}) {
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [maxRows, setMaxRows] = useState(20);
-
-  const handleAddRows = async () => {
-    if (!pdfFile) return;
-    setAddingRows(true);
-    setResult(null);
-    try {
-      const res = await addRows(pdfFile, maxRows);
-      setResult(res);
-      toast.success(`PDF ready with dynamic "Add Row" button (up to ${res.total_rows} rows)`);
-    } catch (err) {
-      toast.error(`Failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    } finally {
-      setAddingRows(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-        <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
-          <TableProperties className="w-4 h-4 text-indigo-500" />
-          Dynamic Rows — Embed "Add Row" Button in PDF
-        </h2>
-        <p className="text-xs text-gray-500 mb-4">
-          Upload an editable PDF with a table (e.g. Equipment List). The system will embed
-          a <strong>"+ Add Row"</strong> button directly inside the PDF. Users can click it
-          in Adobe Acrobat or Foxit Reader to dynamically add more rows.
-          The PDF starts with 1 visible row.
-        </p>
-
-        <div className="space-y-4">
-          <FileUploader
-            onFilesSelected={(files) => setPdfFile(files[0])}
-            accept={{ 'application/pdf': ['.pdf'] }}
-            label={pdfFile ? pdfFile.name : 'Drop editable PDF with table'}
-            description="Upload an editable PDF that has a repeating table structure"
-          />
-
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <label className="text-xs font-medium text-gray-600 mb-1.5 block">
-                Maximum rows available (pre-created hidden)
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={5}
-                  max={50}
-                  value={maxRows}
-                  onChange={(e) => setMaxRows(Number(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                />
-                <span className="text-lg font-bold text-indigo-700 w-8 text-center">
-                  {maxRows}
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleAddRows}
-              disabled={!pdfFile || addingRows}
-              className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              {addingRows ? 'Processing...' : 'Build Dynamic PDF'}
-            </button>
-          </div>
-        </div>
-
-        {addingRows && (
-          <p className="text-sm text-indigo-600 mt-3 animate-pulse">
-            Embedding "Add Row" button and pre-creating hidden rows...
-          </p>
-        )}
-      </div>
-
-      {result && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <Plus className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-gray-800">
-                Dynamic PDF Ready
-              </h2>
-              <p className="text-xs text-gray-500">
-                PDF has a "+ Add Row" button. Starts with {result.visible_rows} row, supports up to {result.total_rows} rows.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="bg-indigo-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-indigo-700">{result.visible_rows}</p>
-              <p className="text-xs text-indigo-600">Visible Rows</p>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-blue-700">{result.total_rows}</p>
-              <p className="text-xs text-blue-600">Max Rows</p>
-            </div>
-            <div className="bg-amber-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-amber-700">{result.hidden_rows}</p>
-              <p className="text-xs text-amber-600">Hidden (expandable)</p>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-xs text-blue-700">
-            <strong>How it works:</strong> Open the downloaded PDF in Adobe Acrobat or Foxit Reader.
-            Click the <strong>"+ Add Row"</strong> button to reveal one more row each time.
-          </div>
-
-          <a
-            href={getDownloadUrl(result.output_file)}
-            download
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Download Dynamic PDF
-          </a>
         </div>
       )}
     </div>

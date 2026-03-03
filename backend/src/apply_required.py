@@ -974,14 +974,26 @@ def _prepare_text_scroll(widget, doc=None, enabled: bool = True):
 
 # Consistent font size for all text fields (prevents auto-shrink on wrap)
 _FIXED_FONT_SIZE = 10
+_MIN_FONT_SIZE = 6  # never go below this even for very tiny widgets
+
+
+def _font_size_for_widget(widget_height: float) -> int:
+    """Return best font size for a widget given its height.
+
+    For tall widgets (textareas, normal text boxes) use _FIXED_FONT_SIZE.
+    For tiny single-line text boxes, scale down so the text fits inside
+    the widget boundary with some padding.
+    """
+    height_based = int(widget_height * 0.6)
+    return min(_FIXED_FONT_SIZE, max(_MIN_FONT_SIZE, height_based))
 
 
 def _fix_font_for_scroll(doc, widget):
-    """Set a consistent fixed font size on text fields AFTER widget.update().
+    """Set a height-appropriate fixed font size on text fields AFTER widget.update().
 
     widget.update() regenerates /DA and may reset font size to 0 (auto-size).
     Auto-size causes the font to shrink when text wraps to multiple lines.
-    We replace it with a fixed size so font stays consistent.
+    We replace it with a fixed size that fits the widget height.
     Surgically replaces only the /DA string, leaving /AA and all other
     entries untouched.
     Counter widgets (already have non-zero font) are naturally skipped
@@ -999,7 +1011,9 @@ def _fix_font_for_scroll(doc, widget):
     if not re.search(r'\b0\s+Tf\b', da):
         return  # already has a fixed font size
 
-    new_da = re.sub(r'\b0\s+Tf\b', f'{_FIXED_FONT_SIZE} Tf', da)
+    h = abs(widget.rect.y1 - widget.rect.y0)
+    size = _font_size_for_widget(h)
+    new_da = re.sub(r'\b0\s+Tf\b', f'{size} Tf', da)
     # Only replace the /DA value, preserving everything else including /AA
     new_obj = obj_str.replace(f'({da})', f'({new_da})', 1)
     doc.update_object(xref, new_obj)
