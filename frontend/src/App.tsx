@@ -9,12 +9,11 @@ import {
   FileText,
   ListChecks,
 } from 'lucide-react';
-import { healthCheck, convertFile, convertFolder, extractData, validateData } from './api';
-import type { FormSchema, ExtractedData, ValidationResult, HealthCheck } from './types';
+import { healthCheck, convertFile, convertFolder, extractFields, validateData } from './api';
+import type { FormSchema, ExtractFieldsResponse, ValidationResult, HealthCheck } from './types';
 import FileUploader from './components/FileUploader';
 import JobTracker from './components/JobTracker';
 import SchemaViewer from './components/SchemaViewer';
-import ExtractedDataViewer from './components/ExtractedDataViewer';
 import ValidationViewer from './components/ValidationViewer';
 import RequiredFieldsTab from './components/RequiredFieldsTab';
 
@@ -31,7 +30,7 @@ function App() {
   const [completedSchemas, setCompletedSchemas] = useState<FormSchema[]>([]);
 
   // Extract state
-  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
+  const [extractedData, setExtractedData] = useState<ExtractFieldsResponse | null>(null);
   const [extracting, setExtracting] = useState(false);
 
   // Validate state
@@ -99,9 +98,9 @@ function App() {
     setExtracting(true);
     setExtractedData(null);
     try {
-      const data = await extractData(files[0]);
+      const data = await extractFields(files[0]);
       setExtractedData(data);
-      toast.success(`Extracted ${data.summary.total_fields} fields`);
+      toast.success(`Extracted ${data.metadata.total_fields} fields`);
     } catch (err) {
       toast.error(`Extraction failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
@@ -266,21 +265,22 @@ function App() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
                 <FileSearch className="w-4 h-4 text-blue-500" />
-                Extract Filled Values from PDF
+                Extract Field Data from PDF
               </h2>
               <p className="text-xs text-gray-500 mb-4">
-                Upload a <strong>filled</strong> editable PDF to extract user-entered values with schema enrichment.
+                Upload an editable PDF to extract all form field controls and their values as JSON.
+                The output uses the same field structure as the <strong>Digitalization Workflow</strong>.
               </p>
               <FileUploader
                 onFilesSelected={handleExtract}
                 accept={{ 'application/pdf': ['.pdf'] }}
-                label="Drop filled PDF"
-                description="Upload the editable PDF that has been filled out"
+                label="Drop editable PDF here"
+                description="Supports any editable PDF with form controls"
                 disabled={extracting}
               />
               {extracting && (
                 <p className="text-sm text-blue-600 mt-3 animate-pulse">
-                  Extracting form data...
+                  Extracting form fields...
                 </p>
               )}
             </div>
@@ -290,10 +290,10 @@ function App() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-sm font-semibold text-gray-800">
-                      Extracted Data
+                      Extracted Fields
                     </h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      {extractedData.metadata.source_file.split(/[\\/]/).pop()} — {extractedData.metadata.page_count} pages
+                      {extractedData.metadata.source_file} — {extractedData.metadata.page_count} page{extractedData.metadata.page_count > 1 ? 's' : ''}, {extractedData.metadata.total_fields} fields
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -317,7 +317,7 @@ function App() {
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = 'extracted_data.json';
+                        a.download = 'extracted_fields.json';
                         a.click();
                         URL.revokeObjectURL(url);
                       }}
@@ -327,7 +327,63 @@ function App() {
                     </button>
                   </div>
                 </div>
-                <ExtractedDataViewer data={extractedData} />
+
+                {/* Summary badges */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {Object.entries(
+                    extractedData.fields.reduce<Record<string, number>>((acc, f) => {
+                      acc[f.field_type] = (acc[f.field_type] || 0) + 1;
+                      return acc;
+                    }, {})
+                  ).map(([type, count]) => (
+                    <span key={type} className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+                      {type} × {count}
+                    </span>
+                  ))}
+                  <span className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded-full border border-green-200">
+                    {extractedData.fields.filter(f => f.value && String(f.value).trim()).length} filled
+                  </span>
+                  <span className="px-2 py-0.5 bg-gray-50 text-gray-500 text-xs rounded-full border border-gray-200">
+                    {extractedData.fields.filter(f => !f.value || !String(f.value).trim()).length} empty
+                  </span>
+                </div>
+
+                {/* Fields table */}
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto border border-gray-200 rounded-lg">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50 sticky top-0">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-medium text-gray-600">Pg</th>
+                        <th className="text-left px-3 py-2 font-medium text-gray-600">Label</th>
+                        <th className="text-left px-3 py-2 font-medium text-gray-600">Field ID</th>
+                        <th className="text-left px-3 py-2 font-medium text-gray-600">Type</th>
+                        <th className="text-left px-3 py-2 font-medium text-gray-600">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {extractedData.fields.map((f, i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                          <td className="px-3 py-1.5 text-gray-400">{f.page}</td>
+                          <td className="px-3 py-1.5 text-gray-800 font-medium max-w-[200px] truncate" title={f.label}>{f.label || '—'}</td>
+                          <td className="px-3 py-1.5 text-gray-500 font-mono max-w-[160px] truncate" title={f.field_id}>{f.field_id}</td>
+                          <td className="px-3 py-1.5">
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              f.field_type === 'radio' ? 'bg-purple-50 text-purple-700' :
+                              f.field_type === 'checkbox' ? 'bg-amber-50 text-amber-700' :
+                              f.field_type === 'textarea' ? 'bg-blue-50 text-blue-700' :
+                              'bg-gray-100 text-gray-600'
+                            }`}>
+                              {f.field_type}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1.5 text-gray-700 max-w-[250px] truncate" title={String(f.value ?? '')}>
+                            {f.value && String(f.value).trim() ? String(f.value) : <span className="text-gray-300 italic">empty</span>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
