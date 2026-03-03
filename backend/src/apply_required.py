@@ -558,6 +558,11 @@ def apply_required(pdf_path: str, fields: list[dict],
             dep_fid = fdata.get("depends_on")
             is_conditional_required = is_required and bool(dep_fid)
 
+            # --- Scroll: set multiline + clear DoNotScroll on ALL text fields ---
+            # Must be BEFORE readonly skip so readonly fields also get scroll
+            if is_text:
+                _prepare_text_scroll(widget)
+
             # --- Apply readonly flag (user may have toggled it) ---
             if not is_conditional_required:
                 _set_readonly_flag(doc, widget, is_readonly)
@@ -566,6 +571,9 @@ def apply_required(pdf_path: str, fields: list[dict],
             if is_readonly and not is_conditional_required:
                 # Clear any required flag if readonly
                 _set_required_flag(doc, widget, False)
+                # Still fix font size for consistent display
+                if is_text:
+                    _fix_font_for_scroll(doc, widget)
                 continue
 
             # --- Required flag ---
@@ -581,11 +589,6 @@ def apply_required(pdf_path: str, fields: list[dict],
                 if dep_pdf_name:
                     radio_dependents.setdefault(dep_pdf_name, []).append(
                         (field_name, display_label))
-
-            # --- Scroll: set multiline + clear DoNotScroll on text fields ---
-            # Done BEFORE widget.update() so flag changes are included
-            if is_text:
-                _prepare_text_scroll(widget)
 
             # --- Per-field JS actions via widget API ---
             # Red borders are handled at document level only (OpenAction,
@@ -682,6 +685,15 @@ def apply_required(pdf_path: str, fields: list[dict],
                 else:
                     obj_str = obj_str.rstrip().rstrip('>') + f' /MaxLen {max_length} >>'
                 doc.update_object(xref, obj_str)
+
+    # --- Final pass: fix scroll + font on ALL text widgets (catches unresolved) ---
+    for page_num in range(doc.page_count):
+        page = doc[page_num]
+        for widget in page.widgets():
+            if widget.field_type != fitz.PDF_WIDGET_TYPE_TEXT:
+                continue
+            _prepare_text_scroll(widget)
+            _fix_font_for_scroll(doc, widget)
 
     # --- Per-radio MouseUp JS: toggle red/gray on dependent textareas ---
     # Must use direct xref manipulation — widget.update() corrupts radio
@@ -930,11 +942,9 @@ def _prepare_text_scroll(widget):
 
     Called BEFORE widget.update() so that flag changes are included
     in the same update that writes /AA for scripts.
+    Applies to ALL text fields including readonly ones.
     """
     if widget.field_type != fitz.PDF_WIDGET_TYPE_TEXT:
-        return
-    is_ro = bool(widget.field_flags & fitz.PDF_FIELD_IS_READ_ONLY)
-    if is_ro:
         return
 
     new_flags = widget.field_flags
@@ -944,17 +954,22 @@ def _prepare_text_scroll(widget):
         widget.field_flags = new_flags
 
 
-def _fix_font_for_scroll(doc, widget):
-    """Fix auto-size font on formerly-single-line fields AFTER widget.update().
+# Consistent font size for all text fields (prevents auto-shrink on wrap)
+_FIXED_FONT_SIZE = 10
 
-    widget.update() regenerates /DA and may reset font size to 0.
-    We fix it here by surgically replacing only the /DA string,
-    leaving /AA and all other entries untouched.
+
+def _fix_font_for_scroll(doc, widget):
+    """Set a consistent fixed font size on text fields AFTER widget.update().
+
+    widget.update() regenerates /DA and may reset font size to 0 (auto-size).
+    Auto-size causes the font to shrink when text wraps to multiple lines.
+    We replace it with a fixed size so font stays consistent.
+    Surgically replaces only the /DA string, leaving /AA and all other
+    entries untouched.
+    Counter widgets (already have non-zero font) are naturally skipped
+    by the '0 Tf' check.
     """
     if widget.field_type != fitz.PDF_WIDGET_TYPE_TEXT:
-        return
-    is_ro = bool(widget.field_flags & fitz.PDF_FIELD_IS_READ_ONLY)
-    if is_ro:
         return
 
     xref = widget.xref
@@ -966,9 +981,7 @@ def _fix_font_for_scroll(doc, widget):
     if not re.search(r'\b0\s+Tf\b', da):
         return  # already has a fixed font size
 
-    height = widget.rect.y1 - widget.rect.y0
-    font_size = max(6, min(12, int(height * 0.7)))
-    new_da = re.sub(r'\b0\s+Tf\b', f'{font_size} Tf', da)
+    new_da = re.sub(r'\b0\s+Tf\b', f'{_FIXED_FONT_SIZE} Tf', da)
     # Only replace the /DA value, preserving everything else including /AA
     new_obj = obj_str.replace(f'({da})', f'({new_da})', 1)
     doc.update_object(xref, new_obj)
