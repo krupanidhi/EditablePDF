@@ -514,9 +514,14 @@ def apply_required(pdf_path: str, fields: list[dict],
                     if fdata and not fdata.get("readonly", False):
                         is_req = bool(fdata.get("required", False))
                         _set_required_flag(doc, widget, is_req)
+                    # Reset child radio to Off as well
+                    doc.xref_set_key(widget.xref, "AS", "/Off")
                     is_radio_dup = True
                 else:
                     seen_radio_groups.add(field_name)
+                    # Reset radio to Off (unchecked) so user must make a choice
+                    doc.xref_set_key(widget.xref, "V", "/Off")
+                    doc.xref_set_key(widget.xref, "AS", "/Off")
             elif is_checkbox:
                 clean_label = label.split(":")[0].strip() if ":" in label else label
                 candidate_id = _label_to_field_id(clean_label) or field_name

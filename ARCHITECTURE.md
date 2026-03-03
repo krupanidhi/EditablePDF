@@ -187,8 +187,8 @@ FastAPI application with CORS support. Proxied by Vite dev server at `localhost:
 
 ### Tab Structure (`App.tsx`)
 1. **Convert PDF** — Upload static PDF, convert to editable
-2. **Extract** — Upload editable PDF, extract all form field controls and values as JSON (same structure as Digitalization Workflow)
-3. **Digitalization Workflow** — Configure required/integer/max length/delete/readonly per field, regenerate PDF
+2. **Digitalization Workflow** — Configure required/integer/max length/delete/readonly per field, regenerate PDF
+3. **Extract** — Upload editable PDF, extract all form field controls and values as JSON (same structure as Digitalization Workflow)
 4. **Validate** — Validate extracted data against rules
 
 ### Digitalization Workflow Tab (`RequiredFieldsTab.tsx`)

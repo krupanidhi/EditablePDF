@@ -129,8 +129,8 @@ function App() {
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'convert', label: 'Convert', icon: <FileUp className="w-4 h-4" /> },
-    { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
     { id: 'required', label: 'Digitalization Workflow', icon: <ListChecks className="w-4 h-4" /> },
+    { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
     { id: 'validate', label: 'Validate', icon: <ShieldCheck className="w-4 h-4" /> },
   ];
 
@@ -257,6 +257,9 @@ function App() {
             )}
           </div>
         )}
+
+        {/* Required Fields Tab */}
+        {activeTab === 'required' && <RequiredFieldsTab />}
 
         {/* Extract Tab */}
         {activeTab === 'extract' && (
@@ -388,9 +391,6 @@ function App() {
             )}
           </div>
         )}
-
-        {/* Required Fields Tab */}
-        {activeTab === 'required' && <RequiredFieldsTab />}
 
         {/* Validate Tab */}
         {activeTab === 'validate' && (
