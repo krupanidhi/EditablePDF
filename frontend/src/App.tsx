@@ -222,9 +222,9 @@ function App() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Upload file */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <h2 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <FileUp className="w-4 h-4 text-blue-500" />
+              <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
+                <h2 className="text-sm font-semibold text-[#0B4778] mb-3 flex items-center gap-2">
+                  <FileUp className="w-4 h-4 text-[#0B4778]" />
                   Upload Document
                 </h2>
                 <FileUploader
@@ -236,9 +236,9 @@ function App() {
               </div>
 
               {/* Folder path */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <h2 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <FolderOpen className="w-4 h-4 text-purple-500" />
+              <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
+                <h2 className="text-sm font-semibold text-[#0B4778] mb-3 flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4 text-[#0B4778]" />
                   Convert Folder
                 </h2>
                 <div className="space-y-3">
@@ -247,12 +247,12 @@ function App() {
                     value={folderPath}
                     onChange={(e) => setFolderPath(e.target.value)}
                     placeholder="C:\path\to\documents"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-[#D9E8F6] rounded-lg text-sm text-[#0B4778] focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent bg-[#EFF6FB]"
                   />
                   <button
                     onClick={handleFolderConvert}
                     disabled={folderProcessing || !folderPath.trim()}
-                    className="w-full px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full px-4 py-2 bg-[#0B4778] text-white text-sm font-medium rounded-lg hover:bg-[#093d66] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {folderProcessing ? 'Processing...' : 'Convert All Files in Folder'}
                   </button>
@@ -263,7 +263,7 @@ function App() {
             {/* Active jobs */}
             {jobIds.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-gray-800">Jobs</h2>
+                <h2 className="text-sm font-semibold text-[#0B4778]">Jobs</h2>
                 {jobIds.map((id) => (
                   <JobTracker key={id} jobId={id} onComplete={handleJobComplete} />
                 ))}
@@ -273,15 +273,15 @@ function App() {
             {/* Completed schemas */}
             {completedSchemas.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-gray-800">
+                <h2 className="text-sm font-semibold text-[#0B4778]">
                   Detected Fields
                 </h2>
                 {completedSchemas.map((schema, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-xl border border-gray-200 shadow-sm p-5"
+                    className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5"
                   >
-                    <p className="text-xs text-gray-500 mb-3">
+                    <p className="text-xs text-[#64748b] mb-3">
                       {schema.metadata.source_file}
                     </p>
                     <SchemaViewer schema={schema} />
@@ -299,12 +299,12 @@ function App() {
         {activeTab === 'extract' && (
           <div className="space-y-6">
             {/* Extract filled data */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-              <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
-                <FileSearch className="w-4 h-4 text-blue-500" />
+            <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
+              <h2 className="text-sm font-semibold text-[#0B4778] mb-1 flex items-center gap-2">
+                <FileSearch className="w-4 h-4 text-[#0B4778]" />
                 Extract Field Data from PDF
               </h2>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="text-xs text-[#64748b] mb-4">
                 Upload an editable PDF to extract all form field controls and their values as JSON.
                 The output uses the same field structure as the <strong>Digitalization Workflow</strong>.
               </p>
@@ -316,20 +316,20 @@ function App() {
                 disabled={extracting}
               />
               {extracting && (
-                <p className="text-sm text-blue-600 mt-3 animate-pulse">
+                <p className="text-sm text-[#0B4778] mt-3 animate-pulse">
                   Extracting form fields...
                 </p>
               )}
             </div>
 
             {extractedData && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+              <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-sm font-semibold text-gray-800">
+                    <h2 className="text-sm font-semibold text-[#0B4778]">
                       Extracted Fields
                     </h2>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-[#64748b] mt-0.5">
                       {extractedData.metadata.source_file} — {extractedData.metadata.page_count} page{extractedData.metadata.page_count > 1 ? 's' : ''}, {extractedData.metadata.total_fields} fields
                     </p>
                   </div>
@@ -341,7 +341,7 @@ function App() {
                         );
                         toast.success('JSON copied to clipboard');
                       }}
-                      className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-200 transition-colors border border-gray-300"
+                      className="px-3 py-1.5 bg-[#EFF6FB] text-[#0B4778] text-xs font-medium rounded-md hover:bg-[#D9E8F6] transition-colors border border-[#D9E8F6]"
                     >
                       Copy JSON
                     </button>
@@ -358,7 +358,7 @@ function App() {
                         a.click();
                         URL.revokeObjectURL(url);
                       }}
-                      className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-md hover:bg-green-700 transition-colors"
+                      className="px-3 py-1.5 bg-[#0B4778] text-white text-xs font-medium rounded-md hover:bg-[#093d66] transition-colors"
                     >
                       Download JSON
                     </button>
@@ -373,36 +373,36 @@ function App() {
                       return acc;
                     }, {})
                   ).map(([type, count]) => (
-                    <span key={type} className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
+                    <span key={type} className="px-2 py-0.5 bg-[#EFF6FB] text-[#0B4778] text-xs rounded-full border border-[#D9E8F6]">
                       {type} × {count}
                     </span>
                   ))}
-                  <span className="px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded-full border border-green-200">
+                  <span className="px-2 py-0.5 bg-[#F0FDF4] text-[#16a34a] text-xs rounded-full border border-[#bbf7d0]">
                     {extractedData.fields.filter(f => f.value && String(f.value).trim()).length} filled
                   </span>
-                  <span className="px-2 py-0.5 bg-gray-50 text-gray-500 text-xs rounded-full border border-gray-200">
+                  <span className="px-2 py-0.5 bg-[#f1f5f9] text-[#64748b] text-xs rounded-full border border-[#D9E8F6]">
                     {extractedData.fields.filter(f => !f.value || !String(f.value).trim()).length} empty
                   </span>
                 </div>
 
                 {/* Fields table */}
-                <div className="overflow-x-auto max-h-[500px] overflow-y-auto border border-gray-200 rounded-lg">
+                <div className="overflow-x-auto max-h-[500px] overflow-y-auto border border-[#D9E8F6] rounded-lg">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50 sticky top-0">
+                    <thead className="bg-[#EFF6FB] sticky top-0">
                       <tr>
-                        <th className="text-left px-3 py-2 font-medium text-gray-600">Pg</th>
-                        <th className="text-left px-3 py-2 font-medium text-gray-600">Label</th>
-                        <th className="text-left px-3 py-2 font-medium text-gray-600">Field ID</th>
-                        <th className="text-left px-3 py-2 font-medium text-gray-600">Type</th>
-                        <th className="text-left px-3 py-2 font-medium text-gray-600">Value</th>
+                        <th className="text-left px-3 py-2 font-medium text-[#0B4778]">Pg</th>
+                        <th className="text-left px-3 py-2 font-medium text-[#0B4778]">Label</th>
+                        <th className="text-left px-3 py-2 font-medium text-[#0B4778]">Field ID</th>
+                        <th className="text-left px-3 py-2 font-medium text-[#0B4778]">Type</th>
+                        <th className="text-left px-3 py-2 font-medium text-[#0B4778]">Value</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-[#D9E8F6]">
                       {extractedData.fields.map((f, i) => (
-                        <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                          <td className="px-3 py-1.5 text-gray-400">{f.page}</td>
-                          <td className="px-3 py-1.5 text-gray-800 font-medium max-w-[200px] truncate" title={f.label}>{f.label || '—'}</td>
-                          <td className="px-3 py-1.5 text-gray-500 font-mono max-w-[160px] truncate" title={f.field_id}>{f.field_id}</td>
+                        <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-[#EFF6FB]/50'}>
+                          <td className="px-3 py-1.5 text-[#94a3b8]">{f.page}</td>
+                          <td className="px-3 py-1.5 text-[#0B4778] font-medium max-w-[200px] truncate" title={f.label}>{f.label || '—'}</td>
+                          <td className="px-3 py-1.5 text-[#64748b] font-mono max-w-[160px] truncate" title={f.field_id}>{f.field_id}</td>
                           <td className="px-3 py-1.5">
                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                               f.field_type === 'radio' ? 'bg-purple-50 text-purple-700' :
@@ -413,8 +413,8 @@ function App() {
                               {f.field_type}
                             </span>
                           </td>
-                          <td className="px-3 py-1.5 text-gray-700 max-w-[250px] truncate" title={String(f.value ?? '')}>
-                            {f.value && String(f.value).trim() ? String(f.value) : <span className="text-gray-300 italic">empty</span>}
+                          <td className="px-3 py-1.5 text-[#0B4778] max-w-[250px] truncate" title={String(f.value ?? '')}>
+                            {f.value && String(f.value).trim() ? String(f.value) : <span className="text-[#D9E8F6] italic">empty</span>}
                           </td>
                         </tr>
                       ))}
@@ -455,18 +455,18 @@ function ValidateTab({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-        <h2 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-amber-500" />
+      <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
+        <h2 className="text-sm font-semibold text-[#0B4778] mb-3 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[#0B4778]" />
           Validate Form Data Against Rules
         </h2>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-[#64748b] mb-4">
           Upload the extracted form data JSON and a rules JSON file to validate.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-medium text-gray-600 mb-1 block">
+            <label className="text-xs font-medium text-[#0B4778] mb-1 block">
               Form Data JSON
             </label>
             <FileUploader
@@ -477,7 +477,7 @@ function ValidateTab({
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 mb-1 block">
+            <label className="text-xs font-medium text-[#0B4778] mb-1 block">
               Rules JSON
             </label>
             <FileUploader
@@ -494,15 +494,15 @@ function ValidateTab({
             if (formFile && rulesFile) onValidate(formFile, rulesFile);
           }}
           disabled={!formFile || !rulesFile || validating}
-          className="mt-4 w-full px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="mt-4 w-full px-4 py-2 bg-[#0B4778] text-white text-sm font-medium rounded-lg hover:bg-[#093d66] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {validating ? 'Validating...' : 'Run Validation'}
         </button>
       </div>
 
       {result && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-800 mb-3">
+        <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-[#0B4778] mb-3">
             Validation Results
           </h2>
           <ValidationViewer result={result} />

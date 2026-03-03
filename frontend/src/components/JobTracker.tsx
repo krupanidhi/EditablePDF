@@ -61,17 +61,17 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
 
   if (!job) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center gap-3">
-        <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-        <p className="text-sm text-gray-600">Loading job status...</p>
+      <div className="bg-[#EFF6FB] border border-[#D9E8F6] rounded-lg p-4 flex items-center gap-3">
+        <Loader2 className="w-5 h-5 text-[#94a3b8] animate-spin" />
+        <p className="text-sm text-[#0B4778]">Loading job status...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-white border border-[#D9E8F6] rounded-lg shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-[#D9E8F6] flex items-center justify-between">
         <div className="flex items-center gap-2">
           {job.status === 'processing' && (
             <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
@@ -82,7 +82,7 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
           {job.status === 'failed' && (
             <XCircle className="w-4 h-4 text-red-500" />
           )}
-          <span className="text-sm font-medium text-gray-800">
+          <span className="text-sm font-medium text-[#0B4778]">
             Job {job.id}
           </span>
         </div>
@@ -104,7 +104,7 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
         {/* Single file result */}
         {job.result && (
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
+            <div className="grid grid-cols-2 gap-3 text-xs text-[#64748b]">
               <div>
                 <span className="font-medium">Pages:</span> {job.result.stats.pages}
               </div>
@@ -127,7 +127,7 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
                 href={getDownloadUrl(
                   job.result.editable_pdf.split(/[\\/]/).pop() || ''
                 )}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B4778] text-white text-xs font-medium rounded-md hover:bg-[#093d66] transition-colors"
                 download
               >
                 <Download className="w-3.5 h-3.5" />
@@ -137,7 +137,7 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
                 href={getDownloadUrl(
                   job.result.schema.split(/[\\/]/).pop() || ''
                 )}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-200 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#EFF6FB] text-[#0B4778] text-xs font-medium rounded-md hover:bg-[#D9E8F6] transition-colors border border-[#D9E8F6]"
                 download
               >
                 <FileJson className="w-3.5 h-3.5" />
@@ -150,34 +150,34 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
         {/* Folder results */}
         {job.results && job.results.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[#64748b]">
               {job.completed}/{job.file_count} files processed
             </p>
             {job.results.map((r, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+                className="flex items-center justify-between py-2 border-b border-[#EFF6FB] last:border-0"
               >
                 <div className="flex items-center gap-2">
-                  <FileText className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-xs text-gray-700">{r.file}</span>
+                  <FileText className="w-3.5 h-3.5 text-[#94a3b8]" />
+                  <span className="text-xs text-[#0B4778]">{r.file}</span>
                 </div>
                 <div className="flex gap-1">
                   <a
                     href={getDownloadUrl(
                       r.result.editable_pdf.split(/[\\/]/).pop() || ''
                     )}
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-[#3b82f6] hover:underline"
                     download
                   >
                     PDF
                   </a>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[#D9E8F6]">|</span>
                   <a
                     href={getDownloadUrl(
                       r.result.schema.split(/[\\/]/).pop() || ''
                     )}
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-[#3b82f6] hover:underline"
                     download
                   >
                     JSON
@@ -207,10 +207,10 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
         {/* Processing indicator */}
         {job.status === 'processing' && !job.result && (
           <div className="flex items-center gap-3">
-            <div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-              <div className="bg-blue-500 h-full rounded-full animate-pulse w-2/3" />
+            <div className="flex-1 bg-[#D9E8F6] rounded-full h-1.5 overflow-hidden">
+              <div className="bg-[#3b82f6] h-full rounded-full animate-pulse w-2/3" />
             </div>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[#64748b]">
               {job.input_file || 'Processing...'}
             </span>
           </div>

@@ -45,8 +45,8 @@ export default function FileUploader({
         border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
         transition-all duration-200 ease-in-out
         ${isDragActive
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+          ? 'border-[#3b82f6] bg-[#EFF6FB]'
+          : 'border-[#D9E8F6] hover:border-[#3b82f6] hover:bg-[#EFF6FB]'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
       `}
@@ -54,13 +54,13 @@ export default function FileUploader({
       <input {...getInputProps()} />
       <div className="flex flex-col items-center gap-3">
         {isDragActive ? (
-          <Upload className="w-10 h-10 text-blue-500 animate-bounce" />
+          <Upload className="w-10 h-10 text-[#3b82f6] animate-bounce" />
         ) : (
-          <FileText className="w-10 h-10 text-gray-400" />
+          <FileText className="w-10 h-10 text-[#94a3b8]" />
         )}
         <div>
-          <p className="text-sm font-semibold text-gray-700">{label}</p>
-          <p className="text-xs text-gray-500 mt-1">{description}</p>
+          <p className="text-sm font-semibold text-[#0B4778]">{label}</p>
+          <p className="text-xs text-[#64748b] mt-1">{description}</p>
         </div>
       </div>
     </div>

@@ -68,27 +68,27 @@ export default function SchemaViewer({ schema }: SchemaViewerProps) {
     <div className="space-y-4">
       {/* Summary */}
       <div className="grid grid-cols-4 gap-3">
-        <div className="bg-blue-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-blue-700">{schema.fields.length}</p>
-          <p className="text-xs text-blue-600">Total Fields</p>
+        <div className="bg-[#EFF6FB] rounded-lg p-3 text-center border border-[#D9E8F6]">
+          <p className="text-2xl font-bold text-[#0B4778]">{schema.fields.length}</p>
+          <p className="text-xs text-[#64748b]">Total Fields</p>
         </div>
-        <div className="bg-green-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-green-700">
+        <div className="bg-[#F0FDF4] rounded-lg p-3 text-center border border-[#bbf7d0]">
+          <p className="text-2xl font-bold text-[#16a34a]">
             {schema.fields.filter((f) => f.required).length}
           </p>
-          <p className="text-xs text-green-600">Required</p>
+          <p className="text-xs text-[#16a34a]">Required</p>
         </div>
-        <div className="bg-purple-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-purple-700">
+        <div className="bg-[#EFF6FB] rounded-lg p-3 text-center border border-[#D9E8F6]">
+          <p className="text-2xl font-bold text-[#0B4778]">
             {schema.metadata.page_count}
           </p>
-          <p className="text-xs text-purple-600">Pages</p>
+          <p className="text-xs text-[#64748b]">Pages</p>
         </div>
-        <div className="bg-orange-50 rounded-lg p-3 text-center">
-          <p className="text-2xl font-bold text-orange-700">
+        <div className="bg-[#EFF6FB] rounded-lg p-3 text-center border border-[#D9E8F6]">
+          <p className="text-2xl font-bold text-[#0B4778]">
             {new Set(schema.fields.map((f) => f.type)).size}
           </p>
-          <p className="text-xs text-orange-600">Field Types</p>
+          <p className="text-xs text-[#64748b]">Field Types</p>
         </div>
       </div>
 
@@ -96,16 +96,16 @@ export default function SchemaViewer({ schema }: SchemaViewerProps) {
       {Object.entries(groupedByPage)
         .sort(([a], [b]) => Number(a) - Number(b))
         .map(([page, fields]) => (
-          <div key={page} className="border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700">
+          <div key={page} className="border border-[#D9E8F6] rounded-lg overflow-hidden">
+            <div className="bg-[#EFF6FB] px-4 py-2 border-b border-[#D9E8F6]">
+              <h3 className="text-sm font-semibold text-[#0B4778]">
                 Page {page}{' '}
-                <span className="font-normal text-gray-500">
+                <span className="font-normal text-[#64748b]">
                   ({fields.length} field{fields.length !== 1 ? 's' : ''})
                 </span>
               </h3>
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-[#D9E8F6]">
               {fields.map((field) => (
                 <FieldRow
                   key={field.field_id}
@@ -134,12 +134,12 @@ function FieldRow({
     <div>
       <button
         onClick={onToggle}
-        className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
+        className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-[#EFF6FB] transition-colors text-left"
       >
         {expanded ? (
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#94a3b8] shrink-0" />
         ) : (
-          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+          <ChevronRight className="w-3.5 h-3.5 text-[#94a3b8] shrink-0" />
         )}
 
         <span
@@ -151,32 +151,32 @@ function FieldRow({
           {field.type}
         </span>
 
-        <span className="text-sm text-gray-800 flex-1 truncate">
+        <span className="text-sm text-[#0B4778] flex-1 truncate">
           {field.label || field.field_id}
         </span>
 
         {field.required && (
-          <span className="text-xs text-red-500 font-medium">Required</span>
+          <span className="text-xs text-[#990000] font-medium">Required</span>
         )}
       </button>
 
       {expanded && (
-        <div className="px-4 pb-3 pl-12 space-y-2 text-xs text-gray-600">
+        <div className="px-4 pb-3 pl-12 space-y-2 text-xs text-[#64748b]">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <span className="font-medium text-gray-500">Field ID:</span>{' '}
-              <code className="bg-gray-100 px-1 rounded">{field.field_id}</code>
+              <span className="font-medium text-[#64748b]">Field ID:</span>{' '}
+              <code className="bg-[#EFF6FB] px-1 rounded">{field.field_id}</code>
             </div>
             <div>
-              <span className="font-medium text-gray-500">BBox:</span>{' '}
+              <span className="font-medium text-[#64748b]">BBox:</span>{' '}
               [{field.bbox.map((b) => b.toFixed(1)).join(', ')}]
             </div>
           </div>
 
           {field.validation && (
             <div>
-              <span className="font-medium text-gray-500">Validation:</span>
-              <pre className="mt-1 bg-gray-50 p-2 rounded text-xs overflow-x-auto">
+              <span className="font-medium text-[#64748b]">Validation:</span>
+              <pre className="mt-1 bg-[#EFF6FB] p-2 rounded text-xs overflow-x-auto">
                 {JSON.stringify(field.validation, null, 2)}
               </pre>
             </div>
@@ -184,12 +184,12 @@ function FieldRow({
 
           {field.options && field.options.length > 0 && (
             <div>
-              <span className="font-medium text-gray-500">Options:</span>
+              <span className="font-medium text-[#64748b]">Options:</span>
               <div className="mt-1 flex flex-wrap gap-1">
                 {field.options.map((opt, i) => (
                   <span
                     key={i}
-                    className="bg-gray-100 px-2 py-0.5 rounded text-xs"
+                    className="bg-[#EFF6FB] px-2 py-0.5 rounded text-xs"
                   >
                     {opt.label || opt.value}
                   </span>
@@ -200,8 +200,8 @@ function FieldRow({
 
           {field.depends_on && (
             <div>
-              <span className="font-medium text-gray-500">Depends on:</span>{' '}
-              <code className="bg-yellow-50 px-1 rounded">
+              <span className="font-medium text-[#64748b]">Depends on:</span>{' '}
+              <code className="bg-[#FFFBEB] px-1 rounded">
                 {field.depends_on.field}
               </code>{' '}
               {field.depends_on.condition} &quot;{field.depends_on.value}&quot;
@@ -210,8 +210,8 @@ function FieldRow({
 
           {field.group && (
             <div>
-              <span className="font-medium text-gray-500">Group:</span>{' '}
-              <code className="bg-pink-50 px-1 rounded">{field.group}</code>
+              <span className="font-medium text-[#64748b]">Group:</span>{' '}
+              <code className="bg-[#EFF6FB] px-1 rounded">{field.group}</code>
             </div>
           )}
         </div>

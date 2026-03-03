@@ -149,15 +149,15 @@ export default function RequiredFieldsTab() {
   return (
     <div className="space-y-6">
       {/* Step 1: Upload PDF */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
         <div className="flex items-center gap-3 mb-1">
-          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-100 text-red-600 text-xs font-bold">1</div>
-          <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-            <Upload className="w-4 h-4 text-red-500" />
+          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#EFF6FB] text-[#0B4778] text-xs font-bold">1</div>
+          <h2 className="text-sm font-semibold text-[#0B4778] flex items-center gap-2">
+            <Upload className="w-4 h-4 text-[#0B4778]" />
             Upload PDF
           </h2>
         </div>
-        <p className="text-xs text-gray-500 mb-4 ml-10">
+        <p className="text-xs text-[#64748b] mb-4 ml-10">
           Upload any editable PDF to extract its fields. Configure required fields, integer-only inputs, and more — then regenerate the PDF with Digitalization Workflow rules applied.
         </p>
         <div className="ml-10">
@@ -169,7 +169,7 @@ export default function RequiredFieldsTab() {
             disabled={extractingFields}
           />
           {extractingFields && (
-            <p className="text-sm text-red-600 mt-3 animate-pulse">
+            <p className="text-sm text-[#0B4778] mt-3 animate-pulse">
               Extracting field metadata...
             </p>
           )}
@@ -178,28 +178,28 @@ export default function RequiredFieldsTab() {
 
       {/* Step 2: Configure Required Fields */}
       {extractFieldsData && editedFields.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-100 text-red-600 text-xs font-bold">2</div>
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#EFF6FB] text-[#0B4778] text-xs font-bold">2</div>
             <div className="flex-1">
-              <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                <Settings2 className="w-4 h-4 text-red-500" />
+              <h2 className="text-sm font-semibold text-[#0B4778] flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-[#0B4778]" />
                 Configure Digitalization Workflow
               </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-[#64748b] mt-0.5">
                 {extractFieldsData.metadata.source_file} — {extractFieldsData.metadata.page_count} page{extractFieldsData.metadata.page_count > 1 ? 's' : ''}, {extractFieldsData.metadata.total_fields} fields
               </p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyJson}
-                className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-200 transition-colors border border-gray-300"
+                className="px-3 py-1.5 bg-[#EFF6FB] text-[#0B4778] text-xs font-medium rounded-md hover:bg-[#D9E8F6] transition-colors border border-[#D9E8F6]"
               >
                 Copy JSON
               </button>
               <button
                 onClick={handleDownloadJson}
-                className="px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded-md hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-[#0B4778] text-white text-xs font-medium rounded-md hover:bg-[#093d66] transition-colors flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
                 Save JSON
@@ -247,8 +247,8 @@ export default function RequiredFieldsTab() {
                     onClick={() => setPageFilter(null)}
                     className={`px-2 py-1 text-xs rounded-md transition-colors ${
                       pageFilter === null
-                        ? 'bg-red-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-[#0B4778] text-white'
+                        : 'bg-[#EFF6FB] text-[#64748b] hover:bg-[#D9E8F6]'
                     }`}
                   >
                     All
@@ -259,8 +259,8 @@ export default function RequiredFieldsTab() {
                       onClick={() => setPageFilter(p)}
                       className={`px-2 py-1 text-xs rounded-md transition-colors ${
                         pageFilter === p
-                          ? 'bg-red-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-[#0B4778] text-white'
+                          : 'bg-[#EFF6FB] text-[#64748b] hover:bg-[#D9E8F6]'
                       }`}
                     >
                       {p}
@@ -272,13 +272,13 @@ export default function RequiredFieldsTab() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleSelectAll}
-                className="px-2.5 py-1 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
+                className="px-2.5 py-1 text-xs font-medium text-[#0B4778] bg-[#EFF6FB] border border-[#D9E8F6] rounded-md hover:bg-[#D9E8F6] transition-colors"
               >
                 Select All
               </button>
               <button
                 onClick={handleDeselectAll}
-                className="px-2.5 py-1 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
+                className="px-2.5 py-1 text-xs font-medium text-[#64748b] bg-[#f1f5f9] border border-[#D9E8F6] rounded-md hover:bg-[#D9E8F6] transition-colors"
               >
                 Deselect All
               </button>
@@ -286,35 +286,35 @@ export default function RequiredFieldsTab() {
           </div>
 
           {/* Interactive Fields table */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden mb-4 max-h-[500px] overflow-y-auto">
+          <div className="border border-[#D9E8F6] rounded-lg overflow-hidden mb-4 max-h-[500px] overflow-y-auto">
             <table className="w-full text-xs">
               <thead className="sticky top-0 z-10">
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-20">
-                    <span className="text-red-600">Required</span>
+                <tr className="bg-[#EFF6FB] border-b border-[#D9E8F6]">
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778] w-20">
+                    <span>Required</span>
                   </th>
-                  <th className="px-3 py-2 text-left font-semibold text-gray-600">Label</th>
-                  <th className="px-3 py-2 text-left font-semibold text-gray-600">Field ID</th>
-                  <th className="px-3 py-2 text-left font-semibold text-gray-600">Type</th>
-                  <th className="px-3 py-2 text-left font-semibold text-gray-600">Data Type</th>
-                  <th className="px-3 py-2 text-center font-semibold text-gray-600">Page</th>
-                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-24">Max Length</th>
-                  <th className="px-3 py-2 text-center font-semibold text-gray-600">
+                  <th className="px-3 py-2 text-left font-semibold text-[#0B4778]">Label</th>
+                  <th className="px-3 py-2 text-left font-semibold text-[#0B4778]">Field ID</th>
+                  <th className="px-3 py-2 text-left font-semibold text-[#0B4778]">Type</th>
+                  <th className="px-3 py-2 text-left font-semibold text-[#0B4778]">Data Type</th>
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778]">Page</th>
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778] w-24">Max Length</th>
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778]">
                     <span title="Read-Only: disable editing and skip all validation">Read-Only</span>
                   </th>
-                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-16">
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778] w-16">
                     <span title="Enable scroll bars for text overflow">Scroll</span>
                   </th>
-                  <th className="px-3 py-2 text-center font-semibold text-gray-600 w-16">
-                    <span className="text-red-400" title="Mark field for deletion from PDF">Delete</span>
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778] w-16">
+                    <span title="Mark field for deletion from PDF">Delete</span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#D9E8F6]">
                 {displayedFields.map((field) => (
                   <tr
                     key={field._origIndex}
-                    className={`hover:bg-slate-50 transition-colors ${field.deleted ? 'bg-red-50/60 opacity-60' : field.required ? 'bg-red-50/40' : ''}`}
+                    className={`hover:bg-[#EFF6FB] transition-colors ${field.deleted ? 'bg-red-50/60 opacity-60' : field.required ? 'bg-[#EFF6FB]' : ''}`}
                   >
                     <td className="px-3 py-2 text-center">
                       {field.readonly ? (
@@ -325,7 +325,7 @@ export default function RequiredFieldsTab() {
                             type="checkbox"
                             checked={field.required}
                             onChange={() => handleToggleRequired(field._origIndex)}
-                            className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                            className="w-4 h-4 rounded border-[#D9E8F6] text-[#0B4778] focus:ring-[#3b82f6] cursor-pointer"
                           />
                           {field.required && field.depends_on && (
                             <span className="text-[8px] text-orange-600 whitespace-nowrap" title={`Required only when "${editedFields.find(f => f.field_id === field.depends_on)?.label || field.depends_on}" = Yes`}>
@@ -337,7 +337,7 @@ export default function RequiredFieldsTab() {
                     </td>
                     <td className={`px-3 py-2 text-gray-800 font-medium max-w-[200px] truncate ${field.deleted ? 'line-through text-gray-400' : ''}`} title={field.label}>
                       {field.label || <span className="text-gray-300 italic">—</span>}
-                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                      {field.required && <span className="text-[#990000] ml-1">*</span>}
                       {field.depends_on && (
                         <span className="text-orange-500 ml-1 text-[9px]" title={`Linked to: ${editedFields.find(f => f.field_id === field.depends_on)?.label || field.depends_on}`}>&#x1F517;</span>
                       )}
@@ -432,7 +432,7 @@ export default function RequiredFieldsTab() {
           </div>
 
           {/* Info banner */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
+          <div className="bg-[#EFF6FB] border border-[#D9E8F6] rounded-lg p-3 mb-4 text-xs text-[#0B4778]">
             <strong>What happens when you apply:</strong>
             <ul className="mt-1.5 ml-3 space-y-0.5 list-disc">
               <li><strong>Required fields</strong> — red border on open if empty, save &amp; print blocked with alert listing missing fields, close warning. Fields linked to a radio group (&#x1F517;) are only required when the radio = Yes</li>
@@ -450,24 +450,24 @@ export default function RequiredFieldsTab() {
 
       {/* Step 3: Generate PDF */}
       {extractFieldsData && editedFields.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <div className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-100 text-red-600 text-xs font-bold">3</div>
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#EFF6FB] text-[#0B4778] text-xs font-bold">3</div>
             <div className="flex-1">
-              <h2 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                <FileSearch className="w-4 h-4 text-red-500" />
+              <h2 className="text-sm font-semibold text-[#0B4778] flex items-center gap-2">
+                <FileSearch className="w-4 h-4 text-[#0B4778]" />
                 Regenerate PDF
               </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-[#64748b] mt-0.5">
                 Apply Digitalization Workflow rules and download the updated PDF.
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500 space-y-0.5">
-              <p><span className="text-red-600 font-bold text-lg">{requiredCount}</span><span className="ml-1.5">required field{requiredCount !== 1 ? 's' : ''}</span></p>
-              <p><span className="text-blue-600 font-bold text-lg">{editedFields.filter(f => f.data_type === 'integer' && !f.readonly).length}</span><span className="ml-1.5">integer-only field{editedFields.filter(f => f.data_type === 'integer' && !f.readonly).length !== 1 ? 's' : ''}</span></p>
+            <div className="text-xs text-[#64748b] space-y-0.5">
+              <p><span className="text-[#0B4778] font-bold text-lg">{requiredCount}</span><span className="ml-1.5">required field{requiredCount !== 1 ? 's' : ''}</span></p>
+              <p><span className="text-[#3b82f6] font-bold text-lg">{editedFields.filter(f => f.data_type === 'integer' && !f.readonly).length}</span><span className="ml-1.5">integer-only field{editedFields.filter(f => f.data_type === 'integer' && !f.readonly).length !== 1 ? 's' : ''}</span></p>
               {editedFields.filter(f => f.deleted).length > 0 && (
                 <p><span className="text-red-400 font-bold text-lg">{editedFields.filter(f => f.deleted).length}</span><span className="ml-1.5">field{editedFields.filter(f => f.deleted).length !== 1 ? 's' : ''} to delete</span></p>
               )}
@@ -477,8 +477,8 @@ export default function RequiredFieldsTab() {
               disabled={applyingRequired}
               className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
                 applyingRequired
-                  ? 'bg-gray-200 text-gray-500 cursor-wait'
-                  : 'bg-red-600 text-white hover:bg-red-700 shadow-sm'
+                  ? 'bg-[#D9E8F6] text-[#64748b] cursor-wait'
+                  : 'bg-[#0B4778] text-white hover:bg-[#093d66] shadow-sm'
               }`}
             >
               <ShieldCheck className="w-4 h-4" />

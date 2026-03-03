@@ -29,7 +29,7 @@ export default function ValidationViewer({ result }: ValidationViewerProps) {
           >
             {result.valid ? 'All Validations Passed' : 'Validation Failed'}
           </p>
-          <p className="text-xs text-gray-600 mt-0.5">
+          <p className="text-xs text-[#64748b] mt-0.5">
             {result.passed.length} passed, {result.errors.length} errors,{' '}
             {result.warnings.length} warnings
             {result.skipped && result.skipped.length > 0
@@ -98,14 +98,14 @@ export default function ValidationViewer({ result }: ValidationViewerProps) {
       {/* Skipped */}
       {result.skipped && result.skipped.length > 0 && (
         <div className="space-y-1">
-          <h4 className="text-sm font-semibold text-gray-500 flex items-center gap-1.5">
+          <h4 className="text-sm font-semibold text-[#64748b] flex items-center gap-1.5">
             <SkipForward className="w-4 h-4" />
             Skipped ({result.skipped.length})
           </h4>
           {result.skipped.map((s, i) => (
             <div
               key={i}
-              className="text-xs text-gray-500 bg-gray-50 rounded px-3 py-1.5"
+              className="text-xs text-[#64748b] bg-[#EFF6FB] rounded px-3 py-1.5"
             >
               {s.name}: {s.reason}
             </div>
