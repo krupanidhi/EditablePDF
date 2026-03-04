@@ -18,6 +18,7 @@ Uses the "prebuilt-layout" model which detects:
 """
 
 import os
+import re
 import json
 import hashlib
 import fitz
@@ -256,42 +257,130 @@ def detect_fields_di(pdf_path, page_sizes):
         # --- Tables: detect empty cells as text input fields ---
         if result.tables:
             for table in result.tables:
+                # Build row context: for each row, collect the text of ALL
+                # cells so we can decide whether empty cells are real inputs
+                # or just structural padding beside labels/headers.
+                row_texts = {}   # row_idx → list of (col_idx, content)
+                row_header = {}  # row_idx → True if ANY cell in row is a header
+                for c in table.cells:
+                    ri = c.row_index
+                    ct = (c.content or "").strip()
+                    row_texts.setdefault(ri, []).append((c.column_index, ct))
+                    if _is_header_cell(c):
+                        row_header[ri] = True
+
+                # Identify rows whose first content cell is a section label,
+                # instruction text, or HRSA-internal marker — NOT a field prompt.
+                _SECTION_LABEL_KEYWORDS = [
+                    "instructions", "applicant information",
+                    "for hrsa use only", "for official use",
+                    "public burden", "department of health",
+                    "health resources and services",
+                ]
+                _FIELD_PROMPT_PATTERN = re.compile(
+                    r"^Q\d+[\.\)]|"          # "Q1.", "Q2)"
+                    r"^#?\d+[\.\)]|"         # "1.", "2)"
+                    r"^[a-z][\.\)]",         # "a.", "b)"
+                    re.IGNORECASE,
+                )
+
                 for cell in table.cells:
                     if not cell.bounding_regions:
                         continue
                     cell_page = cell.bounding_regions[0].page_number
                     if cell_page != page_num:
                         continue
-                    
+
                     cell_bbox = _polygon_to_bbox(cell.bounding_regions[0].polygon, pw, ph)
                     if not cell_bbox:
                         continue
-                    
+
                     cell_text = (cell.content or "").strip()
-                    
+
                     # Skip header cells and cells with substantial content
                     if _is_header_cell(cell):
                         continue
-                    
-                    # Empty or near-empty content cells = input fields
-                    if len(cell_text) <= 2 or cell_text in ("", " ", "-", "_", "N/A"):
-                        # Find label from column header or key-value pair
-                        label = _find_table_cell_label(table, cell, kv_pairs, pw, ph)
-                        
-                        field_id = f"p{page_num}_cell_{int(cell_bbox[1])}_{int(cell_bbox[0])}"
-                        page_fields.append({
-                            "field_id": field_id,
-                            "type": "text",
-                            "label": label,
-                            "bbox": cell_bbox,
-                            "page": page_num,
-                            "required": False,
-                            "validation": None,
-                            "group": None,
-                            "options": None,
-                            "depends_on": None,
-                            "_source": "doc_intelligence",
-                        })
+
+                    # Only consider empty or near-empty cells
+                    if not (len(cell_text) <= 2 or cell_text in ("", " ", "-", "_", "N/A")):
+                        continue
+
+                    ri = cell.row_index
+                    ci = cell.column_index
+
+                    # --- Smart filtering ---
+
+                    # 1) Skip if ANY cell in this row is a header
+                    if row_header.get(ri, False):
+                        continue
+
+                    # 2) Collect the non-empty text from other cells in
+                    #    this row (the "row label")
+                    row_label_parts = []
+                    for oci, oct in row_texts.get(ri, []):
+                        if oci != ci and oct:
+                            row_label_parts.append(oct)
+                    row_label = " ".join(row_label_parts).strip()
+                    row_label_lower = row_label.lower()
+
+                    # 3) Skip if row label matches a section/instruction keyword
+                    if any(kw in row_label_lower for kw in _SECTION_LABEL_KEYWORDS):
+                        continue
+
+                    # 4) Skip rows where the label is a full sentence/paragraph
+                    #    (instructions like "Provide your current H80 grant number...")
+                    #    Heuristic: >60 chars and no question pattern → instruction
+                    if len(row_label) > 60 and not _FIELD_PROMPT_PATTERN.search(row_label):
+                        continue
+
+                    # 5) Skip rows with NO label at all AND no column header
+                    #    above (orphan empty cells with no context)
+                    col_header = ""
+                    for oc in table.cells:
+                        if _is_header_cell(oc) and oc.column_index == ci and oc.row_index < ri:
+                            hdr_text = (oc.content or "").strip()
+                            if hdr_text:
+                                col_header = hdr_text
+                    if not row_label and not col_header:
+                        continue
+
+                    # 6) If a header row above contains "FOR HRSA USE ONLY"
+                    #    or similar, skip cells in columns under that header
+                    hrsa_internal = False
+                    for hr_ri, is_hdr in row_header.items():
+                        if hr_ri < ri and is_hdr:
+                            for oci2, oct2 in row_texts.get(hr_ri, []):
+                                if any(kw in oct2.lower() for kw in
+                                       ("for hrsa use only", "for official use only")):
+                                    hrsa_internal = True
+                                    break
+                        if hrsa_internal:
+                            break
+                    if hrsa_internal:
+                        continue
+
+                    # --- Passed all filters: this is a real input field ---
+                    label = _find_table_cell_label(table, cell, kv_pairs, pw, ph)
+                    if not label:
+                        label = row_label
+
+                    # Infer field type from label
+                    ftype = _infer_type_from_label(label) if label else "text"
+
+                    field_id = f"p{page_num}_cell_{int(cell_bbox[1])}_{int(cell_bbox[0])}"
+                    page_fields.append({
+                        "field_id": field_id,
+                        "type": ftype,
+                        "label": label,
+                        "bbox": cell_bbox,
+                        "page": page_num,
+                        "required": False,
+                        "validation": None,
+                        "group": None,
+                        "options": None,
+                        "depends_on": None,
+                        "_source": "doc_intelligence",
+                    })
         
         # --- Key-value pairs: detect fields from label-value structure ---
         # Keywords in labels that indicate static reference info, NOT user input
