@@ -1307,7 +1307,7 @@ def _prepare_text_scroll(widget, doc=None, enabled: bool = True):
 
 # Consistent font size for all text fields (prevents auto-shrink on wrap)
 _FIXED_FONT_SIZE = 10
-_MIN_FONT_SIZE = 6  # never go below this even for very tiny widgets
+_MIN_FONT_SIZE = 8  # never go below this even for very tiny widgets
 
 
 def _font_size_for_widget(widget_height: float) -> int:
@@ -1317,7 +1317,7 @@ def _font_size_for_widget(widget_height: float) -> int:
     For tiny single-line text boxes, scale down so the text fits inside
     the widget boundary with some padding.
     """
-    height_based = int(widget_height * 0.6)
+    height_based = int(widget_height * 0.7)
     return min(_FIXED_FONT_SIZE, max(_MIN_FONT_SIZE, height_based))
 
 

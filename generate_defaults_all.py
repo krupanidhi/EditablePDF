@@ -132,7 +132,30 @@ def main():
             traceback.print_exc()
             continue
 
-        # Step 4: Deduplicate bookmarks
+        # Step 4: Force required flag on ALL radio/checkbox widgets
+        # (apply_required only sets it on matched fields; this catches unmatched ones)
+        if not is_xfa:
+            doc = fitz.open(out_path)
+            forced = 0
+            for pi in range(doc.page_count):
+                for w in doc[pi].widgets():
+                    if w.rect.x0 < 0:
+                        continue
+                    if w.field_type_string not in ("RadioButton", "CheckBox"):
+                        continue
+                    obj = doc.xref_object(w.xref)
+                    ff_m = re.search(r'/Ff\s+(\d+)', obj)
+                    ff = int(ff_m.group(1)) if ff_m else 0
+                    if not (ff & 2):  # PDF_FIELD_IS_REQUIRED = 2
+                        new_ff = ff | 2
+                        doc.xref_set_key(w.xref, "Ff", str(new_ff))
+                        forced += 1
+            if forced > 0:
+                doc.save(out_path, incremental=True, encryption=fitz.PDF_ENCRYPT_KEEP)
+                print(f"  Forced required on {forced} unmatched radio/checkbox widget(s)")
+            doc.close()
+
+        # Step 5: Deduplicate bookmarks
         removed = dedup_bookmarks(out_path)
         if removed > 0:
             print(f"  Removed {removed} duplicate bookmark(s)")
