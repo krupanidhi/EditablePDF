@@ -242,13 +242,20 @@ def inject_struct_tree(doc):
         pt_xref = doc.get_new_xref()
         doc.update_object(pt_xref, "<< /Nums [] >>")
 
+    # --- Build /RoleMap ---
+    # Maps our structure types to standard PDF types for interoperability
+    rm_xref = doc.get_new_xref()
+    doc.update_object(rm_xref,
+                      "<< /Document /Document /Form /Form /Sect /Sect >>")
+
     # --- Build /StructTreeRoot ---
     str_xref = doc.get_new_xref()
     doc.update_object(str_xref,
                       f"<< /Type /StructTreeRoot "
                       f"/K {doc_root_xref} 0 R "
                       f"/ParentTree {pt_xref} 0 R "
-                      f"/ParentTreeNextKey {struct_idx} >>")
+                      f"/ParentTreeNextKey {struct_idx} "
+                      f"/RoleMap {rm_xref} 0 R >>")
 
     # Set Document root's parent to StructTreeRoot
     dr_obj = doc.xref_object(doc_root_xref)
@@ -259,8 +266,50 @@ def inject_struct_tree(doc):
     doc.xref_set_key(cat_xref, "StructTreeRoot", f"{str_xref} 0 R")
 
 
+def set_tabs_structure_order(doc):
+    """Set /Tabs /S (Structure order) on every page.
+
+    PDF/UA requires /Tabs /S so screen readers follow the structure tree
+    order rather than row/column visual order.
+    """
+    for page_idx in range(doc.page_count):
+        page = doc[page_idx]
+        page_xref = page.xref
+        page_obj = doc.xref_object(page_xref)
+        if "/Tabs" in page_obj:
+            page_obj = re.sub(r'/Tabs\s+/\w+', '/Tabs /S', page_obj)
+        else:
+            page_obj = page_obj.rstrip().rstrip(">") + " /Tabs /S >>"
+        doc.update_object(page_xref, page_obj)
+
+
+def set_counter_tooltips(doc):
+    """Ensure character-counter widgets have a /TU tooltip.
+
+    Counter fields (e.g. "field_counter") are readonly display-only widgets.
+    Without a tooltip, screen readers announce them without context.
+    """
+    for page_idx in range(doc.page_count):
+        page = doc[page_idx]
+        for w in page.widgets():
+            if w.rect.x0 < 0:
+                continue
+            name = w.field_name or ""
+            if not name.endswith("_counter"):
+                continue
+            obj = doc.xref_object(w.xref)
+            if "/TU" in obj:
+                continue
+            # Derive a tooltip from the parent field name
+            parent_name = name.rsplit("_counter", 1)[0]
+            tooltip = f"Character count for {parent_name}"
+            safe = tooltip.replace("(", "\\(").replace(")", "\\)")
+            obj = obj.rstrip().rstrip(">") + f" /TU ({safe}) >>"
+            doc.update_object(w.xref, obj)
+
+
 # ---------------------------------------------------------------------------
-# Convenience: apply all Phase 1 + Phase 2 in one call
+# Convenience: apply all Phase 1 + Phase 2 + Phase 3 in one call
 # ---------------------------------------------------------------------------
 
 def apply_accessibility(doc, title: str | None = None, is_xfa: bool = False):
@@ -271,13 +320,18 @@ def apply_accessibility(doc, title: str | None = None, is_xfa: bool = False):
         title: Document title. If None, derived from filename.
         is_xfa: If True, skip StructTreeRoot injection (XFA generates its own)
     """
-    # Phase 1
+    # Phase 1 — catalog attributes
     set_document_language(doc)
     set_mark_info(doc)
 
     if title:
         set_document_title(doc, title)
 
-    # Phase 2 — only for AcroForm PDFs
+    # Phase 2 — structure tree (AcroForm only)
     if not is_xfa:
         inject_struct_tree(doc)
+
+    # Phase 3 — tab order + widget tooltips
+    set_tabs_structure_order(doc)
+    if not is_xfa:
+        set_counter_tooltips(doc)

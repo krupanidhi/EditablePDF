@@ -28,6 +28,7 @@ EditablePDF/
 │       ├── structural_extractor.py  # Structural PDF analysis
 │       ├── vision_detector.py    # Vision-based field detection
 │       ├── widget_creator.py     # PyMuPDF widget creation helpers
+│       ├── accessibility.py     # Section 508 / PDF/UA accessibility helpers
 │       └── xfa_equipment_list.py # XFA form handling
 ├── frontend/
 │   ├── vite.config.ts            # Vite dev server + proxy to backend
@@ -263,6 +264,59 @@ npm run dev    # Starts on http://localhost:5182
 ```
 
 The Vite dev server proxies `/api/*` requests to `http://localhost:8001`.
+
+---
+
+## Section 508 Accessibility Compliance
+
+Generated PDFs meet federal Section 508 accessibility standards (aligned with WCAG 2.0 AA and PDF/UA). All accessibility logic lives in `backend/src/accessibility.py` and is applied automatically during both PDF conversion (`converter.py`) and Digitalization Workflow (`apply_required.py`).
+
+### What is applied
+
+| Attribute | AcroForm | XFA | Purpose |
+|---|---|---|---|
+| `/Lang (en-US)` | ✅ | ✅ | Screen readers know the document language |
+| `/MarkInfo << /Marked true >>` | ✅ | ✅ | Declares the PDF as tagged |
+| Document title + `/DisplayDocTitle` | ✅ | ✅ | Title bar shows document name, not filename |
+| `/StructTreeRoot` tag tree | ✅ | Skipped¹ | Semantic structure for assistive technology |
+| `/RoleMap` | ✅ | Skipped¹ | Maps custom structure types to standard PDF types |
+| `/Tabs /S` (Structure order) | ✅ | ✅ | Tab key follows logical structure order |
+| `/StructParent` on widgets | ✅ | Skipped¹ | Links each widget to its structure element |
+| `/TU` tooltip on all widgets | ✅ | N/A² | Screen readers announce field purpose |
+| `(required)` in tooltips | ✅ | ✅³ | Required status conveyed beyond color alone |
+| WCAG 4.5:1 contrast | ✅ | N/A | Counter text meets minimum contrast ratio |
+
+¹ XFA forms: Adobe Acrobat generates the structure tree dynamically from the XFA XML template at render time. The `<assist>` elements (`<toolTip>`, `<speak>`) in the template provide accessibility info.
+
+² AcroForm widgets get `/TU` (tooltip) set at creation time in `widget_creator.py`. Counter widgets get tooltips added by `set_counter_tooltips()`.
+
+³ XFA required fields get `(required)` appended to `<assist><toolTip>` in the XML template.
+
+### Structure tree layout (AcroForm)
+
+```
+/StructTreeRoot
+  /RoleMap { /Document /Document /Form /Form /Sect /Sect }
+  /ParentTree (number tree mapping StructParent → structure elements)
+  <Document>
+    <Form>
+      <Sect>  (per page)
+        <Form> → widget annotation (via /OBJR)
+        <Form> → widget annotation
+        ...
+```
+
+### Verification
+
+Run the built-in audit to check compliance on any generated PDF:
+```bash
+py test_pdfua_audit.py
+```
+
+For production validation:
+- **Adobe Acrobat Pro**: Edit → Accessibility → Full Check
+- **PAC (PDF Accessibility Checker)**: Free tool from PDF/UA Foundation
+- **Screen readers**: Test with NVDA (free) or JAWS
 
 ---
 
