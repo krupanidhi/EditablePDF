@@ -1434,6 +1434,7 @@ def convert(input_path, output_path=None, schema_output_path=None):
     stats_by_type = {}
     
     all_headings = []
+    seen_heading_texts = set()  # cross-page dedup for bookmarks
     
     # --- Primary detection: Azure Document Intelligence (whole document at once) ---
     di_fields_by_page = {}
@@ -1464,9 +1465,13 @@ def convert(input_path, output_path=None, schema_output_path=None):
               f"{len(snap_targets['rects'])} rects, "
               f"{len(text_spans)} text spans")
         
-        # Extract section headings for bookmarks
+        # Extract section headings for bookmarks (dedup across pages)
         page_headings = _extract_section_headings(text_spans, page_num)
-        all_headings.extend(page_headings)
+        for h in page_headings:
+            h_key = h["text"][:60].lower()
+            if h_key not in seen_heading_texts:
+                seen_heading_texts.add(h_key)
+                all_headings.append(h)
         
         # Step 2b: Structural pre-detection (bracket patterns + label:colon fields)
         predetected = _detect_bracket_fields(text_spans, page_num, page=page, snap_targets=snap_targets)
