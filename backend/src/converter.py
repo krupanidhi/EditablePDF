@@ -1030,6 +1030,149 @@ def _bbox_overlaps_any(bbox, existing_bboxes, threshold=10):
     return False
 
 
+def _snap_and_merge_di_cells(fields, snap_targets):
+    """Snap DI table-cell bboxes to structural rects and merge adjacent cells.
+
+    DI cell polygons often don't align perfectly with the actual drawn cell
+    boundaries in the PDF.  This function:
+
+    1. For each DI cell field, finds the structural rect that best encloses it
+       (IoU match) and replaces the bbox with the rect's exact coordinates.
+    2. Merges adjacent cells in the same row (same y-range, touching x) into
+       a single wider field so we get one input box per visual cell.
+    3. Sets ``_no_inset = True`` so the widget creator places the widget at
+       100 % of the cell area with no padding.
+    """
+    rects = snap_targets.get("rects", [])
+    if not rects or not fields:
+        return fields
+
+    # Pre-filter rects: only keep cell-border rects (height ≥ 18pt).
+    # Smaller rects are typically inner shading/fill rects, not cell borders.
+    cell_rects = [r for r in rects if r.height >= 18]
+
+    # Identify which cell_rects contain significant text (label cells).
+    # An input-cell rect should be empty (no text inside it).
+    text_spans = snap_targets.get("text_positions", [])
+    label_rect_ids = set()
+    for i, r in enumerate(cell_rects):
+        for sp in text_spans:
+            # Text span centre inside this rect?
+            scx = (sp["x0"] + sp["x1"]) / 2
+            scy = (sp["y0"] + sp["y1"]) / 2
+            if r.x0 <= scx <= r.x1 and r.y0 <= scy <= r.y1:
+                if len(sp.get("text", "")) > 2:
+                    label_rect_ids.add(i)
+                    break
+
+    def _best_rect(bbox, tolerance=6):
+        """Find the cell-border rect that contains the centre of *bbox*.
+
+        Among all qualifying rects whose interior contains the DI bbox
+        centre, pick the one with the smallest area (tightest fit).
+        Prefers empty rects (no text) over label rects.
+        """
+        bx0, by0, bx1, by1 = bbox
+        cx = (bx0 + bx1) / 2
+        cy = (by0 + by1) / 2
+        best_empty = None
+        best_empty_area = float("inf")
+        best_any = None
+        best_any_area = float("inf")
+        for i, r in enumerate(cell_rects):
+            # Centre of the DI bbox must fall inside this rect (± tolerance)
+            if not (r.x0 - tolerance <= cx <= r.x1 + tolerance):
+                continue
+            if not (r.y0 - tolerance <= cy <= r.y1 + tolerance):
+                continue
+            area = r.width * r.height
+            if i not in label_rect_ids:
+                if area < best_empty_area:
+                    best_empty_area = area
+                    best_empty = r
+            if area < best_any_area:
+                best_any_area = area
+                best_any = r
+        # Prefer empty rect; fall back to any rect
+        best = best_empty or best_any
+        if best:
+            return [round(best.x0, 1), round(best.y0, 1),
+                    round(best.x1, 1), round(best.y1, 1)]
+        return None
+
+    # --- Step 1: merge adjacent cells in same row FIRST ---
+    # This combines cells like [6,1]+[6,2] so the merged bbox centre
+    # falls inside the correct structural rect for snapping.
+    di_cells = [f for f in fields if f.get("_source") == "doc_intelligence"]
+    other = [f for f in fields if f.get("_source") != "doc_intelligence"]
+
+    if len(di_cells) >= 2:
+        # Sort by y then x
+        di_cells.sort(key=lambda f: (f["bbox"][1], f["bbox"][0]))
+        merged = []
+        skip = set()
+        for i, f1 in enumerate(di_cells):
+            if i in skip:
+                continue
+            b1 = list(f1["bbox"])
+            ro1 = f1.get("_readonly", False)
+            lbl1 = f1.get("label", "")
+            for j in range(i + 1, len(di_cells)):
+                if j in skip:
+                    continue
+                f2 = di_cells[j]
+                b2 = f2["bbox"]
+                # Same row: y-centres within 4pt
+                cy1 = (b1[1] + b1[3]) / 2
+                cy2 = (b2[1] + b2[3]) / 2
+                if abs(cy1 - cy2) > 4:
+                    break
+                # Touching: gap between right edge of b1 and left edge of b2 < 5pt
+                gap = b2[0] - b1[2]
+                if gap > 5:
+                    break
+                # Same readonly status
+                if f2.get("_readonly", False) != ro1:
+                    break
+                # Don't merge cells with different non-empty labels
+                # UNLESS both labels are column-header-derived (they share
+                # the same row label which is the real semantic label).
+                lbl2 = f2.get("label", "")
+                both_col = (f1.get("_label_source") == "col_header"
+                            and f2.get("_label_source") == "col_header"
+                            and not ro1)  # don't merge readonly cells
+                if lbl1 and lbl2 and lbl1 != lbl2 and not both_col:
+                    break
+                # Merge: extend b1 to cover b2
+                b1[0] = min(b1[0], b2[0])
+                b1[1] = min(b1[1], b2[1])
+                b1[2] = max(b1[2], b2[2])
+                b1[3] = max(b1[3], b2[3])
+                # When merging col-header cells, use the row label instead
+                if both_col:
+                    rl = f1.get("_row_label", "")
+                    if rl:
+                        lbl1 = rl
+                elif len(lbl2) > len(lbl1):
+                    lbl1 = lbl2
+                skip.add(j)
+            f1["bbox"] = [round(x, 1) for x in b1]
+            f1["label"] = lbl1
+            f1["field_id"] = f"p{f1.get('page', 1)}_cell_{int(b1[1])}_{int(b1[0])}"
+            merged.append(f1)
+        di_cells = merged
+
+    # --- Step 2: snap each (possibly merged) cell to its best structural rect ---
+    for f in di_cells:
+        snapped_bbox = _best_rect(f["bbox"])
+        if snapped_bbox:
+            f["bbox"] = snapped_bbox
+            f["_no_inset"] = True  # widget fills 100 % of the cell
+            f["field_id"] = f"p{f.get('page', 1)}_cell_{int(snapped_bbox[1])}_{int(snapped_bbox[0])}"
+
+    return other + di_cells
+
+
 def _merge_predetected_fields(vision_fields, predetected_fields):
     """Merge pre-detected bracket fields with vision-detected fields.
     
@@ -1525,6 +1668,11 @@ def convert(input_path, output_path=None, schema_output_path=None):
         if use_di and page_num in di_fields_by_page:
             fields = di_fields_by_page[page_num]
             print(f"  DI detected {len(fields)} fields")
+            # Snap DI cell bboxes to structural rects and merge adjacent cells
+            before_snap = len(fields)
+            fields = _snap_and_merge_di_cells(fields, snap_targets)
+            if len(fields) < before_snap:
+                print(f"  Snapped & merged DI cells: {before_snap} → {len(fields)} fields")
         else:
             # Fallback to GPT-4o Vision
             print("  Rendering page image for vision fallback...")

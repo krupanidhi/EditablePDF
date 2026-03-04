@@ -379,6 +379,7 @@ def detect_fields_di(pdf_path, page_sizes):
 
                     # --- Passed all filters: this is a real input field ---
                     label = _find_table_cell_label(table, cell, kv_pairs, pw, ph)
+                    label_source = "col_header" if label else "row_label"
                     if not label:
                         label = row_label
 
@@ -399,6 +400,8 @@ def detect_fields_di(pdf_path, page_sizes):
                         "depends_on": None,
                         "_source": "doc_intelligence",
                         "_readonly": hrsa_internal,
+                        "_label_source": label_source,
+                        "_row_label": row_label,
                     })
         
         # --- Key-value pairs: detect fields from label-value structure ---

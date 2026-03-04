@@ -191,7 +191,11 @@ def create_text_field(page, field, used_names):
         the field name used
     """
     name = _unique_name(field.get("field_id", "text"), used_names)
-    rect = _apply_inset(field["bbox"], field.get("type", "text"))
+    if field.get("_no_inset"):
+        x0, y0, x1, y1 = field["bbox"]
+        rect = fitz.Rect(x0, y0, x1, y1)
+    else:
+        rect = _apply_inset(field["bbox"], field.get("type", "text"))
     
     if rect.width < 5 or rect.height < 3:
         return None
