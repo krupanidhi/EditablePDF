@@ -54,8 +54,39 @@ def _detect_bracket_fields(text_spans, page_num, page=None, snap_targets=None):
     Also detects conditional "If yes explain:" textareas below Yes/No radio groups.
     """
     bracket_items = []
-    
-    for s in text_spans:
+
+    # --- Pre-step: reassemble split bracket spans ---
+    # Word-generated PDFs often split "[ ] Label" into separate spans:
+    #   span1: "[" at x0=86.9  span2: "] Label text" at x0=93.0
+    # Merge adjacent same-line spans that together form a bracket pattern.
+    merged_spans = list(text_spans)  # start with originals
+    for i, s in enumerate(text_spans):
+        txt = s.get("text", "").strip()
+        if txt != "[":
+            continue
+        # Look for a "] ..." span on the same line, just to the right
+        for j, s2 in enumerate(text_spans):
+            if j == i:
+                continue
+            t2 = s2.get("text", "").strip()
+            if not t2.startswith("]"):
+                continue
+            # Same line (within 3pt vertically) and close horizontally (<15pt gap)
+            if abs(s2["y0"] - s["y0"]) < 3 and 0 <= s2["x0"] - s["x1"] < 15:
+                combined_text = "[" + " " + t2  # e.g. "[ ] Label text"
+                merged_spans.append({
+                    "text": combined_text,
+                    "x0": s["x0"],
+                    "y0": min(s["y0"], s2["y0"]),
+                    "x1": s2["x1"],
+                    "y1": max(s["y1"], s2["y1"]),
+                    "size": s.get("size", 10),
+                    "font": s.get("font", ""),
+                    "_merged": True,
+                })
+                break
+
+    for s in merged_spans:
         text = s.get("text", "")
         matches = list(_BRACKET_RE.finditer(text))
         if not matches:
@@ -185,8 +216,8 @@ def _detect_bracket_fields(text_spans, page_num, page=None, snap_targets=None):
             options = []
             for item in group:
                 options.append({
-                    "value": item["label"][:40],
-                    "label": item["label"][:40],
+                    "value": item["label"][:80],
+                    "label": item["label"][:80],
                     "bbox": [round(item["x0"], 1), round(item["y0"], 1),
                              round(item["x1"], 1), round(item["y1"], 1)],
                 })
@@ -613,6 +644,9 @@ _COLON_EXCLUDE_PATTERNS = [
     "nepa", "hrsa will", "project location",
     "site description", "please provide", "please note",
     "describe all", "including elements",
+    "note the following", "note:", "form 1", "form 2",
+    "funding request", "completing this", "when completing",
+    "burden statement", "one-time funding",
 ]
 
 
@@ -642,8 +676,8 @@ def _detect_label_colon_fields(text_spans, page_num, page=None, snap_targets=Non
         text = s.get("text", "").strip()
         text_lower = text.lower()
         
-        # Skip if too short
-        if len(text) < 4:
+        # Skip if too short — very short colon labels like "for:" are not fields
+        if len(text) < 5:
             continue
         # Allow 'Email' without colon as a special case
         if ":" not in text and text_lower not in ("email",):

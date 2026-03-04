@@ -297,8 +297,10 @@ def detect_fields_di(pdf_path, page_sizes):
 
                     cell_text = (cell.content or "").strip()
 
-                    # Skip header cells and cells with substantial content
-                    if _is_header_cell(cell):
+                    # Skip header cells WITH content (labels/titles).
+                    # Empty header cells are potential readonly inputs
+                    # (e.g. Grant Number box under "FOR HRSA USE ONLY").
+                    if _is_header_cell(cell) and len(cell_text) > 2:
                         continue
 
                     # Only consider empty or near-empty cells
@@ -311,7 +313,8 @@ def detect_fields_di(pdf_path, page_sizes):
                     # --- Smart filtering ---
 
                     # 1) Skip if ANY cell in this row is a header
-                    if row_header.get(ri, False):
+                    #    BUT allow empty header cells through (potential readonly inputs)
+                    if row_header.get(ri, False) and not _is_header_cell(cell):
                         continue
 
                     # 2) Collect the non-empty text from other cells in
@@ -345,19 +348,34 @@ def detect_fields_di(pdf_path, page_sizes):
                         continue
 
                     # 6) If a header row above contains "FOR HRSA USE ONLY"
-                    #    or similar, skip cells in columns under that header
+                    #    or similar, mark cells as readonly — but ONLY if
+                    #    this cell's column is under that HRSA header AND
+                    #    every row between the HRSA header and this cell is
+                    #    also a header row (contiguous header block).
+                    #    This prevents marking Q1 input cells as internal
+                    #    when they happen to share a column with the HRSA
+                    #    header but are separated by content rows.
                     hrsa_internal = False
                     for hr_ri, is_hdr in row_header.items():
                         if hr_ri < ri and is_hdr:
                             for oci2, oct2 in row_texts.get(hr_ri, []):
                                 if any(kw in oct2.lower() for kw in
                                        ("for hrsa use only", "for official use only")):
-                                    hrsa_internal = True
+                                    # Check column match
+                                    if ci < oci2:
+                                        break  # cell is left of HRSA header
+                                    # Check contiguous: every row between
+                                    # hr_ri and ri must be a header row
+                                    contiguous = True
+                                    for mid_r in range(hr_ri + 1, ri):
+                                        if not row_header.get(mid_r, False):
+                                            contiguous = False
+                                            break
+                                    if contiguous:
+                                        hrsa_internal = True
                                     break
                         if hrsa_internal:
                             break
-                    if hrsa_internal:
-                        continue
 
                     # --- Passed all filters: this is a real input field ---
                     label = _find_table_cell_label(table, cell, kv_pairs, pw, ph)
@@ -380,6 +398,7 @@ def detect_fields_di(pdf_path, page_sizes):
                         "options": None,
                         "depends_on": None,
                         "_source": "doc_intelligence",
+                        "_readonly": hrsa_internal,
                     })
         
         # --- Key-value pairs: detect fields from label-value structure ---

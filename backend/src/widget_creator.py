@@ -255,6 +255,11 @@ def create_text_field(page, field, used_names):
         counter_name = name + "_counter"
         w.script_stroke = _js_textarea_keystroke(4000, counter_name)
     
+    # Readonly field: HRSA-internal or explicitly readonly
+    if field.get("_readonly"):
+        w.field_flags |= fitz.PDF_FIELD_IS_READ_ONLY
+        w.fill_color = (0.93, 0.93, 0.93)  # light grey for readonly
+
     # Conditional field: start hidden if linked to a radio group
     conditional_radio = field.get("_conditional_radio")
     if conditional_radio:
