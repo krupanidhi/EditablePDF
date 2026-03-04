@@ -1044,7 +1044,13 @@ def _snap_and_merge_di_cells(fields, snap_targets):
        100 % of the cell area with no padding.
     """
     rects = snap_targets.get("rects", [])
-    if not rects or not fields:
+    # Major edges: (coord, range_min, range_max) tuples — border-grade only.
+    major_h_raw = snap_targets.get("major_h_edges", [])
+    major_v_raw = snap_targets.get("major_v_edges", [])
+    # Fallback to all edges if no major edges available
+    all_h = sorted(snap_targets.get("h_edges", []))
+    all_v = sorted(snap_targets.get("v_edges", []))
+    if not fields or (not rects and not all_h):
         return fields
 
     # Pre-filter rects: only keep cell-border rects (height ≥ 18pt).
@@ -1052,12 +1058,10 @@ def _snap_and_merge_di_cells(fields, snap_targets):
     cell_rects = [r for r in rects if r.height >= 18]
 
     # Identify which cell_rects contain significant text (label cells).
-    # An input-cell rect should be empty (no text inside it).
     text_spans = snap_targets.get("text_positions", [])
     label_rect_ids = set()
     for i, r in enumerate(cell_rects):
         for sp in text_spans:
-            # Text span centre inside this rect?
             scx = (sp["x0"] + sp["x1"]) / 2
             scy = (sp["y0"] + sp["y1"]) / 2
             if r.x0 <= scx <= r.x1 and r.y0 <= scy <= r.y1:
@@ -1065,12 +1069,65 @@ def _snap_and_merge_di_cells(fields, snap_targets):
                     label_rect_ids.add(i)
                     break
 
-    def _best_rect(bbox, tolerance=6):
-        """Find the cell-border rect that contains the centre of *bbox*.
+    def _relevant_v_edges(bbox, max_dist=15):
+        """Get sorted v-edge x-coords whose y-range overlaps the DI bbox."""
+        _, by0, _, by1 = bbox
+        coords = set()
+        for x, y_lo, y_hi in major_v_raw:
+            # Edge must span into the bbox's y-range
+            if y_hi < by0 - 5 or y_lo > by1 + 5:
+                continue
+            coords.add(x)
+        if coords:
+            return sorted(coords)
+        return all_v  # fallback
 
-        Among all qualifying rects whose interior contains the DI bbox
-        centre, pick the one with the smallest area (tightest fit).
-        Prefers empty rects (no text) over label rects.
+    def _relevant_h_edges(bbox, max_dist=15):
+        """Get sorted h-edge y-coords whose x-range overlaps the DI bbox."""
+        bx0, _, bx1, _ = bbox
+        coords = set()
+        for y, x_lo, x_hi in major_h_raw:
+            if x_hi < bx0 - 5 or x_lo > bx1 + 5:
+                continue
+            coords.add(y)
+        if coords:
+            return sorted(coords)
+        return all_h  # fallback
+
+    def _closest(value, edges, max_dist=15):
+        """Find the closest edge to *value* within *max_dist*."""
+        best = None
+        best_d = max_dist + 1
+        for e in edges:
+            d = abs(e - value)
+            if d < best_d:
+                best_d = d
+                best = e
+            elif e > value + max_dist:
+                break
+        return best
+
+    def _snap_to_edges(bbox):
+        """Reconstruct cell bbox from range-aware major structural edges."""
+        bx0, by0, bx1, by1 = bbox
+        v_cands = _relevant_v_edges(bbox)
+        h_cands = _relevant_h_edges(bbox)
+        top = _closest(by0, h_cands)
+        bot = _closest(by1, h_cands)
+        left = _closest(bx0, v_cands)
+        right = _closest(bx1, v_cands)
+        if top is not None and bot is not None and left is not None and right is not None:
+            if (bot - top) >= 15 and (right - left) >= 20:
+                return [round(left, 1), round(top, 1),
+                        round(right, 1), round(bot, 1)]
+        return None
+
+    def _best_rect(bbox, tolerance=6):
+        """Find the cell-border rect or reconstruct from edges.
+
+        Two-tier approach:
+        1. Try matching to a structural rect (height ≥ 18pt).
+        2. If no rect matches, reconstruct from nearest h/v edges.
         """
         bx0, by0, bx1, by1 = bbox
         cx = (bx0 + bx1) / 2
@@ -1080,7 +1137,6 @@ def _snap_and_merge_di_cells(fields, snap_targets):
         best_any = None
         best_any_area = float("inf")
         for i, r in enumerate(cell_rects):
-            # Centre of the DI bbox must fall inside this rect (± tolerance)
             if not (r.x0 - tolerance <= cx <= r.x1 + tolerance):
                 continue
             if not (r.y0 - tolerance <= cy <= r.y1 + tolerance):
@@ -1093,12 +1149,12 @@ def _snap_and_merge_di_cells(fields, snap_targets):
             if area < best_any_area:
                 best_any_area = area
                 best_any = r
-        # Prefer empty rect; fall back to any rect
         best = best_empty or best_any
         if best:
             return [round(best.x0, 1), round(best.y0, 1),
                     round(best.x1, 1), round(best.y1, 1)]
-        return None
+        # Fallback: reconstruct from edges
+        return _snap_to_edges(bbox)
 
     # --- Step 1: merge adjacent cells in same row FIRST ---
     # This combines cells like [6,1]+[6,2] so the merged bbox centre
