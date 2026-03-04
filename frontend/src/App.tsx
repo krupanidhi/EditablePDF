@@ -9,10 +9,9 @@ import {
   ListChecks,
 } from 'lucide-react';
 import { healthCheck, convertFile, convertFolder, extractFields, validateData } from './api';
-import type { FormSchema, ExtractFieldsResponse, ValidationResult, HealthCheck } from './types';
+import type { ExtractFieldsResponse, ValidationResult, HealthCheck } from './types';
 import FileUploader from './components/FileUploader';
 import JobTracker from './components/JobTracker';
-import SchemaViewer from './components/SchemaViewer';
 import ValidationViewer from './components/ValidationViewer';
 import RequiredFieldsTab from './components/RequiredFieldsTab';
 
@@ -26,7 +25,6 @@ function App() {
   const [jobIds, setJobIds] = useState<string[]>([]);
   const [folderPath, setFolderPath] = useState('');
   const [folderProcessing, setFolderProcessing] = useState(false);
-  const [completedSchemas, setCompletedSchemas] = useState<FormSchema[]>([]);
 
   // Extract state
   const [extractedData, setExtractedData] = useState<ExtractFieldsResponse | null>(null);
@@ -73,21 +71,7 @@ function App() {
     }
   }, [folderPath]);
 
-  const handleJobComplete = useCallback(async (job: { result?: { schema: string } }) => {
-    if (job.result?.schema) {
-      try {
-        const filename = job.result.schema.split(/[\\/]/).pop() || '';
-        const res = await fetch(`/api/download/${encodeURIComponent(filename)}`);
-        if (res.ok) {
-          const schema = await res.json() as FormSchema;
-          if (schema?.metadata?.source_file) {
-            setCompletedSchemas((prev) => [...prev, schema]);
-          }
-        }
-      } catch {
-        // Schema fetch failed, not critical
-      }
-    }
+  const handleJobComplete = useCallback(async () => {
     toast.success('Conversion complete!');
   }, []);
 
@@ -260,32 +244,14 @@ function App() {
               </div>
             </div>
 
-            {/* Active jobs */}
+            {/* Jobs — most recent on top */}
             {jobIds.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-[#0B4778]">Jobs</h2>
-                {jobIds.map((id) => (
-                  <JobTracker key={id} jobId={id} onComplete={handleJobComplete} />
-                ))}
-              </div>
-            )}
-
-            {/* Completed schemas */}
-            {completedSchemas.length > 0 && (
-              <div className="space-y-3">
                 <h2 className="text-sm font-semibold text-[#0B4778]">
-                  Detected Fields
+                  Conversion Jobs ({jobIds.length})
                 </h2>
-                {completedSchemas.map((schema, i) => (
-                  <div
-                    key={i}
-                    className="bg-white rounded-xl border border-[#D9E8F6] shadow-sm p-5"
-                  >
-                    <p className="text-xs text-[#64748b] mb-3">
-                      {schema.metadata.source_file}
-                    </p>
-                    <SchemaViewer schema={schema} />
-                  </div>
+                {[...jobIds].reverse().map((id) => (
+                  <JobTracker key={id} jobId={id} onComplete={handleJobComplete} />
                 ))}
               </div>
             )}

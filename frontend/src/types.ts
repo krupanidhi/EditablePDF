@@ -9,6 +9,34 @@ export interface FolderConvertResponse {
   file_count: number;
 }
 
+export interface AuditCheck {
+  category: string;
+  check: string;
+  status: 'pass' | 'fail' | 'warn' | 'info';
+  detail: string;
+}
+
+export interface AuditResult {
+  checks: AuditCheck[];
+  summary: {
+    passed: number;
+    failed: number;
+    warnings: number;
+    total: number;
+    score: number;
+  };
+  fields_summary: { type: string; count: number }[];
+  total_widgets: number;
+}
+
+export interface FieldDetail {
+  field_id: string;
+  label: string;
+  type: string;
+  page: number;
+  required: boolean;
+}
+
 export interface JobResult {
   editable_pdf: string;
   schema: string;
@@ -18,6 +46,8 @@ export interface JobResult {
     by_type: Record<string, number>;
     processing_time_sec: number;
   };
+  audit?: AuditResult;
+  fields_detail?: FieldDetail[];
 }
 
 export interface Job {

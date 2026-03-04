@@ -1674,7 +1674,22 @@ def convert(input_path, output_path=None, schema_output_path=None):
     print(f"Saved schema: {schema_output_path}")
     
     elapsed = (datetime.now(timezone.utc) - start_time).total_seconds()
-    
+
+    # Run quality audit on the output PDF
+    from .quality_audit import audit_pdf
+    audit = audit_pdf(output_path, field_count=len(all_fields), by_type=stats_by_type)
+
+    # Build per-field summary for the frontend
+    fields_detail = []
+    for f in all_fields:
+        fields_detail.append({
+            "field_id": f.get("field_id", ""),
+            "label": f.get("label", ""),
+            "type": f.get("type", "text"),
+            "page": f.get("page", 1),
+            "required": f.get("required", False),
+        })
+
     return {
         "editable_pdf": output_path,
         "schema": schema_output_path,
@@ -1684,6 +1699,8 @@ def convert(input_path, output_path=None, schema_output_path=None):
             "by_type": stats_by_type,
             "processing_time_sec": round(elapsed, 2),
         },
+        "audit": audit,
+        "fields_detail": fields_detail,
     }
 
 
