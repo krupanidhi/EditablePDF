@@ -57,13 +57,19 @@ def set_document_title(doc, title: str):
                             '/DisplayDocTitle true', vp_obj)
             doc.update_object(vp_xref, vp_obj)
     elif vp_inline:
-        # Inline ViewerPreferences — add DisplayDocTitle
+        # Inline ViewerPreferences — add or fix DisplayDocTitle
         inner = vp_inline.group(1)
         if "/DisplayDocTitle" not in inner:
             new_inner = inner.rstrip() + " /DisplayDocTitle true"
-            new_vp = f"/ViewerPreferences <<{new_inner}>>"
-            new_obj = cat_obj.replace(vp_inline.group(0), new_vp)
-            doc.update_object(cat_xref, new_obj)
+        else:
+            # Replace existing value (could be 'true', 'false', or 'N 0 R')
+            new_inner = re.sub(r'/DisplayDocTitle\s+\d+\s+0\s+R',
+                               '/DisplayDocTitle true', inner)
+            new_inner = re.sub(r'/DisplayDocTitle\s+(true|false)',
+                               '/DisplayDocTitle true', new_inner)
+        new_vp = f"/ViewerPreferences <<{new_inner}>>"
+        new_obj = cat_obj.replace(vp_inline.group(0), new_vp)
+        doc.update_object(cat_xref, new_obj)
     else:
         # No ViewerPreferences yet — create one
         doc.xref_set_key(cat_xref, "ViewerPreferences",
@@ -134,10 +140,25 @@ def inject_struct_tree(doc):
         </Form>
       </Document>
 
+    If the PDF already has a /StructTreeRoot, it is replaced with our
+    clean structure that properly links every widget annotation.
+
     This satisfies the basic PDF/UA requirement that the document is tagged
     and every annotation has a parent structure element.
     """
     cat_xref = doc.pdf_catalog()
+
+    # Remove any existing /StructTreeRoot reference (we'll rebuild it)
+    # Also clear any stale /StructParent on widgets from previous trees
+    for page_idx in range(doc.page_count):
+        page = doc[page_idx]
+        for w in page.widgets():
+            if w.rect.x0 < 0:
+                continue
+            obj = doc.xref_object(w.xref)
+            if "/StructParent" in obj:
+                obj = re.sub(r'/StructParent\s+\d+', '', obj)
+                doc.update_object(w.xref, obj)
 
     # Collect all widget annotations grouped by page
     pages_widgets = []  # list of list of (widget_xref, page_xref)
