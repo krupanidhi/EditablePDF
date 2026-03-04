@@ -2,7 +2,7 @@
 DOCX Converter — Converts Word documents to PDF.
 
 Strategy:
-  1. Primary: docx2pdf (uses Microsoft Word via COM automation — best fidelity)
+  1. Primary: Microsoft Word via Win32 COM automation (best fidelity)
   2. Fallback: LibreOffice headless (if MS Word is not available)
 """
 
@@ -13,12 +13,62 @@ import shutil
 from . import config
 
 
-def _convert_with_docx2pdf(docx_path, output_pdf):
-    """Convert using docx2pdf (Microsoft Word COM automation)."""
-    from docx2pdf import convert as _docx2pdf_convert
-    _docx2pdf_convert(docx_path, output_pdf)
+def _word_com_convert(docx_path, output_pdf):
+    """Single attempt to convert using Word COM. Raises on failure."""
+    import win32com.client
+
+    word = None
+    doc = None
+    try:
+        word = win32com.client.gencache.EnsureDispatch("Word.Application")
+        word.Visible = False
+        word.DisplayAlerts = 0  # wdAlertsNone
+
+        abs_docx = os.path.abspath(docx_path)
+        abs_pdf = os.path.abspath(output_pdf)
+
+        doc = word.Documents.Open(abs_docx, ReadOnly=True)
+        # wdFormatPDF = 17
+        doc.SaveAs2(abs_pdf, FileFormat=17)
+    finally:
+        if doc is not None:
+            try:
+                doc.Close(SaveChanges=0)
+            except Exception:
+                pass
+        if word is not None:
+            try:
+                word.Quit()
+            except Exception:
+                pass
+
     if not os.path.exists(output_pdf):
-        raise RuntimeError("docx2pdf produced no output")
+        raise RuntimeError("Microsoft Word produced no PDF output")
+
+
+def _convert_with_word_com(docx_path, output_pdf):
+    """Convert using Microsoft Word via Win32 COM, with retry.
+
+    If Word is already open it may reject COM calls ('Call was rejected
+    by callee').  In that case we kill the running Word process and retry
+    once.
+    """
+    import time
+
+    try:
+        _word_com_convert(docx_path, output_pdf)
+    except Exception as first_err:
+        # If Word was busy / already open, kill it and retry
+        print(f"  DOCX→PDF: first attempt failed ({first_err}), killing Word and retrying...")
+        try:
+            subprocess.run(
+                ["taskkill", "/F", "/IM", "WINWORD.EXE"],
+                capture_output=True, timeout=10,
+            )
+            time.sleep(2)
+        except Exception:
+            pass
+        _word_com_convert(docx_path, output_pdf)
 
 
 def _convert_with_libreoffice(docx_path, output_dir):
@@ -86,14 +136,14 @@ def convert_docx_to_pdf(docx_path, output_dir=None):
     base_name = os.path.splitext(os.path.basename(docx_path))[0]
     final_pdf = os.path.join(output_dir, f"{base_name}.pdf")
 
-    # Strategy 1: docx2pdf (Microsoft Word)
+    # Strategy 1: Microsoft Word via COM automation
     try:
-        print("  DOCX→PDF: using Microsoft Word (docx2pdf)...")
-        _convert_with_docx2pdf(docx_path, final_pdf)
+        print("  DOCX→PDF: using Microsoft Word (COM)...")
+        _convert_with_word_com(docx_path, final_pdf)
         print(f"  DOCX→PDF: success → {final_pdf}")
         return final_pdf
     except Exception as e:
-        print(f"  DOCX→PDF: docx2pdf failed ({e}), trying LibreOffice fallback...")
+        print(f"  DOCX→PDF: Word COM failed ({e}), trying LibreOffice fallback...")
 
     # Strategy 2: LibreOffice headless
     return _convert_with_libreoffice(docx_path, output_dir)
