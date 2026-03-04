@@ -80,30 +80,31 @@ def augment_tooltip_required(doc, widget, label: str):
     """Append '(required)' to a widget's tooltip if not already present.
 
     Updates the /TU (tooltip) key on the widget annotation dict.
+    Uses xref_set_key for safe PDF object manipulation.
     """
-    existing_tu = ""
+    # Read existing /TU — handle escaped parens in the value
     obj_str = doc.xref_object(widget.xref)
-    tu_match = re.search(r'/TU\s*\(([^)]*)\)', obj_str)
+    # Match /TU with nested escaped parens: \( and \) inside the value
+    tu_match = re.search(r'/TU\s*\((.+?[^\\])\)', obj_str)
+    if not tu_match:
+        # Try simpler match for short tooltips without escaping
+        tu_match = re.search(r'/TU\s*\(([^)]*)\)', obj_str)
+    existing_tu = ""
     if tu_match:
-        existing_tu = tu_match.group(1)
+        existing_tu = tu_match.group(1).replace("\\(", "(").replace("\\)", ")")
 
     # Fall back to the label if no /TU exists
     base = existing_tu or label or widget.field_label or widget.field_name or ""
     if not base:
         return
 
-    if "(required)" in base.lower():
+    if "required" in base.lower():
         return  # already annotated
 
     new_tu = f"{base} (required)"
-    # Escape parentheses in the new tooltip
-    safe_tu = new_tu.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
-
-    if tu_match:
-        new_obj = obj_str.replace(tu_match.group(0), f"/TU ({safe_tu})")
-    else:
-        new_obj = obj_str.rstrip().rstrip(">") + f" /TU ({safe_tu}) >>"
-    doc.update_object(widget.xref, new_obj)
+    # Use xref_set_key — it handles escaping and dict insertion safely
+    safe_tu = new_tu.replace("(", "\\(").replace(")", "\\)")
+    doc.xref_set_key(widget.xref, "TU", f"({safe_tu})")
 
 
 def augment_xfa_tooltip_required(field_elem, ns: str, label: str):
@@ -325,8 +326,7 @@ def set_counter_tooltips(doc):
             parent_name = name.rsplit("_counter", 1)[0]
             tooltip = f"Character count for {parent_name}"
             safe = tooltip.replace("(", "\\(").replace(")", "\\)")
-            obj = obj.rstrip().rstrip(">") + f" /TU ({safe}) >>"
-            doc.update_object(w.xref, obj)
+            doc.xref_set_key(w.xref, "TU", f"({safe})")
 
 
 # ---------------------------------------------------------------------------
