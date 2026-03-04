@@ -159,7 +159,10 @@ def _fix_widget_font(doc, widget):
     Surgically replaces only the /DA string.
     """
     xref = widget.xref
-    obj_str = doc.xref_object(xref)
+    try:
+        obj_str = doc.xref_object(xref)
+    except RuntimeError:
+        return  # bad xref — widget still works with auto-sized font
     da_match = re.search(r'/DA\s*\(([^)]*)\)', obj_str)
     if not da_match:
         return
@@ -170,7 +173,10 @@ def _fix_widget_font(doc, widget):
     size = _font_size_for_widget(h)
     new_da = re.sub(r'\b0\s+Tf\b', f'{size} Tf', da)
     new_obj = obj_str.replace(f'({da})', f'({new_da})', 1)
-    doc.update_object(xref, new_obj)
+    try:
+        doc.update_object(xref, new_obj)
+    except RuntimeError:
+        pass  # bad xref on update — non-critical
 
 
 def create_text_field(page, field, used_names):
