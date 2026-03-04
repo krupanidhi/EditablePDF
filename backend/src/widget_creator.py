@@ -273,7 +273,7 @@ def create_text_field(page, field, used_names):
         cw.rect = fitz.Rect(border_x1 - 80, rect.y0 - 10, border_x1, rect.y0 - 1)
         cw.border_width = 0
         cw.fill_color = None  # transparent background
-        cw.text_color = (0.45, 0.45, 0.45)  # grey text
+        cw.text_color = (0.35, 0.35, 0.35)  # dark grey (WCAG 4.5:1 contrast)
         cw.text_fontsize = 6
         cw.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
         cw.field_value = "0 of 4000 max"

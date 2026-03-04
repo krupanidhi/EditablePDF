@@ -18,6 +18,8 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from .accessibility import (apply_accessibility, augment_tooltip_required,
+                            augment_xfa_tooltip_required)
 
 
 def _label_to_field_id(label: str) -> str:
@@ -459,6 +461,9 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 text_elem = ET.SubElement(msg_elem, f"{ns}text")
             text_elem.text = f"{display_label} is required."
 
+            # Accessibility: append "(required)" to tooltip for screen readers
+            augment_xfa_tooltip_required(field_elem, ns, display_label)
+
             required_fields.append((som_path, display_label))
             any_change = True
 
@@ -706,6 +711,10 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         doc.xref_set_key(cat_xref, "Perms", "<<>>")
         print("[XFA] Stripped /Perms (Reader Extensions signature) from catalog")
 
+    # Section 508 accessibility: lang, title, mark info (XFA = no struct tree)
+    doc_title = os.path.splitext(os.path.basename(output_path))[0].replace("_", " ").title()
+    apply_accessibility(doc, title=doc_title, is_xfa=True)
+
     # Save without garbage collection to preserve XFA streams.
     doc.save(output_path, deflate=True)
     doc.close()
@@ -877,6 +886,8 @@ def apply_required(pdf_path: str, fields: list[dict],
                 updated_count += 1
 
             if is_required:
+                # Accessibility: append "(required)" to tooltip for screen readers
+                augment_tooltip_required(doc, widget, display_label)
                 # Resolve depends_on to a PDF field_name
                 dep_pdf_name = field_id_to_pdf_name.get(dep_fid) if dep_fid else None
                 required_field_info.append((field_name, display_label, is_radio, dep_pdf_name))
@@ -1092,6 +1103,10 @@ def apply_required(pdf_path: str, fields: list[dict],
 
     # Fix tab order on every page: sort annotations by position (row order)
     _fix_tab_order(doc, exclude_xrefs=set(delete_xrefs) if delete_xrefs else None)
+
+    # Section 508 accessibility: lang, title, mark info, struct tree
+    doc_title = os.path.splitext(os.path.basename(pdf_path))[0].replace("_", " ").title()
+    apply_accessibility(doc, title=doc_title, is_xfa=False)
 
     # Save
     if output_path is None:

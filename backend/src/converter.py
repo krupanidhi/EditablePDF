@@ -26,6 +26,7 @@ from .doc_intelligence_detector import detect_fields_di
 from .snap_algorithm import snap_to_rects, snap_fields
 from .widget_creator import create_widget_for_field, reset_radio_groups
 from .docx_converter import is_docx, convert_docx_to_pdf
+from .accessibility import apply_accessibility
 
 
 # --------------------------------
@@ -34,7 +35,11 @@ from .docx_converter import is_docx, convert_docx_to_pdf
 
 _BRACKET_RE = re.compile(r'\[\s*_?\s*\]')
 _INLINE_YESNO_RE = re.compile(
-    r'(Yes|No|N/?A)\s*\[\s*_?\s*\]',
+    r'(Yes|No|N/?A|Owned|Leased)\s*\[\s*_?\s*\]',
+    re.IGNORECASE,
+)
+_INLINE_BRACKET_FIRST_RE = re.compile(
+    r'\[\s*_?\s*\]\s*(Yes|No|N/?A|Owned|Leased)',
     re.IGNORECASE,
 )
 
@@ -57,7 +62,10 @@ def _detect_bracket_fields(text_spans, page_num, page=None, snap_targets=None):
             continue
         
         # Check for inline Yes/No/NA pattern (multiple brackets on same line)
+        # Support both "Label [_]" and "[_] Label" orderings
         inline_matches = list(_INLINE_YESNO_RE.finditer(text))
+        if len(inline_matches) < 2:
+            inline_matches = list(_INLINE_BRACKET_FIRST_RE.finditer(text))
         if len(inline_matches) >= 2 and page is not None:
             # Use page.search_for() for exact pixel coordinates of each [_]
             # Search near this span's y-range for bracket rects
@@ -92,7 +100,8 @@ def _detect_bracket_fields(text_spans, page_num, page=None, snap_targets=None):
             span_width = s["x1"] - s["x0"]
             text_len = max(len(text), 1)
             for im in inline_matches:
-                bracket_offset = im.group().find('[')
+                bracket_str = im.group()
+                bracket_offset = bracket_str.find('[')
                 bracket_char = im.start() + bracket_offset
                 char_ratio = bracket_char / text_len
                 bracket_x = s["x0"] + char_ratio * span_width
@@ -935,7 +944,7 @@ def _redact_field_placeholders(page, fields):
                         # Expand slightly to fully cover bracket glyphs
                         redact_rect = fitz.Rect(br.x0 - 1, br.y0 - 1,
                                                 br.x1 + 1, br.y1 + 1)
-                        page.add_redact_annot(redact_rect, fill=(1, 1, 1))
+                        page.add_redact_annot(redact_rect, fill=False)
                         redact_count += 1
                         break
         
@@ -947,7 +956,7 @@ def _redact_field_placeholders(page, fields):
                 if (abs(br.y0 - cb[1]) < 4 and abs(br.x0 - cb[0]) < 4):
                     redact_rect = fitz.Rect(br.x0 - 1, br.y0 - 1,
                                             br.x1 + 1, br.y1 + 1)
-                    page.add_redact_annot(redact_rect, fill=(1, 1, 1))
+                    page.add_redact_annot(redact_rect, fill=False)
                     redact_count += 1
                     break
     
@@ -1634,6 +1643,10 @@ def convert(input_path, output_path=None, schema_output_path=None):
     
     # Add bookmarks
     _build_bookmarks(doc, all_headings)
+    
+    # Section 508 accessibility: lang, title, mark info, struct tree
+    doc_title = os.path.splitext(os.path.basename(input_path))[0].replace("_", " ").title()
+    apply_accessibility(doc, title=doc_title, is_xfa=False)
     
     # Save editable PDF
     doc.save(output_path, garbage=3, deflate=True)
