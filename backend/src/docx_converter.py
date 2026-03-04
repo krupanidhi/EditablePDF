@@ -2,73 +2,78 @@
 DOCX Converter — Converts Word documents to PDF.
 
 Strategy:
-  1. Primary: Microsoft Word via Win32 COM automation (best fidelity)
+  1. Primary: Microsoft Word via subprocess (spawns a helper process that
+     uses Win32 COM — avoids COM apartment threading issues in async servers)
   2. Fallback: LibreOffice headless (if MS Word is not available)
 """
 
 import os
+import sys
 import subprocess
 import tempfile
 import shutil
 from . import config
 
+# Inline Python script that does the COM conversion in its own process.
+# This avoids all COM threading/apartment issues when called from an async
+# server like FastAPI/uvicorn.
+_WORD_COM_SCRIPT = r'''
+import sys, os, time, subprocess
 
-def _word_com_convert(docx_path, output_pdf):
-    """Single attempt to convert using Word COM. Raises on failure."""
+docx_path = sys.argv[1]
+pdf_path  = sys.argv[2]
+
+def convert_once():
     import win32com.client
-
     word = None
     doc = None
     try:
         word = win32com.client.gencache.EnsureDispatch("Word.Application")
         word.Visible = False
-        word.DisplayAlerts = 0  # wdAlertsNone
-
-        abs_docx = os.path.abspath(docx_path)
-        abs_pdf = os.path.abspath(output_pdf)
-
-        doc = word.Documents.Open(abs_docx, ReadOnly=True)
-        # wdFormatPDF = 17
-        doc.SaveAs2(abs_pdf, FileFormat=17)
+        word.DisplayAlerts = 0
+        doc = word.Documents.Open(os.path.abspath(docx_path), ReadOnly=True)
+        doc.SaveAs2(os.path.abspath(pdf_path), FileFormat=17)
     finally:
-        if doc is not None:
-            try:
-                doc.Close(SaveChanges=0)
-            except Exception:
-                pass
-        if word is not None:
-            try:
-                word.Quit()
-            except Exception:
-                pass
+        if doc:
+            try: doc.Close(SaveChanges=0)
+            except: pass
+        if word:
+            try: word.Quit()
+            except: pass
 
-    if not os.path.exists(output_pdf):
-        raise RuntimeError("Microsoft Word produced no PDF output")
-
-
-def _convert_with_word_com(docx_path, output_pdf):
-    """Convert using Microsoft Word via Win32 COM, with retry.
-
-    If Word is already open it may reject COM calls ('Call was rejected
-    by callee').  In that case we kill the running Word process and retry
-    once.
-    """
-    import time
-
+try:
+    convert_once()
+except Exception as e:
+    # Retry: kill any lingering Word and try again
+    print(f"First attempt failed ({e}), retrying...", file=sys.stderr)
     try:
-        _word_com_convert(docx_path, output_pdf)
-    except Exception as first_err:
-        # If Word was busy / already open, kill it and retry
-        print(f"  DOCX→PDF: first attempt failed ({first_err}), killing Word and retrying...")
-        try:
-            subprocess.run(
-                ["taskkill", "/F", "/IM", "WINWORD.EXE"],
-                capture_output=True, timeout=10,
-            )
-            time.sleep(2)
-        except Exception:
-            pass
-        _word_com_convert(docx_path, output_pdf)
+        subprocess.run(["taskkill", "/F", "/IM", "WINWORD.EXE"],
+                       capture_output=True, timeout=10)
+        time.sleep(2)
+    except: pass
+    convert_once()
+
+if not os.path.exists(pdf_path):
+    print("ERROR: No PDF produced", file=sys.stderr)
+    sys.exit(1)
+print("OK")
+'''
+
+
+def _convert_with_word_subprocess(docx_path, output_pdf):
+    """Convert DOCX→PDF by spawning a separate Python process that uses
+    Microsoft Word COM.  This avoids COM apartment model issues that occur
+    when calling COM from asyncio background threads.
+    """
+    result = subprocess.run(
+        [sys.executable, "-c", _WORD_COM_SCRIPT, docx_path, output_pdf],
+        capture_output=True, text=True, timeout=120,
+    )
+    if result.returncode != 0 or not os.path.exists(output_pdf):
+        raise RuntimeError(
+            f"Word subprocess failed (exit {result.returncode}): "
+            f"{result.stderr.strip()}"
+        )
 
 
 def _convert_with_libreoffice(docx_path, output_dir):
@@ -89,11 +94,8 @@ def _convert_with_libreoffice(docx_path, output_dir):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         cmd = [
-            soffice,
-            "--headless",
-            "--convert-to", "pdf",
-            "--outdir", tmp_dir,
-            docx_path,
+            soffice, "--headless", "--convert-to", "pdf",
+            "--outdir", tmp_dir, docx_path,
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode != 0:
@@ -115,14 +117,14 @@ def _convert_with_libreoffice(docx_path, output_dir):
 
 def convert_docx_to_pdf(docx_path, output_dir=None):
     """Convert a DOCX file to PDF.
-    
-    Uses Microsoft Word (via docx2pdf) if available, otherwise falls back
-    to LibreOffice headless.
-    
+
+    Uses Microsoft Word (via subprocess COM) if available, otherwise falls
+    back to LibreOffice headless.
+
     Args:
         docx_path: path to the .docx file
         output_dir: directory for the output PDF (default: same as input)
-    
+
     Returns:
         path to the generated PDF file
     """
@@ -136,14 +138,14 @@ def convert_docx_to_pdf(docx_path, output_dir=None):
     base_name = os.path.splitext(os.path.basename(docx_path))[0]
     final_pdf = os.path.join(output_dir, f"{base_name}.pdf")
 
-    # Strategy 1: Microsoft Word via COM automation
+    # Strategy 1: Microsoft Word via subprocess
     try:
-        print("  DOCX→PDF: using Microsoft Word (COM)...")
-        _convert_with_word_com(docx_path, final_pdf)
+        print("  DOCX→PDF: using Microsoft Word (subprocess)...")
+        _convert_with_word_subprocess(docx_path, final_pdf)
         print(f"  DOCX→PDF: success → {final_pdf}")
         return final_pdf
     except Exception as e:
-        print(f"  DOCX→PDF: Word COM failed ({e}), trying LibreOffice fallback...")
+        print(f"  DOCX→PDF: Word failed ({e}), trying LibreOffice fallback...")
 
     # Strategy 2: LibreOffice headless
     return _convert_with_libreoffice(docx_path, output_dir)
