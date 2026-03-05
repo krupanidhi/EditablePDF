@@ -426,54 +426,30 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             continue
 
         # ----- Required radio group -----
-        # nullTest="error" on <exclGroup> is the only mechanism that
-        # can trigger Adobe's close-time validation popup for radio
-        # groups.  nullTest on child <field> elements doesn't work
-        # for radio buttons.
-        #
-        # To suppress the auto-drawn red rectangle, override the
-        # exclGroup border with zero-thickness white edges.
+        # Close-time validation (nullTest) does not work for XFA radio
+        # groups and causes an unsuppressable red rectangle.  We only
+        # apply visual indicators (red circle + tooltip) and keep the
+        # default selection ("Clinical") so the field is never empty.
         excl_validate = excl_elem.find(f"{ns}validate")
+        # Remove any nullTest from exclGroup (causes red rectangle)
+        if excl_validate is not None and excl_validate.get("nullTest"):
+            del excl_validate.attrib["nullTest"]
 
-        if is_required:
-            if excl_validate is None:
-                excl_validate = ET.SubElement(excl_elem, f"{ns}validate")
-            excl_validate.set("nullTest", "error")
-            msg_elem = excl_validate.find(f"{ns}message")
-            if msg_elem is None:
-                msg_elem = ET.SubElement(excl_validate, f"{ns}message")
-            text_elem = msg_elem.find(f"{ns}text")
-            if text_elem is None:
-                text_elem = ET.SubElement(msg_elem, f"{ns}text")
-            text_elem.text = f"{display_label} is required."
-
-            # Suppress the red rectangle: override border with
-            # zero-thickness white edges on the exclGroup
-            excl_border = excl_elem.find(f"{ns}border")
-            if excl_border is None:
-                excl_border = ET.SubElement(excl_elem, f"{ns}border")
-            # Clear any previous border attributes/children
+        # Restore exclGroup border to original hidden state
+        excl_border = excl_elem.find(f"{ns}border")
+        if excl_border is not None:
             for old_edge in excl_border.findall(f"{ns}edge"):
                 excl_border.remove(old_edge)
             for old_fill in excl_border.findall(f"{ns}fill"):
                 excl_border.remove(old_fill)
-            if "presence" in excl_border.attrib:
-                del excl_border.attrib["presence"]
-            # 4 edges (top, bottom, left, right) all zero thickness + white
-            for _ in range(4):
-                edge = ET.SubElement(excl_border, f"{ns}edge")
-                edge.set("stroke", "solid")
-                edge.set("thickness", "0pt")
-                edge_color = ET.SubElement(edge, f"{ns}color")
-                edge_color.set("value", "255,255,255")
+            excl_border.set("presence", "hidden")
 
+        if is_required:
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
 
-            # Clear the exclGroup's default <value> so no option is pre-selected
-            excl_value = excl_elem.find(f"{ns}value")
-            if excl_value is not None:
-                excl_elem.remove(excl_value)
+            # Keep default radio value ("Clinical") — do NOT clear it.
+            # This ensures the field is never empty on close.
 
             # Remove any nullTest from child fields (doesn't work for radio)
             for child_field in excl_elem.iter(f"{ns}field"):
@@ -888,39 +864,14 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         sc.set("contentType", "application/x-javascript")
         sc.text = change_js
 
-    # ----- Collect XFA names of required radio groups to clear in datasets -----
-    required_radio_names = []
-    for excl_elem in root.iter(f"{ns}exclGroup"):
-        ename = excl_elem.get("name", "")
-        if not ename:
-            continue
-        fdata = _xfa_find_field_metadata(fields, ename)
-        if fdata is not None and bool(fdata.get("required", False)):
-            required_radio_names.append(ename)
-
     # ----- Serialize and save template -----
     new_xml = ET.tostring(root, encoding="unicode", xml_declaration=False)
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
 
-    # ----- Clear default radio values in XFA datasets stream -----
-    if required_radio_names:
-        ds_xref = _find_xfa_datasets_xref(doc)
-        if ds_xref is not None:
-            ds_bytes = doc.xref_stream(ds_xref)
-            if ds_bytes:
-                ds_str = ds_bytes.decode("utf-8", errors="replace")
-                for rname in required_radio_names:
-                    # Replace <EquipmentType>Clinical</EquipmentType>
-                    # with    <EquipmentType/>
-                    ds_str = re.sub(
-                        rf'(<{rname})[^/]*>.*?</{rname}\s*>',
-                        rf'\1/>',
-                        ds_str,
-                        flags=re.DOTALL,
-                    )
-                doc.update_stream(ds_xref, ds_str.encode("utf-8"))
-                print(f"[XFA] Cleared default values for radio groups: "
-                      f"{required_radio_names}")
+    # Keep default radio values in datasets stream — do NOT clear them.
+    # The default selection (e.g. "Clinical") ensures the radio group
+    # is never empty.  Close-time validation for radio groups is an
+    # Adobe XFA limitation, so we rely on the default value instead.
 
     print(f"[XFA] Updated {updated_count} fields: "
           f"{len(required_fields)} required, {len(max_len_fields)} max-length")
