@@ -426,29 +426,14 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             continue
 
         # ----- Required radio group -----
-        # Set <validate nullTest="error"> so Adobe's built-in validation fires
-        # when closing without selecting.  Hide the exclGroup border to suppress
-        # the ugly auto-drawn red rectangle.
+        # Do NOT use nullTest on exclGroup — Adobe auto-draws an ugly red
+        # rectangle that cannot be suppressed.  Enforce via docClose/preSave
+        # scripts instead.
         validate = excl_elem.find(f"{ns}validate")
         if is_required:
-            # Set nullTest="error" so Adobe's built-in validation fires on close
-            if validate is None:
-                validate = ET.SubElement(excl_elem, f"{ns}validate")
-            validate.set("nullTest", "error")
-            msg_elem = validate.find(f"{ns}message")
-            if msg_elem is None:
-                msg_elem = ET.SubElement(validate, f"{ns}message")
-            text_elem = msg_elem.find(f"{ns}text")
-            if text_elem is None:
-                text_elem = ET.SubElement(msg_elem, f"{ns}text")
-            text_elem.text = f"{display_label} is required."
-
-            # Suppress the ugly auto-drawn red rectangle by hiding the
-            # exclGroup's own border
-            excl_border = excl_elem.find(f"{ns}border")
-            if excl_border is None:
-                excl_border = ET.SubElement(excl_elem, f"{ns}border")
-            excl_border.set("presence", "hidden")
+            # Remove any nullTest that might exist from a previous run
+            if validate is not None and validate.get("nullTest"):
+                del validate.attrib["nullTest"]
 
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
@@ -772,8 +757,8 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             '}'
         )
 
-    # Remove stale preSave/prePrint events from previous apply runs
-    for activity in ("preSave", "prePrint"):
+    # Remove stale preSave/prePrint/docClose events from previous apply runs
+    for activity in ("preSave", "prePrint", "docClose"):
         stale = [
             ev for ev in root_subform.findall(f"{ns}event")
             if ev.get("activity") == activity
@@ -784,19 +769,28 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     if script_parts:
         full_script = '\n\n'.join(script_parts)
 
-        # preSave event
+        # preSave event — fires on Ctrl+S / File→Save
         event_elem = ET.SubElement(root_subform, f"{ns}event")
         event_elem.set("activity", "preSave")
         script_elem = ET.SubElement(event_elem, f"{ns}script")
         script_elem.set("contentType", "application/x-javascript")
         script_elem.text = full_script
 
-        # prePrint event
+        # prePrint event — fires on File→Print
         event_print = ET.SubElement(root_subform, f"{ns}event")
         event_print.set("activity", "prePrint")
         script_print = ET.SubElement(event_print, f"{ns}script")
         script_print.set("contentType", "application/x-javascript")
         script_print.text = full_script.replace("Cannot save", "Cannot print")
+
+        # docClose event — fires when user closes the PDF
+        close_script = full_script.replace("Cannot save", "Warning: unsaved required fields")
+        close_script = close_script.replace("xfa.event.cancelAction = true;", "")
+        event_close = ET.SubElement(root_subform, f"{ns}event")
+        event_close.set("activity", "docClose")
+        script_close = ET.SubElement(event_close, f"{ns}script")
+        script_close.set("contentType", "application/x-javascript")
+        script_close.text = close_script
 
     # ----- Per-field change event for max_length live enforcement -----
     for field_elem in root.iter(f"{ns}field"):
