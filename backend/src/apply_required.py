@@ -864,6 +864,43 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         sc.set("contentType", "application/x-javascript")
         sc.text = change_js
 
+    # ----- Patch AddEntry click script to set default radio on new rows -----
+    for field_elem in root.iter(f"{ns}field"):
+        if field_elem.get("name") == "AddEntry":
+            for ev in field_elem.findall(f"{ns}event"):
+                if ev.get("activity") != "click":
+                    continue
+                sc = ev.find(f"{ns}script")
+                if sc is None or not sc.text:
+                    continue
+                # Only patch once — check if already patched
+                if "EquipmentType.rawValue" in sc.text:
+                    break
+                # Insert default-radio code right after the setFocus line,
+                # inside the if(mgr) block where `nr` is in scope.
+                patch = (
+                    '\n    // Set default radio to Clinical on new row\n'
+                    '    if (nr) {\n'
+                    '      var et = nr.resolveNode("EquipmentType");\n'
+                    '      if (et) et.rawValue = "Clinical";\n'
+                    '    }\n'
+                )
+                # Insert before the last two closing braces
+                txt = sc.text.rstrip()
+                # Find the setFocus line end and insert after it
+                focus_idx = txt.find("setFocus(")
+                if focus_idx >= 0:
+                    # Find the end of the setFocus line (next semicolon + newline)
+                    semi = txt.find(";", focus_idx)
+                    if semi >= 0:
+                        sc.text = txt[:semi + 1] + patch + txt[semi + 1:]
+                    else:
+                        sc.text = txt + patch
+                else:
+                    sc.text = txt + patch
+                print("[XFA] Patched AddEntry click script to set default radio on new rows")
+            break
+
     # ----- Serialize and save template -----
     new_xml = ET.tostring(root, encoding="unicode", xml_declaration=False)
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
