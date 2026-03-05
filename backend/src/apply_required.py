@@ -319,10 +319,11 @@ def _find_xfa_template_xref(doc) -> int | None:
 
 
 def _xfa_build_som_paths(root, ns: str) -> dict[str, str]:
-    """Walk the XFA template tree and return {field_name: full.SOM.path}.
+    """Walk the XFA template tree and return {name: full.SOM.path}.
 
     SOM (Scripting Object Model) paths are dot-separated chains of named
     subform ancestors.  E.g. ``EquipmentListForm.EL_Main.Header.GrantNumber``.
+    Captures both <field> and <exclGroup> elements.
     """
     paths: dict[str, str] = {}
 
@@ -331,7 +332,7 @@ def _xfa_build_som_paths(root, ns: str) -> dict[str, str]:
         name = elem.get("name", "")
         if tag == "subform" and name:
             parts = parts + [name]
-        if tag == "field" and name:
+        if tag in ("field", "exclGroup") and name:
             paths[name] = ".".join(parts + [name])
         for child in elem:
             _walk(child, parts)
@@ -391,6 +392,65 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     required_fields = []   # (som_path, display_label) for script generation
     max_len_fields = []    # (som_path, display_label, max_length)
 
+    # --- Process <exclGroup> elements (radio button groups) ---
+    for excl_elem in root.iter(f"{ns}exclGroup"):
+        name = excl_elem.get("name", "")
+        if not name:
+            continue
+        fdata = _xfa_find_field_metadata(fields, name)
+        if fdata is None:
+            continue
+        is_required = bool(fdata.get("required", False))
+        is_readonly = bool(fdata.get("readonly", False))
+        display_label = fdata.get("label", name)
+        som_path = som_paths.get(name, name)
+
+        if is_readonly:
+            continue
+
+        # ----- Required: <validate nullTest="error"> on the exclGroup -----
+        validate = excl_elem.find(f"{ns}validate")
+        if is_required:
+            if validate is None:
+                validate = ET.SubElement(excl_elem, f"{ns}validate")
+            validate.set("nullTest", "error")
+            msg_elem = validate.find(f"{ns}message")
+            if msg_elem is None:
+                msg_elem = ET.SubElement(validate, f"{ns}message")
+            text_elem = msg_elem.find(f"{ns}text")
+            if text_elem is None:
+                text_elem = ET.SubElement(msg_elem, f"{ns}text")
+            text_elem.text = f"{display_label} is required."
+            augment_xfa_tooltip_required(excl_elem, ns, display_label)
+            required_fields.append((som_path, display_label))
+
+            # Red border on each child checkButton field inside the exclGroup
+            for child_field in excl_elem.iter(f"{ns}field"):
+                border = child_field.find(f"{ns}border")
+                if border is None:
+                    border = ET.SubElement(child_field, f"{ns}border")
+                edge = border.find(f"{ns}edge")
+                if edge is None:
+                    edge = ET.SubElement(border, f"{ns}edge")
+                edge_color = edge.find(f"{ns}color")
+                if edge_color is None:
+                    edge_color = ET.SubElement(edge, f"{ns}color")
+                edge_color.set("value", "255,0,0")  # red circle
+            updated_count += 1
+        else:
+            if validate is not None and validate.get("nullTest"):
+                del validate.attrib["nullTest"]
+            # Clear red border from child fields
+            for child_field in excl_elem.iter(f"{ns}field"):
+                border = child_field.find(f"{ns}border")
+                if border is not None:
+                    edge = border.find(f"{ns}edge")
+                    if edge is not None:
+                        edge_color = edge.find(f"{ns}color")
+                        if edge_color is not None and edge_color.get("value") == "255,0,0":
+                            edge.remove(edge_color)
+
+    # --- Process <field> elements ---
     for field_elem in root.iter(f"{ns}field"):
         name = field_elem.get("name", "")
         if not name:
@@ -663,6 +723,15 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             '  xfa.event.cancelAction = true;\n'
             '}'
         )
+
+    # Remove stale preSave/prePrint events from previous apply runs
+    for activity in ("preSave", "prePrint"):
+        stale = [
+            ev for ev in root_subform.findall(f"{ns}event")
+            if ev.get("activity") == activity
+        ]
+        for ev in stale:
+            root_subform.remove(ev)
 
     if script_parts:
         full_script = '\n\n'.join(script_parts)
