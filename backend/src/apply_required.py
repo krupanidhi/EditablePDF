@@ -408,34 +408,30 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         if is_readonly:
             continue
 
-        # ----- Required: <validate nullTest="error"> on the exclGroup -----
+        # ----- Required radio group -----
+        # Do NOT set <validate nullTest="error"> on the exclGroup — Adobe
+        # auto-draws an ugly red rectangle around the entire group when that
+        # attribute is present.  Instead, enforce via preSave/prePrint scripts.
         validate = excl_elem.find(f"{ns}validate")
         if is_required:
-            if validate is None:
-                validate = ET.SubElement(excl_elem, f"{ns}validate")
-            validate.set("nullTest", "error")
-            msg_elem = validate.find(f"{ns}message")
-            if msg_elem is None:
-                msg_elem = ET.SubElement(validate, f"{ns}message")
-            text_elem = msg_elem.find(f"{ns}text")
-            if text_elem is None:
-                text_elem = ET.SubElement(msg_elem, f"{ns}text")
-            text_elem.text = f"{display_label} is required."
+            # Remove any nullTest that might exist from a previous run
+            if validate is not None and validate.get("nullTest"):
+                del validate.attrib["nullTest"]
+
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
 
-            # Keep the exclGroup's own border hidden (no outer rectangle)
+            # Remove the exclGroup's own border entirely
             excl_border = excl_elem.find(f"{ns}border")
-            if excl_border is None:
-                excl_border = ET.SubElement(excl_elem, f"{ns}border")
-            excl_border.set("presence", "hidden")
+            if excl_border is not None:
+                excl_elem.remove(excl_border)
 
-            # Red circle on each child checkButton (not the field border)
+            # Red circle on each child checkButton only
             for child_field in excl_elem.iter(f"{ns}field"):
-                # Ensure child field border is hidden (no rectangle around label)
+                # Remove the child field border (rectangle around label)
                 fb = child_field.find(f"{ns}border")
                 if fb is not None:
-                    fb.set("presence", "hidden")
+                    child_field.remove(fb)
 
                 ui = child_field.find(f"{ns}ui")
                 if ui is None:
