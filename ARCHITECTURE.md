@@ -315,12 +315,19 @@ HRSA-branded interface with:
 
 ### Tab Structure (`App.tsx`)
 
-| Tab | Label | Icon | Purpose |
-|-----|-------|------|---------|
-| `convert` | Convert | FileUp | Upload static PDF/DOCX, convert to editable form |
-| `required` | Digitalization Workflow | ListChecks | Configure field rules, regenerate PDF |
-| `extract` | Extract | FileSearch | Extract field data from editable PDF as JSON |
-| `validate` | Validate | ShieldCheck | Validate extracted data against rules |
+Two-tier navigation: **Process Group tabs** (top-level) with **Sub-tabs** within each group.
+
+**Digitalization Process:**
+| Sub-Tab | Label | Icon | Purpose |
+|---------|-------|------|---------|
+| `convert` | Generate Editable PDF | FileUp | Upload static PDF/DOCX, convert to editable form |
+| `required` | Validation Rules | ListChecks | Configure field rules, regenerate PDF |
+
+**Validation Process:**
+| Sub-Tab | Label | Icon | Purpose |
+|---------|-------|------|---------|
+| `extract` | Extract Data | FileSearch | Extract field data from editable PDF as JSON |
+| `validate` | Validate Data | ShieldCheck | Validate extracted data against rules |
 
 ### Component Details
 

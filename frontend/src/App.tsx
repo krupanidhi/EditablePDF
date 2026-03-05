@@ -16,9 +16,11 @@ import JobTracker from './components/JobTracker';
 import ValidationViewer from './components/ValidationViewer';
 import RequiredFieldsTab from './components/RequiredFieldsTab';
 
-type Tab = 'convert' | 'extract' | 'required' | 'validate';
+type TabGroup = 'digitalization' | 'validation';
+type Tab = 'convert' | 'required' | 'extract' | 'validate';
 
 function App() {
+  const [activeGroup, setActiveGroup] = useState<TabGroup>('digitalization');
   const [activeTab, setActiveTab] = useState<Tab>('convert');
   const [health, setHealth] = useState<HealthCheck | null>(null);
 
@@ -129,11 +131,23 @@ function App() {
     }
   }, []);
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'convert', label: 'Convert', icon: <FileUp className="w-4 h-4" /> },
-    { id: 'required', label: 'Digitalization Workflow', icon: <ListChecks className="w-4 h-4" /> },
-    { id: 'extract', label: 'Extract', icon: <FileSearch className="w-4 h-4" /> },
-    { id: 'validate', label: 'Validate', icon: <ShieldCheck className="w-4 h-4" /> },
+  const groups: { id: TabGroup; label: string; tabs: { id: Tab; label: string; icon: React.ReactNode }[] }[] = [
+    {
+      id: 'digitalization',
+      label: 'Digitalization Process',
+      tabs: [
+        { id: 'convert', label: 'Generate Editable PDF', icon: <FileUp className="w-4 h-4" /> },
+        { id: 'required', label: 'Validation Rules', icon: <ListChecks className="w-4 h-4" /> },
+      ],
+    },
+    {
+      id: 'validation',
+      label: 'Validation Process',
+      tabs: [
+        { id: 'extract', label: 'Extract Data', icon: <FileSearch className="w-4 h-4" /> },
+        { id: 'validate', label: 'Validate Data', icon: <ShieldCheck className="w-4 h-4" /> },
+      ],
+    },
   ];
 
   return (
@@ -157,7 +171,7 @@ function App() {
                   AI Based Universal 1-Tier Application Submission Assistant
                 </h1>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: '#FFFFFF', opacity: 0.9, lineHeight: 1.3 }}>
-                  Document → Editable Form Converter & Digitalization Workflow
+                  Digitalization & Validation Process
                 </p>
               </div>
             </div>
@@ -186,13 +200,41 @@ function App() {
           border: '1px solid #D9E8F6',
           borderTop: '5px solid #990000',
         }}>
-          {/* Tabs */}
+          {/* Process Group Tabs */}
+          <div style={{ display: 'flex', gap: '0', marginBottom: '0', borderBottom: '2px solid #D9E8F6' }}>
+            {groups.map((group) => (
+              <button
+                key={group.id}
+                onClick={() => {
+                  setActiveGroup(group.id);
+                  setActiveTab(group.tabs[0].id);
+                }}
+                style={{
+                  padding: '12px 28px',
+                  border: 'none',
+                  borderBottom: activeGroup === group.id ? '3px solid #0B4778' : '3px solid transparent',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  transition: 'all 0.2s',
+                  background: 'transparent',
+                  color: activeGroup === group.id ? '#0B4778' : '#94a3b8',
+                  fontFamily: 'inherit',
+                  marginBottom: '-2px',
+                }}
+              >
+                {group.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Sub-Tabs within active group */}
           <div style={{
-            display: 'flex', gap: '4px', marginBottom: '20px',
+            display: 'flex', gap: '4px', margin: '16px 0 20px 0',
             background: '#f1f5f9', borderRadius: '10px', padding: '4px',
             width: 'fit-content',
           }}>
-            {tabs.map((tab) => (
+            {groups.find(g => g.id === activeGroup)?.tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -201,7 +243,7 @@ function App() {
                   border: 'none',
                   borderRadius: '8px',
                   cursor: 'pointer',
-                  fontSize: '0.95rem',
+                  fontSize: '0.9rem',
                   fontWeight: 600,
                   transition: 'all 0.3s',
                   background: activeTab === tab.id ? '#0B4778' : 'transparent',
@@ -300,7 +342,7 @@ function App() {
               </h2>
               <p className="text-xs text-[#64748b] mb-4">
                 Upload an editable PDF to extract all form field controls and their values as JSON.
-                The output uses the same field structure as the <strong>Digitalization Workflow</strong>.
+                The output uses the same field structure as the <strong>Validation Rules</strong>.
               </p>
               <FileUploader
                 onFilesSelected={handleExtract}
