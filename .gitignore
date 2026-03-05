@@ -20,6 +20,6 @@ di_cache/
 jobs/
 extracted_data/
 input/*/
-debug_*.py
-test_*.py
-fix_*.py
+/debug_*.py
+/test_*.py
+/fix_*.py

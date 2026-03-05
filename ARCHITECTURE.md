@@ -135,6 +135,11 @@ Main pipeline that converts static PDF/DOCX to editable PDF forms.
   - Sets `_no_inset = True` so widgets fill 100% of the cell area
   - Prevents merging readonly cells (e.g., HRSA "Grant Number" vs "Application Tracking Number" stay separate)
 - **`_detect_structural_gap_fields()`** — Finds empty rectangular areas between text labels and page edges that likely represent input fields
+- **`_detect_signature_date_fields()`** — Detects "Signature:", "Date:", "Printed Name", "Title", "Witness" labels near horizontal drawn lines or inside containing rects. Creates text/date fields on the line area. Handles both Strategy 1 (label above a drawn rule) and Strategy 2 (label inside a rect with field extending to the right edge).
+- **`_detect_numbered_list_fields()`** — Detects numbered/lettered list items with trailing blanks: `1. Organization Name: ______`, `a) Contact Person: ______`. Extends fields to containing rect edges.
+- **`_detect_dropdown_fields()`** — Detects parenthetical option lists: `Type (Owned/Leased/Rented):`, `Status (Active, Inactive, Pending)`. Creates dropdown (combobox) widgets with the parsed options. Supports `/` and `,` separators; rejects single options, long instruction text, and missing separators.
+- **`_detect_freeform_blank_areas()`** — Detects large vertical gaps (>50pt) between text lines where the text above is a prompt (ends with `:` or contains keywords like "describe", "explain", "provide"). Creates textarea fields in the white space. Runs last to avoid overlapping previously detected fields.
+- **`_detect_checkbox_grid()`** — Detects checkbox grid/matrix patterns where Unicode ballot-box characters (☐, □, ○, etc.) are arranged in rows of 3+. Matches column positions to header text above and row labels to the left. Creates individually-named checkboxes with combined `row: column` labels.
 
 ### `doc_intelligence_detector.py` — Azure DI Field Detection
 
@@ -194,6 +199,7 @@ Creates PDF form widgets during conversion using PyMuPDF.
 - **Textareas** — With character counter widgets ("X of N max"), keystroke scripts for live counter updates
 - **Checkboxes** — With proper on/off values
 - **Radio buttons** — Grouped by question with individual option buttons
+- **Dropdowns (Combobox)** — With predefined option lists, detected from parenthetical patterns
 
 **Key features:**
 - `_no_inset` flag support: when set, widgets fill 100% of the cell bbox without padding (used for DI-snapped cells)

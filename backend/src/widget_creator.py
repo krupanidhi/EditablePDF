@@ -454,6 +454,55 @@ def create_checkbox_group(page, field, used_names):
     return names
 
 
+def create_dropdown(page, field, used_names):
+    """Create a dropdown (combobox) widget with predefined options.
+
+    Args:
+        page: fitz.Page
+        field: field dict with "options" list of {value, label} dicts
+        used_names: set of already-used field names
+
+    Returns:
+        the field name used, or None
+    """
+    name = _unique_name(field.get("field_id", "dropdown"), used_names)
+    if field.get("_no_inset"):
+        x0, y0, x1, y1 = field["bbox"]
+        rect = fitz.Rect(x0, y0, x1, y1)
+    else:
+        rect = _apply_inset(field["bbox"], "text")
+
+    if rect.width < 5 or rect.height < 3:
+        return None
+
+    options = field.get("options") or []
+    choice_values = [o.get("value", o.get("label", "")) for o in options]
+    if not choice_values:
+        return None
+
+    w = fitz.Widget()
+    w.field_type = fitz.PDF_WIDGET_TYPE_COMBOBOX
+    w.field_name = name
+    w.rect = rect
+    w.border_width = config.WIDGET_BORDER_WIDTH
+    w.border_color = (0.6, 0.6, 0.6)
+    w.fill_color = (0.98, 0.98, 1.0)
+    w.text_fontsize = _font_size_for_widget(rect.height)
+    w.choice_values = choice_values
+
+    label = field.get("label", "")
+    if label:
+        w.field_label = label
+
+    if field.get("required"):
+        w.script_validate = JS_REQUIRED
+
+    page.add_widget(w)
+    w.update()
+    _fix_widget_font(page.parent, w)
+    return name
+
+
 def create_widget_for_field(page, field, used_names):
     """Create the appropriate widget for a detected field.
     
@@ -476,8 +525,10 @@ def create_widget_for_field(page, field, used_names):
             return create_checkbox_group(page, field, used_names)
         else:
             return create_checkbox(page, field, used_names)
+    elif field_type == "dropdown":
+        return create_dropdown(page, field, used_names)
     else:
-        # text, textarea, number, currency, date, email, phone, dropdown
+        # text, textarea, number, currency, date, email, phone
         return create_text_field(page, field, used_names)
 
 

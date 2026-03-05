@@ -612,6 +612,428 @@ def _detect_underline_fields(text_spans, page_num, snap_targets=None):
     return fields
 
 
+# ── NEW SCENARIO: Signature / Date line detection ──────────────
+_SIGNATURE_LINE_RE = re.compile(
+    r'^(Signature|Authorized\s+Signature|Printed\s+Name|Title|Date|'
+    r'Name\s+of\s+\S+|Applicant\s+Signature|Official\s+Signature|'
+    r'Certifying\s+Official|Preparer\s+Signature|Witness)'
+    r'\s*:?\s*$',
+    re.IGNORECASE,
+)
+
+
+def _detect_signature_date_fields(text_spans, page_num, page=None, snap_targets=None):
+    """Detect signature / date / printed-name line fields.
+
+    Common patterns in government and legal forms:
+      - "Signature: _______________" (text + drawn line)
+      - A label like "Signature" or "Date" sitting directly above or beside
+        a long horizontal drawn line
+      - "Printed Name" above a blank line area
+
+    Creates a text field on the line area for the user to type.
+    Signature fields are NOT image/ink — they are typed text in PDF forms.
+    """
+    rects = snap_targets.get("rects", []) if snap_targets else []
+    h_edges = snap_targets.get("h_edges", []) if snap_targets else []
+    fields = []
+
+    for s in text_spans:
+        text = s.get("text", "").strip()
+        if not _SIGNATURE_LINE_RE.match(text):
+            continue
+
+        label = text.rstrip(":").strip()
+
+        # Strategy 1: find a horizontal drawn line within 20pt below this label
+        # (signature lines are often a thin rule below the label text)
+        line_y = None
+        line_x0 = s["x0"]
+        line_x1 = None
+        for he in sorted(h_edges):
+            if s["y1"] - 2 <= he <= s["y1"] + 25:
+                line_y = he
+                break
+
+        if line_y is not None:
+            # Find the extent of the line using rects or default to page-width
+            line_x1 = s["x1"] + 150  # default extension
+            for r in rects:
+                if (abs(r.y0 - line_y) < 5 or abs(r.y1 - line_y) < 5) and r.width > 80:
+                    if r.x0 <= s["x0"] + 20:
+                        line_x0 = r.x0
+                        line_x1 = r.x1
+                        break
+            # Clamp to page
+            line_x1 = min(line_x1, 576)
+        else:
+            # Strategy 2: find a containing rect and place the field from
+            # end of label text to the rect's right edge
+            containing_rect = None
+            for r in rects:
+                if (r.width > 80 and r.x0 <= s["x0"] + 5 and r.x1 >= s["x1"] - 5 and
+                    r.y0 <= s["y0"] + 2 and r.y1 >= s["y1"] - 2):
+                    if containing_rect is None or r.width < containing_rect.width:
+                        containing_rect = r
+            if containing_rect:
+                line_x0 = s["x1"] + 3
+                line_x1 = containing_rect.x1 - 2
+                line_y = s["y0"]
+            else:
+                continue  # no line or rect found — skip
+
+        tb_y0 = line_y if line_y != s["y0"] else s["y0"]
+        tb_y1 = tb_y0 + max(s["y1"] - s["y0"], 14)
+
+        if line_x1 - line_x0 < 30:
+            continue
+
+        ftype = "date" if "date" in label.lower() else "text"
+        field_id = f"p{page_num}_sig_{int(tb_y0)}_{int(line_x0)}"
+        fields.append({
+            "field_id": field_id,
+            "type": ftype,
+            "label": label,
+            "bbox": [round(line_x0, 1), round(tb_y0, 1),
+                     round(line_x1, 1), round(tb_y1, 1)],
+            "required": False,
+            "_source": "bracket_predetect",
+        })
+
+    return fields
+
+
+# ── NEW SCENARIO: Numbered list item fields ────────────────────
+_NUMBERED_BLANK_RE = re.compile(
+    r'^(\d+[\.\)]\s+.{3,50}?)[:.]?\s*_{4,}',
+)
+_LETTER_BLANK_RE = re.compile(
+    r'^([a-z][\.\)]\s+.{3,50}?)[:.]?\s*_{4,}',
+    re.IGNORECASE,
+)
+
+
+def _detect_numbered_list_fields(text_spans, page_num, snap_targets=None):
+    """Detect numbered/lettered list item fields with trailing blanks.
+
+    Patterns:
+      1. Organization Name: ______________
+      2. Address: ______________
+      a) Contact Person: ______________
+
+    These are common in application forms with enumerated fields.
+    Similar to underline detection but with a leading number/letter.
+    """
+    rects = snap_targets.get("rects", []) if snap_targets else []
+    seen = set()
+    unique_rects = []
+    for r in rects:
+        key = (round(r.x0, 1), round(r.y0, 1), round(r.x1, 1), round(r.y1, 1))
+        if key not in seen:
+            seen.add(key)
+            unique_rects.append(r)
+
+    fields = []
+    for s in text_spans:
+        text = s.get("text", "").strip()
+        m = _NUMBERED_BLANK_RE.match(text) or _LETTER_BLANK_RE.match(text)
+        if not m:
+            continue
+
+        label = m.group(1).strip().rstrip(":.")
+        label_end_x = s["x0"] + (len(m.group(1)) + 1) / max(len(text), 1) * (s["x1"] - s["x0"])
+        tb_x0 = label_end_x + 3
+        tb_x1 = s["x1"]
+        tb_y0 = s["y0"]
+        tb_y1 = s["y1"]
+
+        # Extend to containing rect
+        for r in unique_rects:
+            if (r.width > 100 and r.x0 <= s["x0"] + 2 and r.x1 >= s["x1"] - 2 and
+                r.y0 <= s["y0"] + 2 and r.y1 >= s["y1"] - 2):
+                tb_x1 = r.x1 - 2
+                break
+
+        if tb_y1 - tb_y0 < 14:
+            tb_y1 = tb_y0 + 14
+        if tb_x1 - tb_x0 < 20:
+            continue
+
+        field_id = f"p{page_num}_numfield_{int(tb_y0)}_{int(tb_x0)}"
+        fields.append({
+            "field_id": field_id,
+            "type": "text",
+            "label": label,
+            "bbox": [round(tb_x0, 1), round(tb_y0, 1),
+                     round(tb_x1, 1), round(tb_y1, 1)],
+            "required": False,
+            "_source": "bracket_predetect",
+        })
+
+    return fields
+
+
+# ── NEW SCENARIO: Dropdown from parenthetical option lists ─────
+_DROPDOWN_RE = re.compile(
+    r'^(.+?)\s*\(([^)]{5,80})\)\s*:?\s*$'
+)
+
+
+def _detect_dropdown_fields(text_spans, page_num, snap_targets=None):
+    """Detect fields where parenthetical text lists options for a dropdown.
+
+    Patterns:
+      Type (Owned/Leased/Rented):
+      Status (Active/Inactive/Pending):
+      Frequency (Daily/Weekly/Monthly/Annually):
+      Building Type (Residential, Commercial, Industrial):
+
+    The parenthetical text is split by '/' or ',' to extract options.
+    Creates a dropdown (combobox) widget instead of a plain text field.
+    """
+    rects = snap_targets.get("rects", []) if snap_targets else []
+    seen = set()
+    unique_rects = []
+    for r in rects:
+        key = (round(r.x0, 1), round(r.y0, 1), round(r.x1, 1), round(r.y1, 1))
+        if key not in seen:
+            seen.add(key)
+            unique_rects.append(r)
+
+    fields = []
+    for s in text_spans:
+        text = s.get("text", "").strip()
+        m = _DROPDOWN_RE.match(text)
+        if not m:
+            continue
+
+        label = m.group(1).strip()
+        options_str = m.group(2).strip()
+
+        # Split by / or , to get options
+        if "/" in options_str:
+            options = [o.strip() for o in options_str.split("/") if o.strip()]
+        elif "," in options_str:
+            options = [o.strip() for o in options_str.split(",") if o.strip()]
+        else:
+            continue  # no valid separator
+
+        if len(options) < 2:
+            continue  # need at least 2 options for a dropdown
+
+        # Skip if options look like instruction text (too long)
+        if any(len(o) > 30 for o in options):
+            continue
+
+        # Find containing rect for placement
+        right_edge = 538
+        for r in unique_rects:
+            if (r.width > 50 and r.x0 <= s["x0"] + 5 and r.x1 >= s["x1"] - 5 and
+                r.y0 <= s["y0"] + 2 and r.y1 >= s["y1"] - 2):
+                right_edge = r.x1 - 2
+                break
+
+        tb_x0 = s["x1"] + 3
+        tb_y0 = s["y0"]
+        tb_y1 = s["y1"]
+        if tb_y1 - tb_y0 < 14:
+            tb_y1 = tb_y0 + 14
+        if right_edge - tb_x0 < 30:
+            continue
+
+        option_dicts = [{"value": o, "label": o} for o in options]
+        field_id = f"p{page_num}_dropdown_{int(tb_y0)}_{int(tb_x0)}"
+        fields.append({
+            "field_id": field_id,
+            "type": "dropdown",
+            "label": label,
+            "bbox": [round(tb_x0, 1), round(tb_y0, 1),
+                     round(right_edge, 1), round(tb_y1, 1)],
+            "required": False,
+            "options": option_dicts,
+            "_source": "bracket_predetect",
+        })
+
+    return fields
+
+
+# ── NEW SCENARIO: Free-form blank area detection ───────────────
+
+def _detect_freeform_blank_areas(text_spans, page_num, snap_targets=None, existing_fields=None):
+    """Detect large blank areas between text blocks as potential textarea fields.
+
+    Many government forms have unstructured pages where the user is expected to
+    type into a large blank area between a prompt line and the next section.
+    These areas have NO drawn rects — just whitespace on the page.
+
+    Heuristic:
+      1. Sort text spans by y-position
+      2. Find vertical gaps > 50pt between consecutive text lines
+      3. If the text above the gap looks like a prompt (ends with ':', contains
+         'describe', 'explain', 'list', 'provide', etc.) create a textarea
+      4. Skip gaps that overlap with existing detected fields
+    """
+    if not text_spans:
+        return []
+
+    existing_bboxes = []
+    if existing_fields:
+        for f in existing_fields:
+            existing_bboxes.append(f.get("bbox", [0, 0, 0, 0]))
+
+    _PROMPT_KEYWORDS = (
+        "describe", "explain", "list", "provide", "specify", "identify",
+        "indicate", "state", "detail", "summarize", "outline", "attach",
+        "include", "enter", "note",
+    )
+
+    # Sort spans by y, then x
+    sorted_spans = sorted(text_spans, key=lambda s: (s["y0"], s["x0"]))
+
+    # Find the page's left/right text boundaries
+    page_left = min(s["x0"] for s in sorted_spans) if sorted_spans else 72
+    page_right = max(s["x1"] for s in sorted_spans) if sorted_spans else 540
+
+    fields = []
+    for i in range(len(sorted_spans) - 1):
+        above = sorted_spans[i]
+        below = sorted_spans[i + 1]
+        gap = below["y0"] - above["y1"]
+        if gap < 50:
+            continue
+
+        # Check if the text above looks like a prompt
+        above_text = above.get("text", "").strip().lower()
+        is_prompt = (
+            above_text.endswith(":") or
+            any(kw in above_text for kw in _PROMPT_KEYWORDS)
+        )
+        if not is_prompt:
+            continue
+
+        # Define the textarea bbox in the gap
+        ta_x0 = page_left
+        ta_y0 = above["y1"] + 3
+        ta_x1 = page_right
+        ta_y1 = below["y0"] - 3
+
+        if ta_y1 - ta_y0 < 20 or ta_x1 - ta_x0 < 100:
+            continue
+
+        bbox = [round(ta_x0, 1), round(ta_y0, 1), round(ta_x1, 1), round(ta_y1, 1)]
+
+        # Skip if overlaps with existing fields
+        if _bbox_overlaps_any(bbox, existing_bboxes):
+            continue
+
+        label = above.get("text", "").strip()
+        field_id = f"p{page_num}_freeblank_{int(ta_y0)}"
+        fields.append({
+            "field_id": field_id,
+            "type": "textarea",
+            "label": label,
+            "bbox": bbox,
+            "page": page_num,
+            "required": False,
+            "_source": "structural_gap",
+        })
+        existing_bboxes.append(bbox)
+
+    return fields
+
+
+# ── NEW SCENARIO: Checkbox grid / matrix detection ─────────────
+
+def _detect_checkbox_grid(text_spans, page_num, snap_targets=None):
+    """Detect checkbox grid/matrix patterns common in survey and compliance forms.
+
+    Pattern: A table where column headers are category labels and each row has
+    multiple checkboxes. DI may miss these if the table isn't well-structured.
+
+    Heuristic:
+      1. Find rows of 3+ checkbox-like selection marks aligned in columns
+      2. Match column positions to header text above
+      3. Create individual named checkboxes with row+column labels
+
+    This function works on the TEXT layer — it looks for patterns of
+    empty bracket-like marks (○, □, ◻, ☐) arranged in a grid.
+    """
+    # Common ballot-box / checkbox Unicode chars in PDFs
+    _CB_CHARS = {"☐", "☑", "☒", "□", "◻", "○", "◯", "●"}
+
+    # Find spans that look like checkbox chars
+    cb_spans = []
+    for s in text_spans:
+        text = s.get("text", "").strip()
+        if len(text) <= 2 and any(c in text for c in _CB_CHARS):
+            cb_spans.append(s)
+
+    if len(cb_spans) < 3:
+        return []
+
+    # Group by row (y-position within 4pt)
+    cb_spans.sort(key=lambda s: (s["y0"], s["x0"]))
+    rows = []
+    current_row = [cb_spans[0]]
+    for s in cb_spans[1:]:
+        if abs(s["y0"] - current_row[-1]["y0"]) < 4:
+            current_row.append(s)
+        else:
+            rows.append(current_row)
+            current_row = [s]
+    rows.append(current_row)
+
+    # Only keep rows with 3+ marks (a real grid row)
+    grid_rows = [r for r in rows if len(r) >= 3]
+    if not grid_rows:
+        return []
+
+    # Find column headers: text spans above the first grid row, near each column x
+    first_row_y = grid_rows[0][0]["y0"]
+    col_xs = sorted(set(round(s["x0"]) for r in grid_rows for s in r))
+
+    col_headers = {}
+    for cx in col_xs:
+        best = ""
+        best_dist = 40
+        for s in text_spans:
+            if s in cb_spans:
+                continue
+            if abs(s["x0"] - cx) < 20 and first_row_y - s["y1"] < best_dist and first_row_y - s["y1"] > 0:
+                best_dist = first_row_y - s["y1"]
+                best = s.get("text", "").strip()
+        col_headers[cx] = best
+
+    # Find row labels: text to the LEFT of each grid row
+    fields = []
+    for row in grid_rows:
+        row_y = row[0]["y0"]
+        row_label = ""
+        for s in text_spans:
+            if s in cb_spans:
+                continue
+            if abs(s["y0"] - row_y) < 4 and s["x1"] < row[0]["x0"]:
+                row_label = s.get("text", "").strip()
+
+        for s in row:
+            cx = round(s["x0"])
+            col_label = col_headers.get(cx, "")
+            label = f"{row_label}: {col_label}" if row_label and col_label else row_label or col_label or ""
+
+            field_id = f"p{page_num}_gridcb_{int(s['y0'])}_{int(s['x0'])}"
+            fields.append({
+                "field_id": field_id,
+                "type": "checkbox",
+                "label": label,
+                "bbox": [round(s["x0"], 1), round(s["y0"], 1),
+                         round(s["x0"] + 12, 1), round(s["y0"] + 12, 1)],
+                "required": False,
+                "_source": "bracket_predetect",
+            })
+
+    return fields
+
+
 # Regex for "Label:" pattern fields (Phone:, Email:, Site acreage:, etc.)
 _LABEL_COLON_RE = re.compile(
     r'^(.*?:)\s*$'
@@ -1717,6 +2139,19 @@ def convert(input_path, output_path=None, schema_output_path=None):
         underline_fields = _detect_underline_fields(text_spans, page_num, snap_targets=snap_targets)
         if underline_fields:
             predetected.extend(underline_fields)
+        # New scenario detectors
+        sig_fields = _detect_signature_date_fields(text_spans, page_num, page=page, snap_targets=snap_targets)
+        if sig_fields:
+            predetected.extend(sig_fields)
+        num_fields = _detect_numbered_list_fields(text_spans, page_num, snap_targets=snap_targets)
+        if num_fields:
+            predetected.extend(num_fields)
+        dropdown_fields = _detect_dropdown_fields(text_spans, page_num, snap_targets=snap_targets)
+        if dropdown_fields:
+            predetected.extend(dropdown_fields)
+        grid_cb_fields = _detect_checkbox_grid(text_spans, page_num, snap_targets=snap_targets)
+        if grid_cb_fields:
+            predetected.extend(grid_cb_fields)
         if predetected:
             print(f"  Pre-detected {len(predetected)} bracket-pattern fields")
         
@@ -1772,6 +2207,12 @@ def convert(input_path, output_path=None, schema_output_path=None):
         if structural_fields:
             fields.extend(structural_fields)
             print(f"  Structural gap detection found {len(structural_fields)} additional fields")
+        
+        # Free-form blank area detection (runs last — needs full field list to avoid overlaps)
+        freeform_fields = _detect_freeform_blank_areas(text_spans, page_num, snap_targets=snap_targets, existing_fields=fields)
+        if freeform_fields:
+            fields.extend(freeform_fields)
+            print(f"  Free-form blank area detection found {len(freeform_fields)} additional fields")
         
         if not fields:
             print("  No fields detected on this page.")
