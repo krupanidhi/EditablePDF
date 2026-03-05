@@ -688,17 +688,38 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         if fdata is None:
             continue
         max_length = fdata.get("max_length")
+        if max_length is not None:
+            try:
+                max_length = int(max_length)
+                if max_length <= 0:
+                    max_length = None
+            except (ValueError, TypeError):
+                max_length = None
+
+        # Remove ALL existing change events (old max_length scripts)
+        # so we can replace with the user's current value
+        stale_events = [
+            ev for ev in field_elem.findall(f"{ns}event")
+            if ev.get("activity") == "change"
+        ]
+        for ev in stale_events:
+            field_elem.remove(ev)
+
+        # Also update maxChars on <textEdit> if present
+        ui = field_elem.find(f"{ns}ui")
+        if ui is not None:
+            te = ui.find(f"{ns}textEdit")
+            if te is not None:
+                if max_length is not None:
+                    te.set("maxChars", str(max_length))
+                elif "maxChars" in te.attrib:
+                    del te.attrib["maxChars"]
+
         if max_length is None:
-            continue
-        try:
-            max_length = int(max_length)
-            if max_length <= 0:
-                continue
-        except (ValueError, TypeError):
             continue
         display_label = fdata.get("label", name)
 
-        # Add a change event that truncates input beyond max_length
+        # Add a fresh change event with the current max_length
         change_js = (
             f'if(xfa.event.newText && xfa.event.newText.length > {max_length}) {{\n'
             f'  xfa.event.change = "";\n'
