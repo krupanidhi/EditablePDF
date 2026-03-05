@@ -426,35 +426,27 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             continue
 
         # ----- Required radio group -----
-        # nullTest="error" is the ONLY mechanism that triggers Adobe's
-        # built-in close-time validation popup.  To suppress the ugly
-        # auto-drawn red rectangle, we set the exclGroup border edges
-        # to transparent (white) so the rectangle is invisible.
-        validate = excl_elem.find(f"{ns}validate")
-        if is_required:
-            if validate is None:
-                validate = ET.SubElement(excl_elem, f"{ns}validate")
-            validate.set("nullTest", "error")
-            msg_elem = validate.find(f"{ns}message")
-            if msg_elem is None:
-                msg_elem = ET.SubElement(validate, f"{ns}message")
-            text_elem = msg_elem.find(f"{ns}text")
-            if text_elem is None:
-                text_elem = ET.SubElement(msg_elem, f"{ns}text")
-            text_elem.text = f"{display_label} is required."
+        # nullTest="error" on <exclGroup> does NOT trigger close-time
+        # validation and draws an ugly red rectangle.  Instead, put
+        # nullTest="error" on each child <field> inside the group.
+        # This triggers Adobe's native validation on each radio field
+        # just like it does for text fields.
+        #
+        # Also remove any nullTest from the exclGroup itself.
+        excl_validate = excl_elem.find(f"{ns}validate")
+        if excl_validate is not None and excl_validate.get("nullTest"):
+            del excl_validate.attrib["nullTest"]
 
-            # Suppress the auto-drawn red rectangle by making the
-            # exclGroup border edges white/transparent
-            excl_border = excl_elem.find(f"{ns}border")
-            if excl_border is None:
-                excl_border = ET.SubElement(excl_elem, f"{ns}border")
-            # Remove all existing edges and re-create with white color
+        # Restore the exclGroup border to its original hidden state
+        # (no red rectangle, no extra edges)
+        excl_border = excl_elem.find(f"{ns}border")
+        if excl_border is not None:
+            # Remove any edges we may have added in previous runs
             for old_edge in excl_border.findall(f"{ns}edge"):
                 excl_border.remove(old_edge)
-            for _ in range(4):
-                edge = ET.SubElement(excl_border, f"{ns}edge")
-                edge.set("presence", "hidden")
+            excl_border.set("presence", "hidden")
 
+        if is_required:
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
 
@@ -463,10 +455,26 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             if excl_value is not None:
                 excl_elem.remove(excl_value)
 
-            # Red circle outline on each child checkButton.
-            # Only modify the <checkButton><border><edge> — leave everything
-            # else (exclGroup border, field border) completely untouched.
+            # For each child radio field:
+            # 1. Set nullTest="error" for close-time validation popup
+            # 2. Red circle outline on checkButton border
             for child_field in excl_elem.iter(f"{ns}field"):
+                child_name = child_field.get("name", "")
+
+                # nullTest on child field — triggers close-time popup
+                cf_validate = child_field.find(f"{ns}validate")
+                if cf_validate is None:
+                    cf_validate = ET.SubElement(child_field, f"{ns}validate")
+                cf_validate.set("nullTest", "error")
+                cf_msg = cf_validate.find(f"{ns}message")
+                if cf_msg is None:
+                    cf_msg = ET.SubElement(cf_validate, f"{ns}message")
+                cf_text = cf_msg.find(f"{ns}text")
+                if cf_text is None:
+                    cf_text = ET.SubElement(cf_msg, f"{ns}text")
+                cf_text.text = f"{display_label} is required."
+
+                # Red circle on checkButton
                 ui = child_field.find(f"{ns}ui")
                 if ui is None:
                     continue
