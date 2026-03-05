@@ -424,8 +424,19 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
 
+            # Keep the exclGroup's own border hidden (no outer rectangle)
+            excl_border = excl_elem.find(f"{ns}border")
+            if excl_border is None:
+                excl_border = ET.SubElement(excl_elem, f"{ns}border")
+            excl_border.set("presence", "hidden")
+
             # Red circle on each child checkButton (not the field border)
             for child_field in excl_elem.iter(f"{ns}field"):
+                # Ensure child field border is hidden (no rectangle around label)
+                fb = child_field.find(f"{ns}border")
+                if fb is not None:
+                    fb.set("presence", "hidden")
+
                 ui = child_field.find(f"{ns}ui")
                 if ui is None:
                     continue
