@@ -14,12 +14,20 @@ node_modules/
 .idea/
 
 # Generated/temp files
-output/*_required*.pdf
-output/*_editable_editable.pdf
+output/
+schemas/
 di_cache/
 jobs/
 extracted_data/
-input/*/
+input/
+editable pdfs/
+
+# Temp Office files
+~$*
+~WRL*.tmp
+*.xlsx
+
+# Root-level throwaway scripts
 /debug_*.py
 /test_*.py
 /fix_*.py
