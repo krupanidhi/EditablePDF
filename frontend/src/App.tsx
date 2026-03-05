@@ -8,9 +8,8 @@ import {
   Activity,
   ListChecks,
   Trash2,
-  X,
 } from 'lucide-react';
-import { healthCheck, convertFile, convertFolder, extractFields, validateData } from './api';
+import { healthCheck, convertFile, convertFolder, extractFields, validateData, listJobs, deleteJob as apiDeleteJob, deleteAllJobs as apiDeleteAllJobs } from './api';
 import type { ExtractFieldsResponse, ValidationResult, HealthCheck } from './types';
 import FileUploader from './components/FileUploader';
 import JobTracker from './components/JobTracker';
@@ -23,20 +22,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('convert');
   const [health, setHealth] = useState<HealthCheck | null>(null);
 
-  // Convert state — persist in localStorage (max 7 jobs)
-  const MAX_JOBS = 7;
-  const STORAGE_KEY = 'editablepdf_job_ids';
-  const [jobIds, setJobIds] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
-
-  // Sync jobIds to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(jobIds));
-  }, [jobIds]);
+  // Convert state — jobs persisted on backend disk
+  const [jobIds, setJobIds] = useState<string[]>([]);
   const [folderPath, setFolderPath] = useState('');
   const [folderProcessing, setFolderProcessing] = useState(false);
 
@@ -53,6 +40,10 @@ function App() {
     healthCheck()
       .then(setHealth)
       .catch(() => setHealth(null));
+    // Load persisted jobs from backend
+    listJobs()
+      .then((jobs) => setJobIds(jobs.map((j) => j.id)))
+      .catch(() => {});
   }, []);
 
   // --- Convert handlers ---
@@ -60,10 +51,7 @@ function App() {
     for (const file of files) {
       try {
         const res = await convertFile(file);
-        setJobIds((prev) => {
-          const next = [...prev, res.job_id];
-          return next.length > MAX_JOBS ? next.slice(next.length - MAX_JOBS) : next;
-        });
+        setJobIds((prev) => [res.job_id, ...prev]);
         toast.success(`Processing: ${file.name}`);
       } catch (err) {
         toast.error(`Failed to upload ${file.name}: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -79,10 +67,7 @@ function App() {
     setFolderProcessing(true);
     try {
       const res = await convertFolder(folderPath.trim());
-      setJobIds((prev) => {
-        const next = [...prev, res.job_id];
-        return next.length > MAX_JOBS ? next.slice(next.length - MAX_JOBS) : next;
-      });
+      setJobIds((prev) => [res.job_id, ...prev]);
       toast.success(`Processing ${res.file_count} files from folder`);
     } catch (err) {
       toast.error(`Failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -95,11 +80,17 @@ function App() {
     toast.success('Conversion complete!');
   }, []);
 
-  const removeJob = useCallback((id: string) => {
+  const removeJob = useCallback(async (id: string) => {
+    try {
+      await apiDeleteJob(id);
+    } catch { /* ignore 404 */ }
     setJobIds((prev) => prev.filter((j) => j !== id));
   }, []);
 
-  const clearAllJobs = useCallback(() => {
+  const clearAllJobs = useCallback(async () => {
+    try {
+      await apiDeleteAllJobs();
+    } catch { /* ignore */ }
     setJobIds([]);
   }, []);
 
@@ -272,7 +263,7 @@ function App() {
               </div>
             </div>
 
-            {/* Jobs — most recent on top, max 7, persisted */}
+            {/* Jobs — newest first, persisted on backend disk */}
             {jobIds.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -287,17 +278,8 @@ function App() {
                     Clear All
                   </button>
                 </div>
-                {[...jobIds].reverse().map((id) => (
-                  <div key={id} className="relative group">
-                    <button
-                      onClick={() => removeJob(id)}
-                      className="absolute top-2 right-28 z-10 p-1 rounded-full bg-white border border-[#D9E8F6] text-[#94a3b8] hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
-                      title="Remove job"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <JobTracker jobId={id} onComplete={handleJobComplete} />
-                  </div>
+                {jobIds.map((id) => (
+                  <JobTracker key={id} jobId={id} onComplete={handleJobComplete} onDelete={() => removeJob(id)} />
                 ))}
               </div>
             )}

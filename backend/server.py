@@ -54,8 +54,57 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory job store (for async processing)
-jobs = {}
+# ── Disk-persisted job store ──
+# Each job is serialized as a JSON file in the jobs/ folder.
+# Jobs survive backend restarts.
+JOBS_DIR = os.path.join(config.BASE_DIR, "jobs")
+os.makedirs(JOBS_DIR, exist_ok=True)
+
+
+def _job_path(job_id: str) -> str:
+    return os.path.join(JOBS_DIR, f"{job_id}.json")
+
+
+def _save_job(job: dict):
+    """Persist a job dict to disk."""
+    with open(_job_path(job["id"]), "w", encoding="utf-8") as f:
+        json.dump(job, f, ensure_ascii=False, indent=2)
+
+
+def _load_job(job_id: str) -> dict | None:
+    """Load a job from disk. Returns None if not found."""
+    p = _job_path(job_id)
+    if not os.path.exists(p):
+        return None
+    try:
+        with open(p, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _list_jobs() -> list[dict]:
+    """List all persisted jobs, sorted newest first."""
+    result = []
+    for fname in os.listdir(JOBS_DIR):
+        if fname.endswith(".json"):
+            try:
+                with open(os.path.join(JOBS_DIR, fname), "r", encoding="utf-8") as f:
+                    result.append(json.load(f))
+            except (json.JSONDecodeError, OSError):
+                pass
+    result.sort(key=lambda j: j.get("created_at", ""), reverse=True)
+    return result
+
+
+def _delete_job(job_id: str) -> bool:
+    """Delete a job file from disk. Returns True if deleted."""
+    p = _job_path(job_id)
+    if os.path.exists(p):
+        os.remove(p)
+        return True
+    return False
+
 
 # Serve output files
 os.makedirs(config.OUTPUT_DIR, exist_ok=True)
@@ -95,8 +144,8 @@ async def convert_file(
         content = await file.read()
         f.write(content)
     
-    # Create job
-    jobs[job_id] = {
+    # Create job and persist to disk
+    job = {
         "id": job_id,
         "status": "processing",
         "input_file": filename,
@@ -104,6 +153,7 @@ async def convert_file(
         "result": None,
         "error": None,
     }
+    _save_job(job)
     
     # Process in background
     asyncio.create_task(_process_convert(job_id, input_path))
@@ -113,14 +163,18 @@ async def convert_file(
 
 async def _process_convert(job_id, input_path):
     """Background task to convert a file."""
+    job = _load_job(job_id)
+    if not job:
+        return
     try:
         result = await asyncio.to_thread(convert, input_path)
-        jobs[job_id]["status"] = "completed"
-        jobs[job_id]["result"] = result
+        job["status"] = "completed"
+        job["result"] = result
     except Exception as e:
-        jobs[job_id]["status"] = "failed"
-        jobs[job_id]["error"] = str(e)
+        job["status"] = "failed"
+        job["error"] = str(e)
         traceback.print_exc()
+    _save_job(job)
 
 
 @app.post("/api/convert-folder")
@@ -145,7 +199,7 @@ async def convert_folder(
         raise HTTPException(400, f"No PDF or DOCX files found in: {folder_path}")
     
     job_id = str(uuid.uuid4())[:8]
-    jobs[job_id] = {
+    job = {
         "id": job_id,
         "status": "processing",
         "input_folder": folder_path,
@@ -155,6 +209,7 @@ async def convert_folder(
         "errors": [],
         "completed": 0,
     }
+    _save_job(job)
     
     asyncio.create_task(_process_folder(job_id, files))
     
@@ -163,22 +218,27 @@ async def convert_folder(
 
 async def _process_folder(job_id, files):
     """Background task to convert multiple files."""
+    job = _load_job(job_id)
+    if not job:
+        return
     for fpath in files:
         try:
             result = await asyncio.to_thread(convert, fpath)
-            jobs[job_id]["results"].append({
+            job["results"].append({
                 "file": os.path.basename(fpath),
                 "result": result,
             })
         except Exception as e:
-            jobs[job_id]["errors"].append({
+            job["errors"].append({
                 "file": os.path.basename(fpath),
                 "error": str(e),
             })
             traceback.print_exc()
-        jobs[job_id]["completed"] += 1
+        job["completed"] += 1
+        _save_job(job)  # persist progress after each file
     
-    jobs[job_id]["status"] = "completed"
+    job["status"] = "completed"
+    _save_job(job)
 
 
 @app.post("/api/extract")
@@ -420,13 +480,38 @@ async def add_rows_to_pdf(
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+@app.get("/api/jobs")
+async def list_all_jobs():
+    """List all persisted jobs, newest first."""
+    return _list_jobs()
+
+
 @app.get("/api/jobs/{job_id}")
 async def get_job(job_id: str):
     """Get job status and results."""
-    job = jobs.get(job_id)
+    job = _load_job(job_id)
     if not job:
         raise HTTPException(404, f"Job not found: {job_id}")
     return job
+
+
+@app.delete("/api/jobs/{job_id}")
+async def delete_job(job_id: str):
+    """Delete a single job from disk."""
+    if _delete_job(job_id):
+        return {"status": "deleted", "job_id": job_id}
+    raise HTTPException(404, f"Job not found: {job_id}")
+
+
+@app.delete("/api/jobs")
+async def delete_all_jobs():
+    """Delete all persisted jobs."""
+    count = 0
+    for fname in os.listdir(JOBS_DIR):
+        if fname.endswith(".json"):
+            os.remove(os.path.join(JOBS_DIR, fname))
+            count += 1
+    return {"status": "deleted", "count": count}
 
 
 @app.get("/api/download/{filename:path}")

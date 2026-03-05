@@ -17,6 +17,7 @@ node_modules/
 output/*_required*.pdf
 output/*_editable_editable.pdf
 di_cache/
+jobs/
 extracted_data/
 input/*/
 debug_*.py

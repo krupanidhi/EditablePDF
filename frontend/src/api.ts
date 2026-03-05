@@ -90,6 +90,19 @@ export async function applyRequired(
   return data;
 }
 
+export async function listJobs(): Promise<Job[]> {
+  const { data } = await api.get<Job[]>('/jobs');
+  return data;
+}
+
+export async function deleteJob(jobId: string): Promise<void> {
+  await api.delete(`/jobs/${jobId}`);
+}
+
+export async function deleteAllJobs(): Promise<void> {
+  await api.delete('/jobs');
+}
+
 export function getDownloadUrl(filename: string): string {
   return `/api/download/${encodeURIComponent(filename)}`;
 }

@@ -4,12 +4,13 @@ import type { Job, AuditCheck } from '../types';
 import {
   Loader2, CheckCircle2, XCircle, Download, FileJson,
   FileText, ChevronDown, ChevronRight, ShieldCheck,
-  ListChecks, AlertTriangle, Info,
+  ListChecks, AlertTriangle, Info, Trash2,
 } from 'lucide-react';
 
 interface JobTrackerProps {
   jobId: string;
   onComplete?: (job: Job) => void;
+  onDelete?: () => void;
 }
 
 /* ── tiny helpers ── */
@@ -80,7 +81,7 @@ function Section({ title, icon, defaultOpen, children }: {
 }
 
 /* ══════════════════════════════════════════════════════════════ */
-export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
+export default function JobTracker({ jobId, onComplete, onDelete }: JobTrackerProps) {
   const [job, setJob] = useState<Job | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(true);
@@ -173,6 +174,15 @@ export default function JobTracker({ jobId, onComplete }: JobTrackerProps) {
           }`}>
             {job.status}
           </span>
+          {onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-1 rounded text-[#94a3b8] hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="Delete job"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </button>
 
