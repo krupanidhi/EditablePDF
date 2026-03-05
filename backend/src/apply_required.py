@@ -426,14 +426,34 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             continue
 
         # ----- Required radio group -----
-        # Do NOT use nullTest on exclGroup — Adobe auto-draws an ugly red
-        # rectangle that cannot be suppressed.  Enforce via docClose/preSave
-        # scripts instead.
+        # nullTest="error" is the ONLY mechanism that triggers Adobe's
+        # built-in close-time validation popup.  To suppress the ugly
+        # auto-drawn red rectangle, we set the exclGroup border edges
+        # to transparent (white) so the rectangle is invisible.
         validate = excl_elem.find(f"{ns}validate")
         if is_required:
-            # Remove any nullTest that might exist from a previous run
-            if validate is not None and validate.get("nullTest"):
-                del validate.attrib["nullTest"]
+            if validate is None:
+                validate = ET.SubElement(excl_elem, f"{ns}validate")
+            validate.set("nullTest", "error")
+            msg_elem = validate.find(f"{ns}message")
+            if msg_elem is None:
+                msg_elem = ET.SubElement(validate, f"{ns}message")
+            text_elem = msg_elem.find(f"{ns}text")
+            if text_elem is None:
+                text_elem = ET.SubElement(msg_elem, f"{ns}text")
+            text_elem.text = f"{display_label} is required."
+
+            # Suppress the auto-drawn red rectangle by making the
+            # exclGroup border edges white/transparent
+            excl_border = excl_elem.find(f"{ns}border")
+            if excl_border is None:
+                excl_border = ET.SubElement(excl_elem, f"{ns}border")
+            # Remove all existing edges and re-create with white color
+            for old_edge in excl_border.findall(f"{ns}edge"):
+                excl_border.remove(old_edge)
+            for _ in range(4):
+                edge = ET.SubElement(excl_border, f"{ns}edge")
+                edge.set("presence", "hidden")
 
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
