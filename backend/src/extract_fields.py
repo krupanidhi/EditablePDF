@@ -226,8 +226,54 @@ def _xfa_infer_data_type(ui_elem, label: str) -> str:
     return _infer_data_type("", label)
 
 
+def _xfa_get_label(elem, ns_assist, ns_speak, ns_tooltip) -> str:
+    """Extract label from XFA assist/speak or assist/toolTip, or from name."""
+    assist = elem.find(ns_assist)
+    label = ""
+    if assist is not None:
+        sp = assist.find(ns_speak)
+        tt = assist.find(ns_tooltip)
+        if sp is not None and sp.text:
+            label = sp.text.strip()
+        elif tt is not None and tt.text:
+            label = tt.text.strip()
+    if not label:
+        name = elem.get("name", "")
+        label = re.sub(r'([a-z])([A-Z])', r'\1 \2', name)
+    return label
+
+
+def _xfa_is_required(elem) -> bool:
+    """Check if XFA element has <validate nullTest="error">."""
+    ns_validate = f"{{{_XFA_NS}}}validate"
+    val_elem = elem.find(ns_validate)
+    if val_elem is not None:
+        return val_elem.get("nullTest", "") == "error"
+    return False
+
+
+def _xfa_get_max_chars(ui_elem) -> int | None:
+    """Extract maxChars from <textEdit maxChars="N"> if present."""
+    if ui_elem is None:
+        return None
+    ns_text_edit = f"{{{_XFA_NS}}}textEdit"
+    te = ui_elem.find(ns_text_edit)
+    if te is not None:
+        mc = te.get("maxChars", "")
+        if mc.isdigit() and int(mc) > 0:
+            return int(mc)
+    return None
+
+
 def _extract_xfa_fields(doc) -> list[dict]:
-    """Parse XFA template XML and extract field definitions."""
+    """Parse XFA template XML and extract field definitions.
+
+    Handles:
+    - <field> elements (text, checkbox, dropdown, etc.)
+    - <exclGroup> elements (radio button groups — mutually exclusive checkButtons)
+    - <validate nullTest="error"> for required flag
+    - <textEdit maxChars="N"> for max length
+    """
     tmpl_xref = _find_xfa_template_xref(doc)
     if tmpl_xref is None:
         return []
@@ -238,13 +284,51 @@ def _extract_xfa_fields(doc) -> list[dict]:
 
     root = ET.fromstring(xml_bytes)
     ns_field = f"{{{_XFA_NS}}}field"
+    ns_excl = f"{{{_XFA_NS}}}exclGroup"
     ns_ui = f"{{{_XFA_NS}}}ui"
     ns_assist = f"{{{_XFA_NS}}}assist"
     ns_tooltip = f"{{{_XFA_NS}}}toolTip"
     ns_speak = f"{{{_XFA_NS}}}speak"
 
+    # Collect xrefs of fields inside exclGroups so we skip them in the field pass
+    excl_field_ids = set()
+
     fields = []
+
+    # --- Pass 1: exclGroup → radio groups ---
+    for excl_elem in root.iter(ns_excl):
+        name = excl_elem.get("name", "")
+        access = excl_elem.get("access", "open")
+        label = _xfa_get_label(excl_elem, ns_assist, ns_speak, ns_tooltip)
+        is_readonly = access == "readOnly"
+        is_required = _xfa_is_required(excl_elem)
+
+        # Mark child fields as belonging to this exclGroup
+        for child_field in excl_elem.iter(ns_field):
+            excl_field_ids.add(id(child_field))
+
+        entry = {
+            "label": label,
+            "field_id": _label_to_field_id(label) or name.lower(),
+            "field_type": "radio",
+            "value": "",
+            "page": 1,
+            "required": is_required,
+            "data_type": "selection",
+            "readonly": is_readonly,
+            "max_length": None,
+            "deleted": False,
+            "scroll_enabled": False,
+            "xfa_name": name,
+        }
+        fields.append(entry)
+
+    # --- Pass 2: standalone fields (not inside exclGroups) ---
     for field_elem in root.iter(ns_field):
+        # Skip fields already emitted as part of an exclGroup
+        if id(field_elem) in excl_field_ids:
+            continue
+
         name = field_elem.get("name", "")
         access = field_elem.get("access", "open")
 
@@ -256,22 +340,11 @@ def _extract_xfa_fields(doc) -> list[dict]:
         if field_type == "button":
             continue
 
-        # Get label from assist/speak or assist/toolTip or name
-        assist = field_elem.find(ns_assist)
-        label = ""
-        if assist is not None:
-            sp = assist.find(ns_speak)
-            tt = assist.find(ns_tooltip)
-            if sp is not None and sp.text:
-                label = sp.text.strip()
-            elif tt is not None and tt.text:
-                label = tt.text.strip()
-        if not label:
-            # Convert CamelCase name to readable label
-            label = re.sub(r'([a-z])([A-Z])', r'\1 \2', name)
-
+        label = _xfa_get_label(field_elem, ns_assist, ns_speak, ns_tooltip)
         is_readonly = access == "readOnly"
+        is_required = _xfa_is_required(field_elem)
         data_type = _xfa_infer_data_type(ui, label)
+        max_length = _xfa_get_max_chars(ui)
 
         entry = {
             "label": label,
@@ -279,13 +352,13 @@ def _extract_xfa_fields(doc) -> list[dict]:
             "field_type": field_type,
             "value": "",
             "page": 1,
-            "required": False,
+            "required": is_required,
             "data_type": data_type,
             "readonly": is_readonly,
-            "max_length": None,
+            "max_length": max_length,
             "deleted": False,
             "scroll_enabled": field_type in ("text", "textarea"),
-            "xfa_name": name,  # preserve original XFA field name
+            "xfa_name": name,
         }
         fields.append(entry)
 
