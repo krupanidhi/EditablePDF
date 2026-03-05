@@ -424,25 +424,37 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
 
-            # Red border on each child checkButton field inside the exclGroup
+            # Red circle on each child checkButton (not the field border)
             for child_field in excl_elem.iter(f"{ns}field"):
-                border = child_field.find(f"{ns}border")
+                ui = child_field.find(f"{ns}ui")
+                if ui is None:
+                    continue
+                cb = ui.find(f"{ns}checkButton")
+                if cb is None:
+                    continue
+                border = cb.find(f"{ns}border")
                 if border is None:
-                    border = ET.SubElement(child_field, f"{ns}border")
+                    border = ET.SubElement(cb, f"{ns}border")
                 edge = border.find(f"{ns}edge")
                 if edge is None:
                     edge = ET.SubElement(border, f"{ns}edge")
                 edge_color = edge.find(f"{ns}color")
                 if edge_color is None:
                     edge_color = ET.SubElement(edge, f"{ns}color")
-                edge_color.set("value", "255,0,0")  # red circle
+                edge_color.set("value", "255,0,0")  # red circle only
             updated_count += 1
         else:
             if validate is not None and validate.get("nullTest"):
                 del validate.attrib["nullTest"]
-            # Clear red border from child fields
+            # Clear red circle from child checkButtons
             for child_field in excl_elem.iter(f"{ns}field"):
-                border = child_field.find(f"{ns}border")
+                ui = child_field.find(f"{ns}ui")
+                if ui is None:
+                    continue
+                cb = ui.find(f"{ns}checkButton")
+                if cb is None:
+                    continue
+                border = cb.find(f"{ns}border")
                 if border is not None:
                     edge = border.find(f"{ns}edge")
                     if edge is not None:
