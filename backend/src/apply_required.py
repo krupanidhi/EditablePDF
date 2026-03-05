@@ -43,23 +43,26 @@ def _build_field_check(fname: str, dlabel: str, is_radio: bool,
                        depends_on_pdf_name: str | None = None) -> str:
     """Build a single field empty-check JS snippet.
     When highlight=True, also CLEAR the red styling if the field IS filled.
-    Radio buttons never get visual red styling (strokeColor/fillColor) because
-    that draws an ugly rectangular border around the circular button.
+    Radio buttons use borderColor (red circle) instead of strokeColor (red rectangle).
     If depends_on_pdf_name is set, only check when the parent radio = Yes."""
     if is_radio:
         cond = 'f.value==="Off"||f.value===""||f.value==null'
     else:
         cond = 'f.value===""||f.value==null'
-    # Skip visual highlight for radio buttons — rectangle around circle looks wrong
-    do_highlight = highlight and not is_radio
-    mark_red = (
-        'f.strokeColor=color.red;f.fillColor=["RGB",1,0.93,0.93];'
-        if do_highlight else ''
-    )
-    clear_red = (
-        f'f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};'
-        if do_highlight else ''
-    )
+    if is_radio:
+        # Radio: borderColor draws a red circle outline (not a rectangle)
+        mark_red = 'f.borderColor=color.red;' if highlight else ''
+        clear_red = 'f.borderColor=["RGB",0.2,0.4,0.7];' if highlight else ''
+    else:
+        mark_red = (
+            'f.strokeColor=color.red;f.fillColor=["RGB",1,0.93,0.93];'
+            if highlight else ''
+        )
+        clear_red = (
+            f'f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};'
+            if highlight else ''
+        )
+    do_highlight = highlight
     check = (
         f'f=this.getField("{fname}");'
         f'if(f&&({cond})){{missing.push("{dlabel}");{mark_red}}}'
@@ -89,9 +92,9 @@ def _build_names_js() -> str:
 
 def _build_open_js(required_fields: list[tuple]) -> str:
     """JS that runs on document open:
-    - Red border + pink fill on empty required fields (text/textarea only)
-    - Radio buttons are NOT visually highlighted (rectangle around circle looks wrong)
-    - Clear red styling on filled required fields (in case re-opened after partial fill)
+    - Red border + pink fill on empty required text/textarea fields
+    - Red circle outline (borderColor) on empty required radio buttons
+    - Clear styling on filled required fields
     - Conditional fields: only highlight if parent radio != Off
     """
     lines = []
@@ -99,21 +102,28 @@ def _build_open_js(required_fields: list[tuple]) -> str:
         fname, _dlabel, is_radio = entry[0], entry[1], entry[2]
         dep_name = entry[3] if len(entry) > 3 else None
         if is_radio:
-            # Radio: no visual highlight — just skip (still blocked in WillSave)
-            continue
-        cond = 'f.value===""||f.value==null'
-        mark = (
-            f'f=this.getField("{fname}");'
-            f'if(f&&({cond}))'
-            f'{{f.strokeColor=color.red;f.fillColor=["RGB",1,0.93,0.93];}}'
-            f'else if(f){{f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};}}'
-        )
+            cond = 'f.value==="Off"||f.value===""||f.value==null'
+            mark = (
+                f'f=this.getField("{fname}");'
+                f'if(f&&({cond})){{f.borderColor=color.red;}}'
+                f'else if(f){{f.borderColor=["RGB",0.2,0.4,0.7];}}'
+            )
+        else:
+            cond = 'f.value===""||f.value==null'
+            mark = (
+                f'f=this.getField("{fname}");'
+                f'if(f&&({cond}))'
+                f'{{f.strokeColor=color.red;f.fillColor=["RGB",1,0.93,0.93];}}'
+                f'else if(f){{f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};}}'
+            )
         if dep_name:
+            clear = ('f.borderColor=["RGB",0.2,0.4,0.7];' if is_radio
+                     else f'f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};')
             mark = (
                 f'var dep=this.getField("{dep_name}");'
                 f'if(dep&&dep.value==="Yes"){{'
                 + mark + '}'
-                f'else{{f=this.getField("{fname}");if(f){{f.strokeColor={_GRAY_BORDER};f.fillColor={_ORIG_FILL};}}}}'
+                f'else{{f=this.getField("{fname}");if(f){{{clear}}}}}'
             )
         lines.append(mark)
     return 'var f;\n' + '\n'.join(lines)
@@ -121,10 +131,14 @@ def _build_open_js(required_fields: list[tuple]) -> str:
 
 def _build_blur_js_required(fname: str, is_radio: bool) -> str:
     """Per-field on-blur JS: re-check if empty → red; if filled → clear.
-    Radio buttons skip visual highlighting (rectangle around circle looks wrong)."""
+    Radio buttons use borderColor (red circle) instead of strokeColor."""
     if is_radio:
-        # No visual highlight for radios — save/print blocking is sufficient
-        return ''
+        cond = 'f.value==="Off"||f.value===""||f.value==null'
+        return (
+            f'var f=this.getField("{fname}");'
+            f'if(f&&({cond})){{f.borderColor=color.red;}}'
+            f'else if(f){{f.borderColor=["RGB",0.2,0.4,0.7];}}'
+        )
     cond = 'f.value===""||f.value==null'
     return (
         f'var f=this.getField("{fname}");'

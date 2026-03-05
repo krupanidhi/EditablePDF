@@ -252,16 +252,34 @@ def _xfa_is_required(elem) -> bool:
     return False
 
 
-def _xfa_get_max_chars(ui_elem) -> int | None:
-    """Extract maxChars from <textEdit maxChars="N"> if present."""
-    if ui_elem is None:
-        return None
-    ns_text_edit = f"{{{_XFA_NS}}}textEdit"
-    te = ui_elem.find(ns_text_edit)
-    if te is not None:
-        mc = te.get("maxChars", "")
-        if mc.isdigit() and int(mc) > 0:
-            return int(mc)
+def _xfa_get_max_chars(ui_elem, field_elem=None) -> int | None:
+    """Extract max character limit from XFA field.
+
+    Checks (in order):
+    1. <textEdit maxChars="N"> attribute
+    2. JS change-event scripts containing 'newText.length > N'
+    """
+    # Strategy 1: maxChars attribute on <textEdit>
+    if ui_elem is not None:
+        ns_text_edit = f"{{{_XFA_NS}}}textEdit"
+        te = ui_elem.find(ns_text_edit)
+        if te is not None:
+            mc = te.get("maxChars", "")
+            if mc.isdigit() and int(mc) > 0:
+                return int(mc)
+
+    # Strategy 2: JS change-event script with "newText.length > N"
+    if field_elem is not None:
+        ns_event = f"{{{_XFA_NS}}}event"
+        ns_script = f"{{{_XFA_NS}}}script"
+        for ev in field_elem.findall(ns_event):
+            if ev.get("activity", "") != "change":
+                continue
+            sc = ev.find(ns_script)
+            if sc is not None and sc.text:
+                m = re.search(r'newText\.length\s*>\s*(\d+)', sc.text)
+                if m:
+                    return int(m.group(1))
     return None
 
 
@@ -344,7 +362,7 @@ def _extract_xfa_fields(doc) -> list[dict]:
         is_readonly = access == "readOnly"
         is_required = _xfa_is_required(field_elem)
         data_type = _xfa_infer_data_type(ui, label)
-        max_length = _xfa_get_max_chars(ui)
+        max_length = _xfa_get_max_chars(ui, field_elem=field_elem)
 
         entry = {
             "label": label,
