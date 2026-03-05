@@ -426,14 +426,29 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             continue
 
         # ----- Required radio group -----
-        # Do NOT set <validate nullTest="error"> on the exclGroup — Adobe
-        # auto-draws an ugly red rectangle around the entire group when that
-        # attribute is present.  Instead, enforce via preSave/prePrint scripts.
+        # Set <validate nullTest="error"> so Adobe's built-in validation fires
+        # when closing without selecting.  Hide the exclGroup border to suppress
+        # the ugly auto-drawn red rectangle.
         validate = excl_elem.find(f"{ns}validate")
         if is_required:
-            # Remove any nullTest that might exist from a previous run
-            if validate is not None and validate.get("nullTest"):
-                del validate.attrib["nullTest"]
+            # Set nullTest="error" so Adobe's built-in validation fires on close
+            if validate is None:
+                validate = ET.SubElement(excl_elem, f"{ns}validate")
+            validate.set("nullTest", "error")
+            msg_elem = validate.find(f"{ns}message")
+            if msg_elem is None:
+                msg_elem = ET.SubElement(validate, f"{ns}message")
+            text_elem = msg_elem.find(f"{ns}text")
+            if text_elem is None:
+                text_elem = ET.SubElement(msg_elem, f"{ns}text")
+            text_elem.text = f"{display_label} is required."
+
+            # Suppress the ugly auto-drawn red rectangle by hiding the
+            # exclGroup's own border
+            excl_border = excl_elem.find(f"{ns}border")
+            if excl_border is None:
+                excl_border = ET.SubElement(excl_elem, f"{ns}border")
+            excl_border.set("presence", "hidden")
 
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
