@@ -318,6 +318,23 @@ def _find_xfa_template_xref(doc) -> int | None:
     return None
 
 
+def _find_xfa_datasets_xref(doc) -> int | None:
+    """Find the xref of the XFA datasets stream."""
+    cat_str = doc.xref_object(doc.pdf_catalog())
+    m = re.search(r'/AcroForm\s+(\d+)\s+0\s+R', cat_str)
+    if not m:
+        return None
+    af_str = doc.xref_object(int(m.group(1)))
+    xfa_match = re.search(r'/XFA\s*\[([^\]]+)\]', af_str)
+    if not xfa_match:
+        return None
+    xfa_items = xfa_match.group(1)
+    ds_match = re.search(r'\(datasets\)\s+(\d+)\s+0\s+R', xfa_items)
+    if ds_match:
+        return int(ds_match.group(1))
+    return None
+
+
 def _xfa_build_som_paths(root, ns: str) -> dict[str, str]:
     """Walk the XFA template tree and return {name: full.SOM.path}.
 
@@ -420,6 +437,11 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
 
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
+
+            # Clear the exclGroup's default <value> so no option is pre-selected
+            excl_value = excl_elem.find(f"{ns}value")
+            if excl_value is not None:
+                excl_elem.remove(excl_value)
 
             # Red circle outline on each child checkButton.
             # Only modify the <checkButton><border><edge> — leave everything
@@ -813,9 +835,39 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         sc.set("contentType", "application/x-javascript")
         sc.text = change_js
 
-    # ----- Serialize and save -----
+    # ----- Collect XFA names of required radio groups to clear in datasets -----
+    required_radio_names = []
+    for excl_elem in root.iter(f"{ns}exclGroup"):
+        ename = excl_elem.get("name", "")
+        if not ename:
+            continue
+        fdata = _xfa_find_field_metadata(fields, ename)
+        if fdata is not None and bool(fdata.get("required", False)):
+            required_radio_names.append(ename)
+
+    # ----- Serialize and save template -----
     new_xml = ET.tostring(root, encoding="unicode", xml_declaration=False)
     doc.update_stream(tmpl_xref, new_xml.encode("utf-8"))
+
+    # ----- Clear default radio values in XFA datasets stream -----
+    if required_radio_names:
+        ds_xref = _find_xfa_datasets_xref(doc)
+        if ds_xref is not None:
+            ds_bytes = doc.xref_stream(ds_xref)
+            if ds_bytes:
+                ds_str = ds_bytes.decode("utf-8", errors="replace")
+                for rname in required_radio_names:
+                    # Replace <EquipmentType>Clinical</EquipmentType>
+                    # with    <EquipmentType/>
+                    ds_str = re.sub(
+                        rf'(<{rname})[^/]*>.*?</{rname}\s*>',
+                        rf'\1/>',
+                        ds_str,
+                        flags=re.DOTALL,
+                    )
+                doc.update_stream(ds_xref, ds_str.encode("utf-8"))
+                print(f"[XFA] Cleared default values for radio groups: "
+                      f"{required_radio_names}")
 
     print(f"[XFA] Updated {updated_count} fields: "
           f"{len(required_fields)} required, {len(max_len_fields)} max-length")
