@@ -893,6 +893,25 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
         doc.xref_set_key(cat_xref, "Perms", "<<>>")
         print("[XFA] Stripped /Perms (Reader Extensions signature) from catalog")
 
+    # Inject catalog-level JS actions (WillSave, WillPrint, WillClose)
+    # These work reliably in Adobe regardless of XFA event support.
+    # Build required_field_info tuples: (field_name, display_label, is_radio)
+    required_field_info = []
+    for fdata in fields:
+        if not fdata.get("required", False):
+            continue
+        if fdata.get("readonly", False):
+            continue
+        xfa_name = fdata.get("xfa_name", "")
+        label = fdata.get("label", xfa_name)
+        is_radio = fdata.get("field_type", "") == "radio"
+        # Use xfa_name as PDF field name — Adobe maps XFA names to AcroForm
+        if xfa_name:
+            required_field_info.append((xfa_name, label, is_radio))
+    if required_field_info:
+        _inject_catalog_actions(doc, required_field_info)
+        print(f"[XFA] Injected catalog JS actions for {len(required_field_info)} required fields")
+
     # Section 508 accessibility: lang, title, mark info (XFA = no struct tree)
     doc_title = os.path.splitext(os.path.basename(output_path))[0].replace("_", " ").title()
     apply_accessibility(doc, title=doc_title, is_xfa=True)
