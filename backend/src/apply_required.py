@@ -757,8 +757,9 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             '}'
         )
 
-    # Remove stale preSave/prePrint/docClose events from previous apply runs
-    for activity in ("preSave", "prePrint", "docClose"):
+    # Remove stale events from previous apply runs
+    for activity in ("preSave", "prePrint", "docClose", "docReady",
+                      "preSubmit", "ready"):
         stale = [
             ev for ev in root_subform.findall(f"{ns}event")
             if ev.get("activity") == activity
@@ -769,28 +770,45 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     if script_parts:
         full_script = '\n\n'.join(script_parts)
 
-        # preSave event — fires on Ctrl+S / File→Save
+        # preSave — fires on Ctrl+S / File→Save in some Adobe versions
         event_elem = ET.SubElement(root_subform, f"{ns}event")
         event_elem.set("activity", "preSave")
         script_elem = ET.SubElement(event_elem, f"{ns}script")
         script_elem.set("contentType", "application/x-javascript")
         script_elem.text = full_script
 
-        # prePrint event — fires on File→Print
+        # prePrint — fires on File→Print
         event_print = ET.SubElement(root_subform, f"{ns}event")
         event_print.set("activity", "prePrint")
         script_print = ET.SubElement(event_print, f"{ns}script")
         script_print.set("contentType", "application/x-javascript")
         script_print.text = full_script.replace("Cannot save", "Cannot print")
 
-        # docClose event — fires when user closes the PDF
-        close_script = full_script.replace("Cannot save", "Warning: unsaved required fields")
-        close_script = close_script.replace("xfa.event.cancelAction = true;", "")
-        event_close = ET.SubElement(root_subform, f"{ns}event")
-        event_close.set("activity", "docClose")
-        script_close = ET.SubElement(event_close, f"{ns}script")
-        script_close.set("contentType", "application/x-javascript")
-        script_close.text = close_script
+        # preSubmit — most reliable XFA validation hook
+        event_submit = ET.SubElement(root_subform, f"{ns}event")
+        event_submit.set("activity", "preSubmit")
+        script_submit = ET.SubElement(event_submit, f"{ns}script")
+        script_submit.set("contentType", "application/x-javascript")
+        script_submit.text = full_script
+
+        # docReady — install AcroForm-level WillSave/WillClose handlers
+        # from within XFA JS context using event.target (the doc object)
+        ws_body = full_script.replace('"', '\\"').replace('\n', '\\n')
+        wc_body = (full_script
+                    .replace("Cannot save", "Warning: unsaved required fields")
+                    .replace("xfa.event.cancelAction = true;", "")
+                    .replace('"', '\\"').replace('\n', '\\n'))
+        docready_js = (
+            'try {\n'
+            f'  event.target.setAction("WillSave", "{ws_body}");\n'
+            f'  event.target.setAction("WillClose", "{wc_body}");\n'
+            '} catch(e) {}\n'
+        )
+        event_ready = ET.SubElement(root_subform, f"{ns}event")
+        event_ready.set("activity", "docReady")
+        script_ready = ET.SubElement(event_ready, f"{ns}script")
+        script_ready.set("contentType", "application/x-javascript")
+        script_ready.text = docready_js
 
     # ----- Per-field change event for max_length live enforcement -----
     for field_elem in root.iter(f"{ns}field"):
