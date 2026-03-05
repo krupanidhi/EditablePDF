@@ -321,7 +321,7 @@ Two-tier navigation: **Process Group tabs** (top-level) with **Sub-tabs** within
 | Sub-Tab | Label | Icon | Purpose |
 |---------|-------|------|---------|
 | `convert` | Generate Editable PDF | FileUp | Upload static PDF/DOCX, convert to editable form |
-| `required` | Validation Rules | ListChecks | Configure field rules, regenerate PDF |
+| `required` | Apply Validation Rules | ListChecks | Configure field rules, regenerate PDF |
 
 **Validation Process:**
 | Sub-Tab | Label | Icon | Purpose |

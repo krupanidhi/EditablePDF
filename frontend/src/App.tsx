@@ -137,7 +137,7 @@ function App() {
       label: 'Digitalization Process',
       tabs: [
         { id: 'convert', label: 'Generate Editable PDF', icon: <FileUp className="w-4 h-4" /> },
-        { id: 'required', label: 'Validation Rules', icon: <ListChecks className="w-4 h-4" /> },
+        { id: 'required', label: 'Apply Validation Rules', icon: <ListChecks className="w-4 h-4" /> },
       ],
     },
     {
