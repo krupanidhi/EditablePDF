@@ -757,9 +757,11 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
             '}'
         )
 
-    # Remove stale events from previous apply runs
-    for activity in ("preSave", "prePrint", "docClose", "docReady",
-                      "preSubmit", "ready"):
+    # Remove only truly stale events (docClose, docReady, preSubmit, ready)
+    # that we injected in previous runs.  Do NOT remove preSave/prePrint —
+    # the original PDF may have these baked in before Reader Extensions,
+    # and they survive the RE process.  We update them in place instead.
+    for activity in ("docClose", "docReady", "preSubmit", "ready"):
         stale = [
             ev for ev in root_subform.findall(f"{ns}event")
             if ev.get("activity") == activity
@@ -770,45 +772,33 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
     if script_parts:
         full_script = '\n\n'.join(script_parts)
 
-        # preSave — fires on Ctrl+S / File→Save in some Adobe versions
-        event_elem = ET.SubElement(root_subform, f"{ns}event")
-        event_elem.set("activity", "preSave")
-        script_elem = ET.SubElement(event_elem, f"{ns}script")
-        script_elem.set("contentType", "application/x-javascript")
-        script_elem.text = full_script
-
-        # prePrint — fires on File→Print
-        event_print = ET.SubElement(root_subform, f"{ns}event")
-        event_print.set("activity", "prePrint")
-        script_print = ET.SubElement(event_print, f"{ns}script")
-        script_print.set("contentType", "application/x-javascript")
-        script_print.text = full_script.replace("Cannot save", "Cannot print")
-
-        # preSubmit — most reliable XFA validation hook
-        event_submit = ET.SubElement(root_subform, f"{ns}event")
-        event_submit.set("activity", "preSubmit")
-        script_submit = ET.SubElement(event_submit, f"{ns}script")
-        script_submit.set("contentType", "application/x-javascript")
-        script_submit.text = full_script
-
-        # docReady — install AcroForm-level WillSave/WillClose handlers
-        # from within XFA JS context using event.target (the doc object)
-        ws_body = full_script.replace('"', '\\"').replace('\n', '\\n')
-        wc_body = (full_script
-                    .replace("Cannot save", "Warning: unsaved required fields")
-                    .replace("xfa.event.cancelAction = true;", "")
-                    .replace('"', '\\"').replace('\n', '\\n'))
-        docready_js = (
-            'try {\n'
-            f'  event.target.setAction("WillSave", "{ws_body}");\n'
-            f'  event.target.setAction("WillClose", "{wc_body}");\n'
-            '} catch(e) {}\n'
-        )
-        event_ready = ET.SubElement(root_subform, f"{ns}event")
-        event_ready.set("activity", "docReady")
-        script_ready = ET.SubElement(event_ready, f"{ns}script")
-        script_ready.set("contentType", "application/x-javascript")
-        script_ready.text = docready_js
+        # Update existing preSave/prePrint events in place (preserves
+        # events that were baked in before Reader Extensions).
+        # If none exist, create new ones.
+        for activity, label in [("preSave", "Cannot save"),
+                                 ("prePrint", "Cannot print")]:
+            existing = [
+                ev for ev in root_subform.findall(f"{ns}event")
+                if ev.get("activity") == activity
+            ]
+            text = full_script.replace("Cannot save", label)
+            if existing:
+                # Update existing event script in place
+                ev = existing[0]
+                sc = ev.find(f"{ns}script")
+                if sc is None:
+                    sc = ET.SubElement(ev, f"{ns}script")
+                    sc.set("contentType", "application/x-javascript")
+                sc.text = text
+                # Remove duplicates
+                for dup in existing[1:]:
+                    root_subform.remove(dup)
+            else:
+                ev = ET.SubElement(root_subform, f"{ns}event")
+                ev.set("activity", activity)
+                sc = ET.SubElement(ev, f"{ns}script")
+                sc.set("contentType", "application/x-javascript")
+                sc.text = text
 
     # ----- Per-field change event for max_length live enforcement -----
     for field_elem in root.iter(f"{ns}field"):
