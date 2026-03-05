@@ -420,8 +420,27 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
 
             augment_xfa_tooltip_required(excl_elem, ns, display_label)
             required_fields.append((som_path, display_label))
-            # No visual border changes — radio circles stay as-is.
-            # Required is enforced only via preSave/prePrint scripts.
+
+            # Red circle outline on each child checkButton.
+            # Only modify the <checkButton><border><edge> — leave everything
+            # else (exclGroup border, field border) completely untouched.
+            for child_field in excl_elem.iter(f"{ns}field"):
+                ui = child_field.find(f"{ns}ui")
+                if ui is None:
+                    continue
+                cb = ui.find(f"{ns}checkButton")
+                if cb is None:
+                    continue
+                border = cb.find(f"{ns}border")
+                if border is None:
+                    border = ET.SubElement(cb, f"{ns}border")
+                edge = border.find(f"{ns}edge")
+                if edge is None:
+                    edge = ET.SubElement(border, f"{ns}edge")
+                edge_color = edge.find(f"{ns}color")
+                if edge_color is None:
+                    edge_color = ET.SubElement(edge, f"{ns}color")
+                edge_color.set("value", "255,0,0")
             updated_count += 1
         else:
             if validate is not None and validate.get("nullTest"):
