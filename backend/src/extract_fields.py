@@ -293,6 +293,45 @@ def _xfa_get_max_chars(ui_elem, field_elem=None) -> int | None:
     return None
 
 
+def _xfa_get_value_range(field_elem) -> tuple:
+    """Extract min/max value constraints from XFA exit event scripts.
+
+    Looks for patterns injected by apply_required:
+      v < {min_val}   →  min_value
+      v > {max_val}   →  max_value
+    Returns (min_value, max_value) — either may be None.
+    """
+    ns_event = f"{{{_XFA_NS}}}event"
+    ns_script = f"{{{_XFA_NS}}}script"
+    min_val = None
+    max_val = None
+    for ev in field_elem.findall(ns_event):
+        if ev.get("activity", "") != "exit":
+            continue
+        sc = ev.find(ns_script)
+        if sc is None or not sc.text:
+            continue
+        # Pattern: v < {number}  (min check)
+        m = re.search(r'v\s*<\s*(-?[\d.]+)', sc.text)
+        if m:
+            try:
+                min_val = float(m.group(1))
+                if min_val == int(min_val):
+                    min_val = int(min_val)
+            except ValueError:
+                pass
+        # Pattern: v > {number}  (max check)
+        m = re.search(r'v\s*>\s*(-?[\d.]+)', sc.text)
+        if m:
+            try:
+                max_val = float(m.group(1))
+                if max_val == int(max_val):
+                    max_val = int(max_val)
+            except ValueError:
+                pass
+    return min_val, max_val
+
+
 def _extract_xfa_fields(doc) -> list[dict]:
     """Parse XFA template XML and extract field definitions.
 
@@ -375,6 +414,7 @@ def _extract_xfa_fields(doc) -> list[dict]:
         is_required = _xfa_is_required(field_elem)
         data_type = _xfa_infer_data_type(ui, label)
         max_length = _xfa_get_max_chars(ui, field_elem=field_elem)
+        min_val, max_val = _xfa_get_value_range(field_elem)
 
         entry = {
             "label": label,
@@ -386,8 +426,8 @@ def _extract_xfa_fields(doc) -> list[dict]:
             "data_type": data_type,
             "readonly": is_readonly,
             "max_length": max_length,
-            "min_value": None,
-            "max_value": None,
+            "min_value": min_val,
+            "max_value": max_val,
             "deleted": False,
             "scroll_enabled": field_type in ("text", "textarea"),
             "xfa_name": name,
@@ -395,6 +435,38 @@ def _extract_xfa_fields(doc) -> list[dict]:
         fields.append(entry)
 
     return fields
+
+
+def _acroform_get_value_range(widget) -> tuple:
+    """Extract min/max value constraints from AcroForm widget's validate script.
+
+    Looks for patterns injected by apply_required:
+      v < {min_val}   →  min_value
+      v > {max_val}   →  max_value
+    Returns (min_value, max_value) — either may be None.
+    """
+    script = getattr(widget, 'script_validate', None) or ""
+    if not script:
+        return None, None
+    min_val = None
+    max_val = None
+    m = re.search(r'v\s*<\s*(-?[\d.]+)', script)
+    if m:
+        try:
+            min_val = float(m.group(1))
+            if min_val == int(min_val):
+                min_val = int(min_val)
+        except ValueError:
+            pass
+    m = re.search(r'v\s*>\s*(-?[\d.]+)', script)
+    if m:
+        try:
+            max_val = float(m.group(1))
+            if max_val == int(max_val):
+                max_val = int(max_val)
+        except ValueError:
+            pass
+    return min_val, max_val
 
 
 # ---------------------------------------------------------------------------
@@ -493,6 +565,7 @@ def extract_fields(pdf_path: str) -> dict:
             actual_type = "textarea" if is_multiline else "text"
             str_value = str(value) if value else ""
             data_type = _infer_data_type(str_value, label) if actual_type == "text" else "text"
+            af_min, af_max = _acroform_get_value_range(widget)
 
             entry = {
                 "label": label,
@@ -504,8 +577,8 @@ def extract_fields(pdf_path: str) -> dict:
                 "data_type": data_type,
                 "readonly": bool(widget.field_flags & fitz.PDF_FIELD_IS_READ_ONLY),
                 "max_length": None,
-                "min_value": None,
-                "max_value": None,
+                "min_value": af_min,
+                "max_value": af_max,
                 "deleted": False,
                 "scroll_enabled": True,
             }
