@@ -289,6 +289,38 @@ def _inject_catalog_actions(doc, required_fields: list[tuple[str, str, bool]]):
 
 _XFA_NS = "http://www.xfa.org/schema/xfa-template/3.3/"
 
+# Regex patterns matching code blocks injected by apply_required into XFA
+# exit event scripts.  Used to strip old injections before re-applying.
+_RE_ROUNDING_BLOCK = re.compile(
+    r'if\(this\.rawValue\s*!=\s*null\s*&&\s*this\.rawValue\s*!==\s*""\)\s*\{\s*\n'
+    r'\s*var\s+v\s*=\s*Math\.round\(parseFloat\(this\.rawValue\)\s*\*\s*100\)\s*/\s*100;\s*\n'
+    r'\s*if\(!isNaN\(v\)\)\s*this\.rawValue\s*=\s*v;\s*\n'
+    r'\}\s*\n?',
+    re.MULTILINE
+)
+_RE_ZERO_BLOCK = re.compile(
+    r'if\(this\.rawValue\s*!=\s*null\s*&&\s*this\.rawValue\s*!==\s*""\)\s*\{\s*\n'
+    r'\s*if\(parseInt\(this\.rawValue\)\s*===\s*0\)\s*\{[^}]*\}\s*\n'
+    r'\}\s*\n?',
+    re.MULTILINE | re.DOTALL
+)
+_RE_RANGE_BLOCK = re.compile(
+    r'if\(this\.rawValue\s*!=\s*null\s*&&\s*this\.rawValue\s*!==\s*""\)\s*\{\s*\n'
+    r'\s*var\s+v\s*=\s*parseFloat\(this\.rawValue\);\s*\n'
+    r'\s*if\(!isNaN\(v\)\s*&&[^}]*\}\s*\n'
+    r'\}\s*\n?',
+    re.MULTILINE | re.DOTALL
+)
+
+
+def _strip_injected_exit_js(text: str) -> str:
+    """Remove previously injected rounding / zero-block / range-check code
+    from an XFA exit event script, leaving only the original content."""
+    text = _RE_ROUNDING_BLOCK.sub('', text)
+    text = _RE_ZERO_BLOCK.sub('', text)
+    text = _RE_RANGE_BLOCK.sub('', text)
+    return text.strip()
+
 
 def _is_xfa_pdf(doc) -> bool:
     """Return True if the PDF contains an XFA form.
@@ -656,63 +688,51 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 pic.text = "z,zz9"
             any_change = True
 
-        # ----- Currency: append rounding to exit event -----
-        if data_type == "currency":
-            round_js = (
-                'if(this.rawValue != null && this.rawValue !== "") {\n'
-                '  var v = Math.round(parseFloat(this.rawValue) * 100) / 100;\n'
-                '  if(!isNaN(v)) this.rawValue = v;\n'
-                '}'
-            )
-            existing_exit = None
-            for ev in field_elem.findall(f"{ns}event"):
-                if ev.get("activity") == "exit":
-                    existing_exit = ev
-                    break
-            if existing_exit is None:
-                existing_exit = ET.SubElement(field_elem, f"{ns}event")
-                existing_exit.set("activity", "exit")
-            sc = existing_exit.find(f"{ns}script")
-            if sc is None:
-                sc = ET.SubElement(existing_exit, f"{ns}script")
-                sc.set("contentType", "application/x-javascript")
-                sc.text = round_js
-            else:
-                # PREPEND so rounding happens before existing calc scripts
-                sc.text = round_js + "\n" + (sc.text or "")
-            any_change = True
-
-        # ----- Integer: append zero-block to exit event -----
-        if data_type == "integer":
-            zero_js = (
-                'if(this.rawValue != null && this.rawValue !== "") {\n'
-                '  if(parseInt(this.rawValue) === 0) {\n'
-                '    xfa.host.messageBox("' + display_label + ': Zero is not allowed.", '
-                '"Validation Error", 0);\n'
-                '    this.rawValue = null;\n'
-                '  }\n'
-                '}'
-            )
-            existing_exit = None
-            for ev in field_elem.findall(f"{ns}event"):
-                if ev.get("activity") == "exit":
-                    existing_exit = ev
-                    break
-            if existing_exit is None:
-                existing_exit = ET.SubElement(field_elem, f"{ns}event")
-                existing_exit.set("activity", "exit")
-            sc = existing_exit.find(f"{ns}script")
-            if sc is None:
-                sc = ET.SubElement(existing_exit, f"{ns}script")
-                sc.set("contentType", "application/x-javascript")
-                sc.text = zero_js
-            else:
-                # APPEND to preserve existing script (e.g. GrandQuantity calc)
-                sc.text = (sc.text or "") + "\n" + zero_js
-            any_change = True
-
-        # ----- Value range: min_value / max_value on numeric fields -----
+        # ----- Exit event: strip old injections, then rebuild -----
         if data_type in ("integer", "currency", "number"):
+            # Locate or create exit event + script
+            existing_exit = None
+            for ev in field_elem.findall(f"{ns}event"):
+                if ev.get("activity") == "exit":
+                    existing_exit = ev
+                    break
+            if existing_exit is None:
+                existing_exit = ET.SubElement(field_elem, f"{ns}event")
+                existing_exit.set("activity", "exit")
+            sc = existing_exit.find(f"{ns}script")
+            if sc is None:
+                sc = ET.SubElement(existing_exit, f"{ns}script")
+                sc.set("contentType", "application/x-javascript")
+                sc.text = ""
+
+            # Strip all previously injected blocks, keeping original code
+            original_js = _strip_injected_exit_js(sc.text or "")
+
+            # Build fresh injection blocks
+            inject_parts = []
+
+            # Currency: rounding
+            if data_type == "currency":
+                inject_parts.append(
+                    'if(this.rawValue != null && this.rawValue !== "") {\n'
+                    '  var v = Math.round(parseFloat(this.rawValue) * 100) / 100;\n'
+                    '  if(!isNaN(v)) this.rawValue = v;\n'
+                    '}'
+                )
+
+            # Integer: zero-block
+            if data_type == "integer":
+                inject_parts.append(
+                    'if(this.rawValue != null && this.rawValue !== "") {\n'
+                    '  if(parseInt(this.rawValue) === 0) {\n'
+                    '    xfa.host.messageBox("' + display_label + ': Zero is not allowed.", '
+                    '"Validation Error", 0);\n'
+                    '    this.rawValue = null;\n'
+                    '  }\n'
+                    '}'
+                )
+
+            # Value range: min_value / max_value
             min_val = fdata.get("min_value")
             max_val = fdata.get("max_value")
             if min_val is not None or max_val is not None:
@@ -726,7 +746,7 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                     range_parts.append(f'at most {max_val}')
                 condition = " || ".join(range_checks)
                 range_msg = " and ".join(range_parts)
-                range_js = (
+                inject_parts.append(
                     'if(this.rawValue != null && this.rawValue !== "") {\n'
                     '  var v = parseFloat(this.rawValue);\n'
                     f'  if(!isNaN(v) && ({condition})) {{\n'
@@ -736,22 +756,11 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                     '  }\n'
                     '}'
                 )
-                existing_exit = None
-                for ev in field_elem.findall(f"{ns}event"):
-                    if ev.get("activity") == "exit":
-                        existing_exit = ev
-                        break
-                if existing_exit is None:
-                    existing_exit = ET.SubElement(field_elem, f"{ns}event")
-                    existing_exit.set("activity", "exit")
-                sc = existing_exit.find(f"{ns}script")
-                if sc is None:
-                    sc = ET.SubElement(existing_exit, f"{ns}script")
-                    sc.set("contentType", "application/x-javascript")
-                    sc.text = range_js
-                else:
-                    sc.text = (sc.text or "") + "\n" + range_js
-                any_change = True
+
+            # Reassemble: injected blocks first, then original code
+            parts = inject_parts + ([original_js] if original_js else [])
+            sc.text = "\n".join(parts)
+            any_change = True
 
         if any_change:
             updated_count += 1

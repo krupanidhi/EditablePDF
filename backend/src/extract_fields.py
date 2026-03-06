@@ -296,9 +296,9 @@ def _xfa_get_max_chars(ui_elem, field_elem=None) -> int | None:
 def _xfa_get_value_range(field_elem) -> tuple:
     """Extract min/max value constraints from XFA exit event scripts.
 
-    Looks for patterns injected by apply_required:
-      v < {min_val}   →  min_value
-      v > {max_val}   →  max_value
+    Looks for the *last* complete range-check block injected by apply_required:
+      if(this.rawValue ...) { var v = parseFloat(this.rawValue); if(!isNaN(v) && (v < N || v > M)) ... }
+    Extracts v < N → min_value and v > M → max_value only from that block.
     Returns (min_value, max_value) — either may be None.
     """
     ns_event = f"{{{_XFA_NS}}}event"
@@ -311,8 +311,16 @@ def _xfa_get_value_range(field_elem) -> tuple:
         sc = ev.find(ns_script)
         if sc is None or not sc.text:
             continue
-        # Pattern: v < {number}  (min check)
-        m = re.search(r'v\s*<\s*(-?[\d.]+)', sc.text)
+        # Find ALL range-check blocks and use the last one
+        blocks = re.findall(
+            r'var\s+v\s*=\s*parseFloat\(this\.rawValue\);[^}]*'
+            r'if\(!isNaN\(v\)\s*&&\s*\(([^)]+)\)',
+            sc.text, re.DOTALL
+        )
+        if not blocks:
+            continue
+        last_block = blocks[-1]  # Use the last range block
+        m = re.search(r'v\s*<\s*(-?[\d.]+)', last_block)
         if m:
             try:
                 min_val = float(m.group(1))
@@ -320,8 +328,7 @@ def _xfa_get_value_range(field_elem) -> tuple:
                     min_val = int(min_val)
             except ValueError:
                 pass
-        # Pattern: v > {number}  (max check)
-        m = re.search(r'v\s*>\s*(-?[\d.]+)', sc.text)
+        m = re.search(r'v\s*>\s*(-?[\d.]+)', last_block)
         if m:
             try:
                 max_val = float(m.group(1))
@@ -450,7 +457,16 @@ def _acroform_get_value_range(widget) -> tuple:
         return None, None
     min_val = None
     max_val = None
-    m = re.search(r'v\s*<\s*(-?[\d.]+)', script)
+    # Find the last range-check block to handle stacked scripts
+    blocks = re.findall(
+        r'var\s+v\s*=\s*parseFloat\([^)]+\);[^}]*'
+        r'if\s*\(\s*!isNaN\(v\)\s*&&\s*\(([^)]+)\)',
+        script, re.DOTALL
+    )
+    if not blocks:
+        return None, None
+    last_block = blocks[-1]
+    m = re.search(r'v\s*<\s*(-?[\d.]+)', last_block)
     if m:
         try:
             min_val = float(m.group(1))
@@ -458,7 +474,7 @@ def _acroform_get_value_range(widget) -> tuple:
                 min_val = int(min_val)
         except ValueError:
             pass
-    m = re.search(r'v\s*>\s*(-?[\d.]+)', script)
+    m = re.search(r'v\s*>\s*(-?[\d.]+)', last_block)
     if m:
         try:
             max_val = float(m.group(1))
