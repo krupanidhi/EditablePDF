@@ -477,8 +477,8 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 edge_color.set("value", "255,0,0")
             updated_count += 1
         else:
-            if validate is not None and validate.get("nullTest"):
-                del validate.attrib["nullTest"]
+            if excl_validate is not None and excl_validate.get("nullTest"):
+                del excl_validate.attrib["nullTest"]
             # Clear red circle from child checkButtons
             for child_field in excl_elem.iter(f"{ns}field"):
                 ui = child_field.find(f"{ns}ui")

@@ -244,11 +244,21 @@ def _xfa_get_label(elem, ns_assist, ns_speak, ns_tooltip) -> str:
 
 
 def _xfa_is_required(elem) -> bool:
-    """Check if XFA element has <validate nullTest="error">."""
+    """Check if XFA element has <validate nullTest="error"> or a
+    '(required)' tooltip marker (used for radio exclGroups where
+    nullTest is deliberately removed to avoid red rectangles)."""
     ns_validate = f"{{{_XFA_NS}}}validate"
     val_elem = elem.find(ns_validate)
-    if val_elem is not None:
-        return val_elem.get("nullTest", "") == "error"
+    if val_elem is not None and val_elem.get("nullTest", "") == "error":
+        return True
+    # Fallback: check tooltip for "(required)" marker
+    ns_assist = f"{{{_XFA_NS}}}assist"
+    ns_tooltip = f"{{{_XFA_NS}}}toolTip"
+    assist = elem.find(ns_assist)
+    if assist is not None:
+        tt = assist.find(ns_tooltip)
+        if tt is not None and tt.text and "(required)" in tt.text.lower():
+            return True
     return False
 
 
