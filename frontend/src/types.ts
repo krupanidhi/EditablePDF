@@ -158,6 +158,8 @@ export interface ExtractedFieldClean {
   data_type: string;
   readonly: boolean;
   max_length: number | null;
+  min_value: number | null;
+  max_value: number | null;
   deleted: boolean;
   scroll_enabled: boolean;
   depends_on?: string | null;

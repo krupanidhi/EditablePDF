@@ -711,6 +711,48 @@ def _apply_xfa_required(doc, fields: list[dict], output_path: str) -> dict:
                 sc.text = (sc.text or "") + "\n" + zero_js
             any_change = True
 
+        # ----- Value range: min_value / max_value on numeric fields -----
+        if data_type in ("integer", "currency", "number"):
+            min_val = fdata.get("min_value")
+            max_val = fdata.get("max_value")
+            if min_val is not None or max_val is not None:
+                range_checks = []
+                range_parts = []
+                if min_val is not None:
+                    range_checks.append(f'v < {min_val}')
+                    range_parts.append(f'at least {min_val}')
+                if max_val is not None:
+                    range_checks.append(f'v > {max_val}')
+                    range_parts.append(f'at most {max_val}')
+                condition = " || ".join(range_checks)
+                range_msg = " and ".join(range_parts)
+                range_js = (
+                    'if(this.rawValue != null && this.rawValue !== "") {\n'
+                    '  var v = parseFloat(this.rawValue);\n'
+                    f'  if(!isNaN(v) && ({condition})) {{\n'
+                    f'    xfa.host.messageBox("{display_label}: Value must be {range_msg}.", '
+                    f'"Validation Error", 0);\n'
+                    '    this.rawValue = null;\n'
+                    '  }\n'
+                    '}'
+                )
+                existing_exit = None
+                for ev in field_elem.findall(f"{ns}event"):
+                    if ev.get("activity") == "exit":
+                        existing_exit = ev
+                        break
+                if existing_exit is None:
+                    existing_exit = ET.SubElement(field_elem, f"{ns}event")
+                    existing_exit.set("activity", "exit")
+                sc = existing_exit.find(f"{ns}script")
+                if sc is None:
+                    sc = ET.SubElement(existing_exit, f"{ns}script")
+                    sc.set("contentType", "application/x-javascript")
+                    sc.text = range_js
+                else:
+                    sc.text = (sc.text or "") + "\n" + range_js
+                any_change = True
+
         if any_change:
             updated_count += 1
 
@@ -1178,6 +1220,37 @@ def apply_required(pdf_path: str, fields: list[dict],
                 else:
                     widget.script_stroke = num_js
                 need_update = True
+
+            # Value range validation: min_value / max_value on numeric fields
+            if is_text and (is_integer or is_currency or is_number):
+                min_val = fdata.get("min_value")
+                max_val = fdata.get("max_value")
+                if min_val is not None or max_val is not None:
+                    range_checks = []
+                    range_parts = []
+                    if min_val is not None:
+                        range_checks.append(f'v < {min_val}')
+                        range_parts.append(f'at least {min_val}')
+                    if max_val is not None:
+                        range_checks.append(f'v > {max_val}')
+                        range_parts.append(f'at most {max_val}')
+                    condition = " || ".join(range_checks)
+                    range_msg = " and ".join(range_parts)
+                    range_js = (
+                        'if (event.willCommit && event.value !== "") {\n'
+                        '  var v = parseFloat(event.value.toString().replace(/[$,]/g, ""));\n'
+                        f'  if (!isNaN(v) && ({condition})) {{\n'
+                        f'    app.alert("{display_label}: Value must be {range_msg}.");\n'
+                        '    event.rc = false;\n'
+                        '  }\n'
+                        '}'
+                    )
+                    existing_validate = widget.script_validate or ""
+                    if existing_validate:
+                        widget.script_validate = existing_validate + "\n" + range_js
+                    else:
+                        widget.script_validate = range_js
+                    need_update = True
 
             # Max length JS guard: block keystrokes that would exceed limit
             if is_text and max_length is not None:

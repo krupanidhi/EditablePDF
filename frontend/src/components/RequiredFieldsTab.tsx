@@ -86,6 +86,24 @@ export default function RequiredFieldsTab() {
     setApplyRequiredResult(null);
   }, []);
 
+  const handleChangeMinValue = useCallback((index: number, value: string) => {
+    setEditedFields(prev => prev.map((f, i) => {
+      if (i !== index) return f;
+      const parsed = value === '' ? null : parseFloat(value);
+      return { ...f, min_value: (parsed !== null && !isNaN(parsed)) ? parsed : null };
+    }));
+    setApplyRequiredResult(null);
+  }, []);
+
+  const handleChangeMaxValue = useCallback((index: number, value: string) => {
+    setEditedFields(prev => prev.map((f, i) => {
+      if (i !== index) return f;
+      const parsed = value === '' ? null : parseFloat(value);
+      return { ...f, max_value: (parsed !== null && !isNaN(parsed)) ? parsed : null };
+    }));
+    setApplyRequiredResult(null);
+  }, []);
+
   const handleSelectAll = useCallback(() => {
     setEditedFields(prev => prev.map(f => f.readonly ? f : { ...f, required: true }));
     setApplyRequiredResult(null);
@@ -310,6 +328,9 @@ export default function RequiredFieldsTab() {
                   <th className="px-3 py-2 text-left font-semibold text-[#0B4778]">Data Type</th>
                   <th className="px-3 py-2 text-center font-semibold text-[#0B4778]">Page</th>
                   <th className="px-3 py-2 text-center font-semibold text-[#0B4778] w-24">Max Length</th>
+                  <th className="px-3 py-2 text-center font-semibold text-[#0B4778] w-28">
+                    <span title="Min / Max numeric value allowed (e.g. 0–5000)">Value Range</span>
+                  </th>
                   <th className="px-3 py-2 text-center font-semibold text-[#0B4778]">
                     <span title="Read-Only: disable editing and skip all validation">Read-Only</span>
                   </th>
@@ -402,6 +423,33 @@ export default function RequiredFieldsTab() {
                       )}
                     </td>
                     <td className="px-3 py-2 text-center">
+                      {['integer', 'number', 'currency'].includes(field.data_type) && !field.readonly ? (
+                        <div className="flex items-center gap-1 justify-center">
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="Min"
+                            value={field.min_value ?? ''}
+                            onChange={(e) => handleChangeMinValue(field._origIndex, e.target.value)}
+                            className="w-16 text-xs text-center bg-white border border-gray-200 rounded px-1 py-0.5 text-gray-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                            title="Minimum allowed value"
+                          />
+                          <span className="text-gray-400 text-[10px]">–</span>
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="Max"
+                            value={field.max_value ?? ''}
+                            onChange={(e) => handleChangeMaxValue(field._origIndex, e.target.value)}
+                            className="w-16 text-xs text-center bg-white border border-gray-200 rounded px-1 py-0.5 text-gray-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                            title="Maximum allowed value"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-gray-300 text-[10px]">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-center">
                       <input
                         type="checkbox"
                         checked={field.readonly}
@@ -451,6 +499,7 @@ export default function RequiredFieldsTab() {
               <li><strong>Read-only fields</strong> — left untouched, no validation applied</li>
               <li><strong>Delete fields</strong> — permanently removes the control from the PDF</li>
               <li><strong>Max length</strong> — limits character input (e.g. 4000 chars, 5 digits)</li>
+              <li><strong>Value range</strong> — min/max numeric value for integer, number, and currency fields (e.g. 0–5000). Shows an alert if the entered value is out of range</li>
               <li><strong>Scroll bars</strong> — vertical scroll for text boxes, horizontal scroll for text areas (toggle per field)</li>
               <li><strong>Fixed font</strong> — consistent 10pt font on all text fields (no auto-shrink on overflow)</li>
             </ul>
