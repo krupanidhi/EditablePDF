@@ -22,7 +22,6 @@ DEFAULT_EXCEL = r"editable pdfs\New folder\H8S_App_Info.xlsx"
 DEFAULT_OUTPUT = r"output\nap_generated"
 
 BORDER_W = 0.48
-SITE_ROW_H_MIN = 14.0
 CLR_BLACK = (0, 0, 0)
 
 
@@ -156,9 +155,14 @@ class TemplateInfo:
             if 'label' in name.lower():
                 self.label_widgets.append(name)
 
-        radio_y_min = min(r.y0 for r in self.radio_rects) if self.radio_rects else 345.0
+        # Auto-detect radio region — if no radio widgets, scan for bold text + colored bars
+        if self.radio_rects:
+            radio_y_min = min(r.y0 for r in self.radio_rects)
+        else:
+            radio_y_min = self._find_radio_region(page)
 
-        self.font_size = 9.96
+        # Auto-detect font size from site-row text near radio buttons
+        self.font_size = self._detect_font_size(page, radio_y_min)
         self._detect_header(page, radio_y_min)
         self._detect_rects(page, radio_y_min)
         self._detect_text_positions(page, radio_y_min)
@@ -176,7 +180,80 @@ class TemplateInfo:
         self._detect_js_xrefs(doc)
         self.erase_y = self.hdr_top - 1.0
 
+        # Auto-detect page margins from template content boundaries
+        self._detect_margins(page)
+
         doc.close()
+
+    def _detect_margins(self, page):
+        """Auto-detect page margins from template content boundaries.
+        Used for pagination when generating continuation pages."""
+        # Find the topmost and bottommost content on the page
+        top_y = self.page_h
+        for b in page.get_text("dict")["blocks"]:
+            if "lines" not in b:
+                continue
+            for line in b["lines"]:
+                for span in line["spans"]:
+                    top_y = min(top_y, span["bbox"][1])
+        for d in page.get_drawings():
+            r = d.get("rect")
+            if r and r.width > 50:
+                top_y = min(top_y, r.y0)
+        for w in page.widgets():
+            top_y = min(top_y, w.rect.y0)
+        # Top margin = topmost content with small buffer
+        self.margin_top = max(36, top_y - 5)  # at least 0.5 inch
+        # Bottom margin mirrors top for symmetric printable area
+        self.margin_bottom = self.margin_top
+
+    def _find_radio_region(self, page):
+        """Fallback: find the y-region where radio-style content likely lives.
+        Look for bold text followed by colored rectangles in the lower half."""
+        mid_y = self.page_h / 2
+        # Find bold text spans in the lower portion
+        candidates = []
+        for b in page.get_text("dict")["blocks"]:
+            if "lines" not in b:
+                continue
+            for line in b["lines"]:
+                for span in line["spans"]:
+                    if span["bbox"][1] > mid_y and bool(span["flags"] & 16):
+                        candidates.append(span["bbox"][1])
+        # Find colored fill rects in the lower portion
+        for d in page.get_drawings():
+            fill = d.get("fill")
+            r = d.get("rect")
+            if fill and r and r.y0 > mid_y and r.width > 200 and r.height > 5:
+                if fill != (1, 1, 1) and fill != (0, 0, 0):
+                    candidates.append(r.y0)
+        if candidates:
+            return min(candidates) + 13  # approximate radio y below header bar
+        return self.page_h * 0.45  # last resort: 45% down the page
+
+    def _detect_font_size(self, page, radio_y_min):
+        """Auto-detect the font size used in the site row area.
+        Look for 'Yes'/'No' text or any regular text near the radio region."""
+        for b in page.get_text("dict")["blocks"]:
+            if "lines" not in b:
+                continue
+            for line in b["lines"]:
+                for span in line["spans"]:
+                    t = span["text"].strip()
+                    bbox = span["bbox"]
+                    # Look for Yes/No text near radio area
+                    if t in ("Yes", "No") and abs(bbox[1] - radio_y_min) < 10:
+                        return round(span["size"], 2)
+        # Fallback: look for any non-bold text near radio area
+        for b in page.get_text("dict")["blocks"]:
+            if "lines" not in b:
+                continue
+            for line in b["lines"]:
+                for span in line["spans"]:
+                    bbox = span["bbox"]
+                    if abs(bbox[1] - radio_y_min) < 15 and not bool(span["flags"] & 16):
+                        return round(span["size"], 2)
+        return 9.96  # ultimate fallback
 
     def _read_radio_kid_xs(self, doc):
         cat_obj = doc.xref_object(doc.pdf_catalog())
@@ -222,6 +299,7 @@ class TemplateInfo:
         """Detect section header text and its BASELINE y position."""
         self.header_text = "Are you still planning to continue service at:"
         self.header_bbox_top = None
+        self.header_bbox_x = None
         self.header_font = "hebo"  # bold by default
         for b in page.get_text("dict")["blocks"]:
             if "lines" not in b:
@@ -233,6 +311,7 @@ class TemplateInfo:
                     if bool(span["flags"] & 16) and radio_y_min - 20 < bbox[1] < radio_y_min and len(t) > 10:
                         self.header_text = t
                         self.header_bbox_top = bbox[1]
+                        self.header_bbox_x = bbox[0]  # auto-detect x from template
                         # Detect font family from template
                         fn = span["font"].lower()
                         if "bold" in fn or "bd" in fn:
@@ -268,8 +347,19 @@ class TemplateInfo:
             self.hdr_top = self.hdr_rect.y0
             self.hdr_bot = self.hdr_rect.y1
         else:
-            self.content_left, self.content_right = 72.264, 553.294
-            self.border_left, self.border_right = 71.784, 553.9
+            # Fallback: derive bounds from the widest colored rectangles on page
+            best_rect = self._find_widest_colored_rect(page)
+            if best_rect:
+                self.content_left = best_rect.x0 + 0.48
+                self.content_right = best_rect.x1 - 0.12
+                self.border_left = best_rect.x0
+                self.border_right = best_rect.x1
+            else:
+                # Last resort: standard letter margins
+                self.content_left = self.page_w * 0.118
+                self.content_right = self.page_w * 0.904
+                self.border_left = self.content_left - 0.48
+                self.border_right = self.content_right + 0.12
             self.hdr_top = radio_y_min - 13.0
             self.hdr_bot = radio_y_min
 
@@ -282,13 +372,26 @@ class TemplateInfo:
         # Header text offset: convert bbox_top to baseline, then compute
         # offset from header bar top
         if self.header_bbox_top is not None and self.hdr_rect:
-            self.hdr_text_x = 77.30  # exact x from template
+            self.hdr_text_x = self.header_bbox_x  # auto-detected from template
             # baseline = bbox_top + ascender
             hdr_baseline = self.header_bbox_top + self.ascender_bold
             self.hdr_text_offset = hdr_baseline - self.hdr_rect.y0
         else:
-            self.hdr_text_x = 77.30
-            self.hdr_text_offset = 1.0 + self.ascender_bold  # ~11.6pt
+            # Fallback: derive from content area left + small padding
+            self.hdr_text_x = self.content_left + 5.0
+            self.hdr_text_offset = 1.0 + self.ascender_bold
+
+    def _find_widest_colored_rect(self, page):
+        """Find the widest non-white colored rectangle on the page.
+        Used as fallback to determine content boundaries."""
+        best = None
+        for d in page.get_drawings():
+            fill = d.get("fill")
+            r = d.get("rect")
+            if fill and r and fill != (1, 1, 1) and r.width > 100:
+                if best is None or r.width > best.width:
+                    best = r
+        return best
 
     def _detect_text_positions(self, page, radio_y_min):
         """Detect Yes/No/site text x positions AND compute baseline offset
@@ -311,9 +414,23 @@ class TemplateInfo:
                         self.no_text_x = bbox[0]
                     elif bbox[1] < radio_y_min + 15 and ("[Site" in t or "located at" in t.lower()):
                         self.q_text_x = bbox[0]
-        self.yes_text_x = self.yes_text_x or 90.86
-        self.no_text_x = self.no_text_x or 124.46
-        self.q_text_x = self.q_text_x or 143.78
+        # Derive fallback x positions from radio widget positions
+        if self.radio_kid_xs and len(self.radio_kid_xs) >= 2:
+            rx0_yes = self.radio_kid_xs[0]  # (x0, x1) of Yes radio
+            rx0_no = self.radio_kid_xs[1]   # (x0, x1) of No radio
+            self.yes_text_x = self.yes_text_x or (rx0_yes[1] + 3.5)
+            self.no_text_x = self.no_text_x or (rx0_no[1] + 3.5)
+            self.q_text_x = self.q_text_x or (self.no_text_x + 20.0)
+        elif self.radio_rects and len(self.radio_rects) >= 2:
+            self.yes_text_x = self.yes_text_x or (self.radio_rects[0].x1 + 3.5)
+            self.no_text_x = self.no_text_x or (self.radio_rects[1].x1 + 3.5)
+            self.q_text_x = self.q_text_x or (self.no_text_x + 20.0)
+        else:
+            # Derive from content area proportions
+            cw = self.content_right - self.content_left
+            self.yes_text_x = self.yes_text_x or (self.content_left + cw * 0.039)
+            self.no_text_x = self.no_text_x or (self.content_left + cw * 0.109)
+            self.q_text_x = self.q_text_x or (self.content_left + cw * 0.149)
 
         # Compute text baseline offset from row top
         # Template: yes_bbox_top is where "Yes" text bbox starts (top of glyph)
@@ -337,7 +454,8 @@ class TemplateInfo:
         if self.row_rect:
             self.template_row_h = self.row_rect.y1 - self.site_row_top
         else:
-            self.template_row_h = SITE_ROW_H_MIN
+            # Fallback: compute from font metrics + padding
+            self.template_row_h = self.font_size + 2.0
 
     def _extract_burden(self, page):
         spans = []
@@ -389,6 +507,17 @@ class TemplateInfo:
         print(f"  Header: '{self.header_text}'")
         print(f"  JS xrefs: open={self.js_open_xref} save={self.js_save_xref}"
               f" print={self.js_print_xref} close={self.js_close_xref}")
+        print(f"  Auto-calibrated positions:")
+        print(f"    font_size={self.font_size}  hdr_text_x={self.hdr_text_x:.2f}")
+        print(f"    hdr_top={self.hdr_top:.2f}  hdr_bot={self.hdr_bot:.2f}")
+        print(f"    content_left={self.content_left:.2f}  content_right={self.content_right:.2f}")
+        print(f"    yes_x={self.yes_text_x:.2f}  no_x={self.no_text_x:.2f}  q_x={self.q_text_x:.2f}")
+        print(f"    row_baseline_offset={self.row_text_baseline_offset:.2f}")
+        print(f"    radio_cy_offset={self.row_radio_cy_offset:.2f}")
+        print(f"    template_row_h={self.template_row_h:.2f}")
+        print(f"    burden_gap={self.burden_gap:.2f}")
+        print(f"    margins: top={self.margin_top:.1f}  bottom={self.margin_bottom:.1f}")
+        print(f"    erase_y={self.erase_y:.2f}")
 
 
 # ===================================================================
@@ -422,7 +551,7 @@ def _estimate_row_h(tmpl, site_name, site_addr):
     min_h = tmpl.template_row_h
     if lines <= 1:
         return min_h
-    line_spacing = tmpl.font_size + 1.5
+    line_spacing = tmpl.font_size * 1.15  # standard 115% line spacing
     return max(min_h, lines * line_spacing + 3.0)
 
 
@@ -437,7 +566,16 @@ def _clone_radio_group(doc, page, group_name, radio_cy, tmpl, struct_tracker=Non
     pdf_y1 = ph - y_top_td
 
     captions = ["Yes", "No"]
-    x_positions = tmpl.radio_kid_xs or [(79.3, 87.3), (112.8, 120.8)]
+    # Derive fallback from radio widget rects if kid_xs not available
+    if tmpl.radio_kid_xs:
+        x_positions = tmpl.radio_kid_xs
+    elif tmpl.radio_rects and len(tmpl.radio_rects) >= 2:
+        x_positions = [(tmpl.radio_rects[i].x0, tmpl.radio_rects[i].x1)
+                       for i in range(min(2, len(tmpl.radio_rects)))]
+    else:
+        # Derive from content area
+        cl = tmpl.content_left
+        x_positions = [(cl + 7.0, cl + 15.0), (cl + 40.5, cl + 48.5)]
 
     for i, caption in enumerate(captions):
         if i >= len(x_positions):
@@ -601,7 +739,7 @@ def _draw_site_row(page, y_top, idx, site_name, site_addr, row_h, doc, tmpl, str
     # Site name + address text
     site_text = f"{site_name} located at {site_addr.strip()}"
     wrapped = _wrap_text(site_text, tmpl.font_size, right - 2 - tmpl.q_text_x, bold=False)
-    line_spacing = tmpl.font_size + 1.5  # ~11.46 for 9.96pt
+    line_spacing = tmpl.font_size * 1.15  # standard 115% line spacing
     for li, lt in enumerate(wrapped):
         page.insert_text((tmpl.q_text_x, baseline + li * line_spacing), lt, fontsize=tmpl.font_size, fontname="helv", color=CLR_BLACK)
 
@@ -828,6 +966,24 @@ def generate_pdfs(template_path, excel_path, output_dir):
         },
         "widget_mapping": {v: k for k, v in widget_map.items()},
         "compliance": compliance,
+        "calibration": {
+            "font_size": tmpl.font_size,
+            "hdr_text_x": round(tmpl.hdr_text_x, 2),
+            "hdr_top": round(tmpl.hdr_top, 2),
+            "hdr_bot": round(tmpl.hdr_bot, 2),
+            "content_left": round(tmpl.content_left, 2),
+            "content_right": round(tmpl.content_right, 2),
+            "yes_text_x": round(tmpl.yes_text_x, 2),
+            "no_text_x": round(tmpl.no_text_x, 2),
+            "q_text_x": round(tmpl.q_text_x, 2),
+            "row_baseline_offset": round(tmpl.row_text_baseline_offset, 2),
+            "radio_cy_offset": round(tmpl.row_radio_cy_offset, 2),
+            "template_row_h": round(tmpl.template_row_h, 2),
+            "burden_gap": round(tmpl.burden_gap, 2),
+            "margin_top": round(tmpl.margin_top, 1),
+            "margin_bottom": round(tmpl.margin_bottom, 1),
+            "erase_y": round(tmpl.erase_y, 2),
+        },
     }
 
 
@@ -853,9 +1009,9 @@ def _generate_one_pdf(template_path, meta, sites, output_dir, tmpl, widget_map):
 
     for idx, site in enumerate(sites):
         row_h = _estimate_row_h(tmpl, site["name"], site["addr"])
-        if y + row_h + burden_min_h > tmpl.page_h - 36:
+        if y + row_h + burden_min_h > tmpl.page_h - tmpl.margin_bottom:
             page = doc.new_page(width=tmpl.page_w, height=tmpl.page_h)
-            y = 54
+            y = tmpl.margin_top
             y = _draw_site_section_header(page, y, tmpl)
         y = _draw_site_row(page, y, idx, site["name"], site["addr"], row_h, doc, tmpl, struct_tracker)
         radio_group_names.append(f"site_{idx}_continue")
