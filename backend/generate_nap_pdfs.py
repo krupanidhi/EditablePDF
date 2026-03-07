@@ -987,6 +987,78 @@ def generate_pdfs(template_path, excel_path, output_dir):
     }
 
 
+
+def _erase_content_below(doc, page, erase_y):
+    """Remove all content below *erase_y* by truncating the page content stream.
+
+    PyMuPDF redaction and draw_rect overlays don't truly remove text from
+    the PDF content stream — Adobe Reader still renders old text underneath,
+    causing visible overlap.  This function:
+      1. Normalises the content stream via clean_contents()
+      2. Finds the first text-matrix (Tm) operator that positions text at
+         or below erase_y (PyMuPDF top-down coordinates)
+      3. Walks backwards to the enclosing graphics-state / marked-content
+         block boundary
+      4. Truncates the stream at that point
+      5. Draws a white rectangle so the erased area has a clean background
+    """
+    page.clean_contents()
+
+    page_obj = doc.xref_object(page.xref)
+    contents_m = _re.search(r'/Contents\s+(\d+)\s+0\s+R', page_obj)
+    if not contents_m:
+        return
+    cs_xref = int(contents_m.group(1))
+    stream = doc.xref_stream(cs_xref)
+    if not stream:
+        return
+    stream_text = stream.decode('latin-1')
+
+    page_h = page.rect.height
+
+    # Find all Tm (text matrix) operators — group(2) is the PDF-native y coord
+    tm_pattern = _re.compile(
+        r'[\d.]+\s+[\d.]+\s+[\d.]+\s+[\d.]+\s+[\d.]+\s+([\d.]+)\s+Tm')
+    first_offset = None
+    for m in tm_pattern.finditer(stream_text):
+        pdf_y = float(m.group(1))
+        pymupdf_y = page_h - pdf_y          # convert bottom-up → top-down
+        if pymupdf_y >= erase_y:
+            first_offset = m.start()
+            break
+
+    if first_offset is None:
+        # Fallback: nothing to erase — just draw white rect
+        page.draw_rect(fitz.Rect(0, erase_y, page.rect.width, page_h),
+                        fill=(1, 1, 1), color=None, width=0)
+        return
+
+    # Walk backwards to the enclosing BT (Begin Text)
+    bt_pos = stream_text.rfind('BT', 0, first_offset)
+    if bt_pos < 0:
+        bt_pos = first_offset
+
+    # Try to include the preceding graphics-state / marked-content push
+    search_start = max(0, bt_pos - 300)
+    chunk = stream_text[search_start:bt_pos]
+    # Find last 'q ' or 'BDC ' before BT — these begin the block we want to cut
+    q_pos = chunk.rfind('q ')
+    bdc_pos = chunk.rfind('BDC ')
+    cut_rel = max(q_pos, bdc_pos)
+    if cut_rel >= 0:
+        cut_pos = search_start + cut_rel
+    else:
+        cut_pos = bt_pos
+
+    # Truncate the content stream
+    truncated = stream_text[:cut_pos].encode('latin-1')
+    doc.update_stream(cs_xref, truncated)
+
+    # Draw white background over the erased area
+    page.draw_rect(fitz.Rect(0, erase_y, page.rect.width, page_h),
+                   fill=(1, 1, 1), color=None, width=0)
+
+
 def _generate_one_pdf(template_path, meta, sites, output_dir, tmpl, widget_map):
     doc = fitz.open(template_path)
     page = doc[0]
@@ -997,13 +1069,12 @@ def _generate_one_pdf(template_path, meta, sites, output_dir, tmpl, widget_map):
 
     _remove_template_radio(doc, page, tmpl)
 
-    # Redact the dynamic content area to truly remove old text/drawings
-    # (draw_rect only overlays — old text persists causing burden text overlap)
-    erase_rect = fitz.Rect(0, tmpl.erase_y, tmpl.page_w, tmpl.page_h)
-    page.add_redact_annot(erase_rect, fill=(1, 1, 1))
-    page.apply_redactions(images=0, graphics=1, text=0)
+    # Remove all content (text + drawings) below erase_y from the content stream.
+    # PyMuPDF redaction and draw_rect overlays do NOT truly remove text — Adobe
+    # Reader still renders old text underneath, causing visible overlap.
+    _erase_content_below(doc, page, tmpl.erase_y)
 
-    # Redraw site section header on first page (erased by redaction)
+    # Redraw site section header on first page (erased by content truncation)
     y = tmpl.hdr_top
     y = _draw_site_section_header(page, y, tmpl)
     struct_tracker = StructTracker(doc)
