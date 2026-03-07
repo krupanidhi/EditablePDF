@@ -151,7 +151,7 @@ export default function JobTracker({ jobId, onComplete, onDelete }: JobTrackerPr
           <span className="text-sm font-semibold text-[#0B4778]">
             {job.input_file || `Job ${job.id}`}
           </span>
-          {job.result && (
+          {job.result?.stats && (
             <span className="text-[10px] text-[#94a3b8] font-normal">
               {job.result.stats.pages}p · {job.result.stats.total_fields} fields · {job.result.stats.processing_time_sec}s
             </span>
@@ -205,7 +205,8 @@ export default function JobTracker({ jobId, onComplete, onDelete }: JobTrackerPr
           {/* ── Completed single file ── */}
           {job.result && (
             <>
-              {/* Download buttons + quick stats */}
+              {/* Download buttons + quick stats (conversion jobs only) */}
+              {job.result.editable_pdf && (
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex gap-2">
                   <a href={getDownloadUrl(job.result.editable_pdf.split(/[\\/]/).pop() || '')}
@@ -213,21 +214,24 @@ export default function JobTracker({ jobId, onComplete, onDelete }: JobTrackerPr
                     download>
                     <Download className="w-3.5 h-3.5" /> Editable PDF
                   </a>
+                  {job.result.schema && (
                   <a href={getDownloadUrl(job.result.schema.split(/[\\/]/).pop() || '')}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#EFF6FB] text-[#0B4778] text-xs font-medium rounded-md hover:bg-[#D9E8F6] transition-colors border border-[#D9E8F6]"
                     download>
                     <FileJson className="w-3.5 h-3.5" /> Schema JSON
                   </a>
+                  )}
                 </div>
                 {/* Field type badges */}
                 <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(job.result.stats.by_type).map(([k, v]) => (
+                  {Object.entries(job.result.stats?.by_type ?? {}).map(([k, v]) => (
                     <span key={k} className={`px-2 py-0.5 text-[10px] font-medium rounded-full border ${typeBadgeColor(k)}`}>
                       {k} × {v}
                     </span>
                   ))}
                 </div>
               </div>
+              )}
 
               {/* ── Quality Score + Compliance ── */}
               {audit && (
@@ -330,7 +334,7 @@ export default function JobTracker({ jobId, onComplete, onDelete }: JobTrackerPr
                       <FileText className="w-3.5 h-3.5 text-[#94a3b8]" />
                       <span className="text-xs text-[#0B4778]">{r.file}</span>
                       <span className="text-[10px] text-[#94a3b8]">
-                        {r.result.stats.total_fields} fields
+                        {r.result?.stats?.total_fields ?? 0} fields
                       </span>
                     </div>
                     <div className="flex gap-1.5">
