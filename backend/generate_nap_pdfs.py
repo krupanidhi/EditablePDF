@@ -23,8 +23,29 @@ DEFAULT_OUTPUT = r"output\nap_generated"
 
 BORDER_W = 0.48
 SITE_ROW_H_MIN = 14.0
-TEXT_BASELINE_OFFSET = 9.0
 CLR_BLACK = (0, 0, 0)
+
+
+
+def _measure_ascender(fontname, fontsize):
+    """Measure the exact ascender offset (baseline - bbox_top) for a font/size.
+    
+    insert_text() y = baseline. get_text("dict") bbox[1] = top of glyph.
+    The difference is the ascender, which varies by font.
+    """
+    tmp = fitz.open()
+    p = tmp.new_page(width=200, height=200)
+    p.insert_text((10, 100), "Xg", fontsize=fontsize, fontname=fontname)
+    for b in p.get_text("dict")["blocks"]:
+        if "lines" not in b:
+            continue
+        for line in b["lines"]:
+            for span in line["spans"]:
+                bbox_top = span["bbox"][1]
+                tmp.close()
+                return 100.0 - bbox_top  # baseline(100) - bbox_top
+    tmp.close()
+    return fontsize * 0.8  # fallback
 
 
 class StructTracker:
@@ -137,12 +158,20 @@ class TemplateInfo:
 
         radio_y_min = min(r.y0 for r in self.radio_rects) if self.radio_rects else 345.0
 
+        self.font_size = 9.96
         self._detect_header(page, radio_y_min)
         self._detect_rects(page, radio_y_min)
         self._detect_text_positions(page, radio_y_min)
-
-        self.font_size = 9.96
         self.burden_spans = self._extract_burden(page)
+
+        # Compute gap between site row bottom and burden text start
+        if self.burden_spans and self.row_rect:
+            burden_bbox_top_min = min(s["y"] for s in self.burden_spans)
+            row_bottom = self.row_rect.y1 + BORDER_W
+            self.burden_gap = burden_bbox_top_min - row_bottom
+        else:
+            self.burden_gap = 8.0
+
         self.js_open_xref = self.js_save_xref = self.js_print_xref = self.js_close_xref = None
         self._detect_js_xrefs(doc)
         self.erase_y = self.hdr_top - 1.0
@@ -190,8 +219,10 @@ class TemplateInfo:
         return None
 
     def _detect_header(self, page, radio_y_min):
+        """Detect section header text and its BASELINE y position."""
         self.header_text = "Are you still planning to continue service at:"
-        self.header_y = None
+        self.header_bbox_top = None
+        self.header_font = "hebo"  # bold by default
         for b in page.get_text("dict")["blocks"]:
             if "lines" not in b:
                 continue
@@ -201,7 +232,13 @@ class TemplateInfo:
                     bbox = span["bbox"]
                     if bool(span["flags"] & 16) and radio_y_min - 20 < bbox[1] < radio_y_min and len(t) > 10:
                         self.header_text = t
-                        self.header_y = bbox[1]
+                        self.header_bbox_top = bbox[1]
+                        # Detect font family from template
+                        fn = span["font"].lower()
+                        if "bold" in fn or "bd" in fn:
+                            self.header_font = "hebo"
+                        else:
+                            self.header_font = "helv"
 
     def _detect_rects(self, page, radio_y_min):
         self.hdr_fill = (0.612, 0.761, 0.894)
@@ -238,15 +275,26 @@ class TemplateInfo:
 
         self.site_row_top = self.hdr_bot
 
-        if self.header_y and self.hdr_rect:
-            self.hdr_text_x = 77.78
-            self.hdr_text_offset = self.header_y - self.hdr_rect.y0
+        # Measure exact ascender offsets for the fonts we use
+        self.ascender_bold = _measure_ascender("hebo", self.font_size)
+        self.ascender_regular = _measure_ascender("helv", self.font_size)
+
+        # Header text offset: convert bbox_top to baseline, then compute
+        # offset from header bar top
+        if self.header_bbox_top is not None and self.hdr_rect:
+            self.hdr_text_x = 77.30  # exact x from template
+            # baseline = bbox_top + ascender
+            hdr_baseline = self.header_bbox_top + self.ascender_bold
+            self.hdr_text_offset = hdr_baseline - self.hdr_rect.y0
         else:
-            self.hdr_text_x = 77.78
-            self.hdr_text_offset = 10.08
+            self.hdr_text_x = 77.30
+            self.hdr_text_offset = 1.0 + self.ascender_bold  # ~11.6pt
 
     def _detect_text_positions(self, page, radio_y_min):
+        """Detect Yes/No/site text x positions AND compute baseline offset
+        relative to row top (site_row_top)."""
         self.yes_text_x = self.no_text_x = self.q_text_x = None
+        yes_bbox_top = None
         for b in page.get_text("dict")["blocks"]:
             if "lines" not in b:
                 continue
@@ -258,13 +306,38 @@ class TemplateInfo:
                         continue
                     if t == "Yes" and self.yes_text_x is None:
                         self.yes_text_x = bbox[0]
+                        yes_bbox_top = bbox[1]
                     elif t == "No" and self.no_text_x is None:
                         self.no_text_x = bbox[0]
                     elif bbox[1] < radio_y_min + 15 and ("[Site" in t or "located at" in t.lower()):
                         self.q_text_x = bbox[0]
-        self.yes_text_x = self.yes_text_x or 91.34
-        self.no_text_x = self.no_text_x or 124.94
-        self.q_text_x = self.q_text_x or 140.0
+        self.yes_text_x = self.yes_text_x or 90.86
+        self.no_text_x = self.no_text_x or 124.46
+        self.q_text_x = self.q_text_x or 143.78
+
+        # Compute text baseline offset from row top
+        # Template: yes_bbox_top is where "Yes" text bbox starts (top of glyph)
+        # Baseline = yes_bbox_top + ascender_regular
+        # Offset from row top = baseline - site_row_top
+        if yes_bbox_top is not None:
+            yes_baseline = yes_bbox_top + self.ascender_regular
+            self.row_text_baseline_offset = yes_baseline - self.site_row_top
+        else:
+            self.row_text_baseline_offset = self.ascender_regular + 0.5
+
+        # Compute radio center y offset from row top
+        # Template radio widgets have known center y
+        if self.radio_rects:
+            tmpl_radio_cy = (self.radio_rects[0].y0 + self.radio_rects[0].y1) / 2.0
+            self.row_radio_cy_offset = tmpl_radio_cy - self.site_row_top
+        else:
+            self.row_radio_cy_offset = self.row_text_baseline_offset - 4.0
+
+        # Compute row height from template row area
+        if self.row_rect:
+            self.template_row_h = self.row_rect.y1 - self.site_row_top
+        else:
+            self.template_row_h = SITE_ROW_H_MIN
 
     def _extract_burden(self, page):
         spans = []
@@ -341,10 +414,16 @@ def _wrap_text(text, fontsize, max_width, bold=True):
 
 
 def _estimate_row_h(tmpl, site_name, site_addr):
+    """Estimate row height based on text wrapping. Single-line rows use
+    the template's measured row height; multi-line rows expand as needed."""
     site_text = f"{site_name} located at {site_addr.strip()}"
     max_w = tmpl.content_right - 2 - tmpl.q_text_x
     lines = len(_wrap_text(site_text, tmpl.font_size, max_w, bold=False))
-    return SITE_ROW_H_MIN if lines <= 1 else max(SITE_ROW_H_MIN, lines * 11.5 + 5)
+    min_h = tmpl.template_row_h
+    if lines <= 1:
+        return min_h
+    line_spacing = tmpl.font_size + 1.5
+    return max(min_h, lines * line_spacing + 3.0)
 
 
 def _clone_radio_group(doc, page, group_name, radio_cy, tmpl, struct_tracker=None):
@@ -491,26 +570,42 @@ def _fill_existing_widget(page, field_name, value):
 
 
 def _draw_site_row(page, y_top, idx, site_name, site_addr, row_h, doc, tmpl, struct_tracker=None):
+    """Draw a single site row with radio buttons, labels, and site text.
+    
+    All positions derived from template measurements:
+    - baseline = y_top + tmpl.row_text_baseline_offset (measured from template Yes/No text)
+    - radio_cy = y_top + tmpl.row_radio_cy_offset (measured from template radio widget center)
+    """
     left, right = tmpl.content_left, tmpl.content_right
     bl, br = tmpl.border_left, tmpl.border_right
+
+    # Row background fill
     page.draw_rect(fitz.Rect(left, y_top, right, y_top + row_h), fill=tmpl.row_fill, color=None, width=0)
+    # Top border
     page.draw_rect(fitz.Rect(bl, y_top - BORDER_W, br, y_top), fill=tmpl.border_color, color=None, width=0)
+    # Left border
     page.draw_rect(fitz.Rect(bl, y_top, left, y_top + row_h), fill=tmpl.border_color, color=None, width=0)
+    # Right border
     page.draw_rect(fitz.Rect(right + 0.12, y_top, br, y_top + row_h), fill=tmpl.border_color, color=None, width=0)
 
-    radio_cy = y_top + TEXT_BASELINE_OFFSET - 3.0
+    # Radio buttons — center y derived from template
+    radio_cy = y_top + tmpl.row_radio_cy_offset
     group_name = f"site_{idx}_continue"
     _clone_radio_group(doc, page, group_name, radio_cy, tmpl, struct_tracker)
 
-    baseline = y_top + TEXT_BASELINE_OFFSET
+    # Text baseline — derived from template Yes/No text position
+    baseline = y_top + tmpl.row_text_baseline_offset
     page.insert_text((tmpl.yes_text_x, baseline), "Yes", fontsize=tmpl.font_size, fontname="helv", color=CLR_BLACK)
     page.insert_text((tmpl.no_text_x, baseline), "No", fontsize=tmpl.font_size, fontname="helv", color=CLR_BLACK)
 
+    # Site name + address text
     site_text = f"{site_name} located at {site_addr.strip()}"
     wrapped = _wrap_text(site_text, tmpl.font_size, right - 2 - tmpl.q_text_x, bold=False)
+    line_spacing = tmpl.font_size + 1.5  # ~11.46 for 9.96pt
     for li, lt in enumerate(wrapped):
-        page.insert_text((tmpl.q_text_x, baseline + li * 11.5), lt, fontsize=tmpl.font_size, fontname="helv", color=CLR_BLACK)
+        page.insert_text((tmpl.q_text_x, baseline + li * line_spacing), lt, fontsize=tmpl.font_size, fontname="helv", color=CLR_BLACK)
 
+    # Bottom border
     page.draw_rect(fitz.Rect(bl, y_top + row_h, br, y_top + row_h + BORDER_W), fill=tmpl.border_color, color=None, width=0)
     return y_top + row_h + BORDER_W
 
@@ -524,17 +619,29 @@ def _draw_site_section_header(page, y_top, tmpl):
     page.draw_rect(fitz.Rect(bl, y_top, left, y_top + hdr_h), fill=tmpl.border_color, color=None, width=0)
     page.draw_rect(fitz.Rect(right + 0.12, y_top, br, y_top + hdr_h), fill=tmpl.border_color, color=None, width=0)
     page.insert_text((tmpl.hdr_text_x, y_top + tmpl.hdr_text_offset), tmpl.header_text,
-                     fontsize=tmpl.font_size, fontname="hebo", color=CLR_BLACK)
+                     fontsize=tmpl.font_size, fontname=tmpl.header_font, color=CLR_BLACK)
     return y_top + hdr_h
 
 
-def _draw_public_burden(page, y_start, burden_spans):
+def _draw_public_burden(page, y_start, tmpl):
+    """Draw the Public Burden Statement, positioning it relative to y_start.
+    
+    y_start is the top of the first burden text bbox (not the baseline).
+    We convert each span's bbox_top to baseline using measured ascender offset.
+    """
+    burden_spans = tmpl.burden_spans
     if not burden_spans:
         return
-    orig_y_min = min(s["y"] for s in burden_spans)
-    y_offset = y_start - orig_y_min
+    # Ascender for burden text (typically 8.04pt Calibri -> use helv equivalent)
+    burden_ascender = _measure_ascender("helv", burden_spans[0]["size"])
+    
+    orig_bbox_top_min = min(s["y"] for s in burden_spans)
+    y_offset = y_start - orig_bbox_top_min
     for s in burden_spans:
-        page.insert_text((s["x"], s["y"] + y_offset), s["text"],
+        # Convert bbox_top to baseline: baseline = bbox_top + ascender
+        span_ascender = _measure_ascender("helv", s["size"])
+        baseline_y = s["y"] + y_offset + span_ascender
+        page.insert_text((s["x"], baseline_y), s["text"],
                          fontsize=s["size"], fontname="helv", color=s["color"])
 
 
@@ -753,7 +860,8 @@ def _generate_one_pdf(template_path, meta, sites, output_dir, tmpl, widget_map):
         y = _draw_site_row(page, y, idx, site["name"], site["addr"], row_h, doc, tmpl, struct_tracker)
         radio_group_names.append(f"site_{idx}_continue")
 
-    _draw_public_burden(page, y + 11, tmpl.burden_spans)
+    # Position burden text at the template-measured gap below the last row border
+    _draw_public_burden(page, y + tmpl.burden_gap, tmpl)
     struct_tracker.finalize()
     _update_js_streams(doc, radio_group_names, tmpl)
 
