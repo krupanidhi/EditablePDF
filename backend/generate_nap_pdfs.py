@@ -997,10 +997,13 @@ def _generate_one_pdf(template_path, meta, sites, output_dir, tmpl, widget_map):
 
     _remove_template_radio(doc, page, tmpl)
 
+    # Redact the dynamic content area to truly remove old text/drawings
+    # (draw_rect only overlays — old text persists causing burden text overlap)
     erase_rect = fitz.Rect(0, tmpl.erase_y, tmpl.page_w, tmpl.page_h)
-    page.draw_rect(erase_rect, fill=(1, 1, 1), color=None, width=0)
+    page.add_redact_annot(erase_rect, fill=(1, 1, 1))
+    page.apply_redactions(images=0, graphics=1, text=0)
 
-    # Redraw site section header on first page (erased by white-out)
+    # Redraw site section header on first page (erased by redaction)
     y = tmpl.hdr_top
     y = _draw_site_section_header(page, y, tmpl)
     struct_tracker = StructTracker(doc)
