@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type {
   ConvertResponse,
+  NapJob,
   FolderConvertResponse,
   Job,
   ExtractedData,
@@ -101,6 +102,23 @@ export async function deleteJob(jobId: string): Promise<void> {
 
 export async function deleteAllJobs(): Promise<void> {
   await api.delete('/jobs');
+}
+
+
+export async function generateNap(
+  template: File,
+  excel: File
+): Promise<{ job_id: string; status: string }> {
+  const form = new FormData();
+  form.append('template', template);
+  form.append('excel', excel);
+  const { data } = await api.post<{ job_id: string; status: string }>('/generate-nap', form);
+  return data;
+}
+
+export async function getNapJob(jobId: string): Promise<NapJob> {
+  const { data } = await api.get<NapJob>(`/jobs/${jobId}`);
+  return data;
 }
 
 export function getDownloadUrl(filename: string): string {

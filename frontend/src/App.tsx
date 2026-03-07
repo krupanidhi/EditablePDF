@@ -8,6 +8,7 @@ import {
   Activity,
   ListChecks,
   Trash2,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { healthCheck, convertFile, convertFolder, extractFields, validateData, listJobs, deleteJob as apiDeleteJob, deleteAllJobs as apiDeleteAllJobs } from './api';
 import type { ExtractFieldsResponse, ValidationResult, HealthCheck } from './types';
@@ -15,9 +16,10 @@ import FileUploader from './components/FileUploader';
 import JobTracker from './components/JobTracker';
 import ValidationViewer from './components/ValidationViewer';
 import RequiredFieldsTab from './components/RequiredFieldsTab';
+import NapGeneratorTab from './components/NapGeneratorTab';
 
 type TabGroup = 'digitalization' | 'validation';
-type Tab = 'convert' | 'required' | 'extract' | 'validate';
+type Tab = 'convert' | 'required' | 'generate-nap' | 'extract' | 'validate';
 
 function App() {
   const [activeGroup, setActiveGroup] = useState<TabGroup>('digitalization');
@@ -138,6 +140,7 @@ function App() {
       tabs: [
         { id: 'convert', label: 'Generate Editable PDF', icon: <FileUp className="w-4 h-4" /> },
         { id: 'required', label: 'Apply Validation Rules', icon: <ListChecks className="w-4 h-4" /> },
+        { id: 'generate-nap', label: 'Generate NAP PDFs', icon: <FileSpreadsheet className="w-4 h-4" /> },
       ],
     },
     {
@@ -330,6 +333,9 @@ function App() {
 
         {/* Required Fields Tab */}
         {activeTab === 'required' && <RequiredFieldsTab />}
+
+        {/* NAP Generator Tab */}
+        {activeTab === 'generate-nap' && <NapGeneratorTab />}
 
         {/* Extract Tab */}
         {activeTab === 'extract' && (

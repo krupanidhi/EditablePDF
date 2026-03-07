@@ -39,6 +39,10 @@ from src.rule_engine import RuleEngine
 from src.rules_generator import generate_rules, generate_rules_for_all
 from src.dynamic_rows import add_dynamic_rows
 
+# NAP PDF generation
+sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
+from generate_nap_pdfs import generate_pdfs as nap_generate_pdfs, TemplateInfo
+
 app = FastAPI(
     title="EditablePDF API",
     description="Convert PDFs and DOCX files to editable forms with validation",
@@ -369,6 +373,97 @@ async def apply_required_endpoint(
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+
+
+@app.post("/api/generate-nap")
+async def generate_nap_pdfs_endpoint(
+    template: UploadFile = File(...),
+    excel: UploadFile = File(...),
+):
+    """Generate NAP Project Continuity Confirmation PDFs from a template + Excel data.
+
+    Accepts:
+      - template: The digitalized template PDF (with radio buttons, JS validation)
+      - excel: The H8S_App_Info.xlsx with site data
+
+    Returns generation stats, 508 compliance audit, confidence level, and download info.
+    """
+    # Validate file types
+    tpl_name = template.filename or "template.pdf"
+    xl_name = excel.filename or "data.xlsx"
+    if not tpl_name.lower().endswith(".pdf"):
+        raise HTTPException(400, "Template must be a PDF file")
+    if not xl_name.lower().endswith((".xlsx", ".xls")):
+        raise HTTPException(400, "Data file must be an Excel file (.xlsx)")
+
+    # Save uploaded files
+    job_id = uuid.uuid4().hex[:8]
+    tmp_dir = os.path.join(config.INPUT_DIR, f"nap_{job_id}")
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    tpl_path = os.path.join(tmp_dir, tpl_name)
+    xl_path = os.path.join(tmp_dir, xl_name)
+
+    with open(tpl_path, "wb") as f:
+        f.write(await template.read())
+    with open(xl_path, "wb") as f:
+        f.write(await excel.read())
+
+    # Create job
+    job = {
+        "id": job_id,
+        "status": "processing",
+        "input_file": f"{tpl_name} + {xl_name}",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "result": None,
+        "error": None,
+        "job_type": "nap_generation",
+    }
+    _save_job(job)
+
+    # Process in background
+    out_dir = os.path.join(config.OUTPUT_DIR, f"nap_{job_id}")
+    asyncio.create_task(_process_nap_generation(job_id, tpl_path, xl_path, out_dir, tmp_dir))
+
+    return {"job_id": job_id, "status": "processing"}
+
+
+async def _process_nap_generation(job_id, tpl_path, xl_path, out_dir, tmp_dir):
+    """Background task to generate NAP PDFs."""
+    job = _load_job(job_id)
+    if not job:
+        return
+    try:
+        result = await asyncio.to_thread(nap_generate_pdfs, tpl_path, xl_path, out_dir)
+
+        # Build confidence score based on compliance and completeness
+        compliance_score = result.get("compliance", {}).get("score", 0)
+        js_streams = result.get("template_info", {}).get("js_streams", {})
+        js_count = sum(1 for v in js_streams.values() if v)
+        js_confidence = round(js_count / 4 * 100) if js_streams else 0
+
+        confidence = round((compliance_score * 0.6 + js_confidence * 0.4))
+
+        job["status"] = "completed"
+        job["result"] = {
+            "total_pdfs": result["total_pdfs"],
+            "total_sites": result["total_sites"],
+            "processing_time_sec": result["processing_time_sec"],
+            "template": result["template"],
+            "template_info": result["template_info"],
+            "widget_mapping": result["widget_mapping"],
+            "compliance": result["compliance"],
+            "confidence": confidence,
+            "output_dir": f"nap_{job_id}",
+            "sample_file": result["files"][0] if result["files"] else None,
+        }
+    except Exception as e:
+        job["status"] = "failed"
+        job["error"] = str(e)
+        traceback.print_exc()
+    _save_job(job)
+
+
 @app.post("/api/validate")
 async def validate_data(
     form_data_file: UploadFile = File(...),
@@ -517,8 +612,14 @@ async def delete_all_jobs():
 @app.get("/api/download/{filename:path}")
 async def download_file(filename: str):
     """Download an output or schema file."""
-    # Check output/ first, then schemas/
-    for directory in [config.OUTPUT_DIR, config.SCHEMAS_DIR]:
+    # Check output/ first, then nap output subdirs, then schemas/
+    search_dirs = [config.OUTPUT_DIR, config.SCHEMAS_DIR]
+    # Add nap output subdirs
+    for d in os.listdir(config.OUTPUT_DIR):
+        sub = os.path.join(config.OUTPUT_DIR, d)
+        if os.path.isdir(sub) and d.startswith("nap_"):
+            search_dirs.append(sub)
+    for directory in search_dirs:
         file_path = os.path.join(directory, filename)
         if os.path.exists(file_path):
             return FileResponse(

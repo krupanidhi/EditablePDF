@@ -192,3 +192,52 @@ export interface HealthCheck {
   version: string;
   azure_configured: boolean;
 }
+
+export interface NapComplianceCheck {
+  check: string;
+  status: 'pass' | 'fail' | 'warn' | 'info';
+  detail: string;
+}
+
+export interface NapCompliance {
+  score: number;
+  passed: number;
+  failed: number;
+  warnings: number;
+  total: number;
+  checks: NapComplianceCheck[];
+}
+
+export interface NapJobResult {
+  total_pdfs: number;
+  total_sites: number;
+  processing_time_sec: number;
+  template: string;
+  template_info: {
+    page_size: string;
+    text_widgets: number;
+    radio_field: string;
+    header_text: string;
+    js_streams: {
+      open: boolean;
+      save: boolean;
+      print: boolean;
+      close: boolean;
+    };
+  };
+  widget_mapping: Record<string, string>;
+  compliance: NapCompliance;
+  confidence: number;
+  output_dir: string;
+  sample_file: string | null;
+}
+
+export interface NapJob {
+  id: string;
+  status: 'processing' | 'completed' | 'failed';
+  input_file?: string;
+  created_at: string;
+  result?: NapJobResult;
+  error?: string;
+  job_type?: string;
+}

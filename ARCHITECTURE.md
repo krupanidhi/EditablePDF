@@ -13,6 +13,7 @@ EditablePDF/
 ├── backend/
 │   ├── server.py                 # FastAPI app — all API endpoints + SPA serving
 │   ├── requirements.txt          # Python dependencies
+│   ├── generate_nap_pdfs.py     # Generic NAP PDF generator (template + Excel → PDFs)
 │   └── src/
 │       ├── __init__.py
 │       ├── config.py             # App config (dirs, Azure keys, env vars)
@@ -48,6 +49,7 @@ EditablePDF/
 │           ├── ExtractedDataViewer.tsx # View extracted form data as table
 │           ├── JobTracker.tsx          # Conversion job tracker (polling, audit, download)
 │           ├── SchemaViewer.tsx        # View/edit field schemas
+│           ├── NapGeneratorTab.tsx     # NAP PDF generation (template + Excel upload, job status)
 │           └── ValidationViewer.tsx    # View validation results
 ├── editable pdfs/          # Source editable PDFs for testing
 ├── input/                  # Uploaded files (temp, per-job subdirs)
@@ -98,6 +100,11 @@ EditablePDF/
 |--------|-----------------------|-------------------------------------------------------|
 | POST   | `/api/extract-fields` | Extract field metadata from editable PDF as clean JSON |
 | POST   | `/api/apply-required` | Apply Digitalization Workflow rules and regenerate PDF |
+
+### NAP PDF Generation
+| Method | Path                  | Description                                           |
+|--------|-----------------------|-------------------------------------------------------|
+| POST   | `/api/generate-nap`   | Generate NAP PDFs from template PDF + Excel data (async job) |
 
 ### Utility
 | Method | Path                       | Description                                         |
@@ -322,6 +329,7 @@ Two-tier navigation: **Process Group tabs** (top-level) with **Sub-tabs** within
 |---------|-------|------|---------|
 | `convert` | Generate Editable PDF | FileUp | Upload static PDF/DOCX, convert to editable form |
 | `required` | Apply Validation Rules | ListChecks | Configure field rules, regenerate PDF |
+| `generate-nap` | Generate NAP PDFs | FileSpreadsheet | Upload template + Excel, bulk-generate NAP PDFs |
 
 **Validation Process:**
 | Sub-Tab | Label | Icon | Purpose |
@@ -355,6 +363,20 @@ Full 4-step Digitalization Workflow:
 - **Step 3**: Apply & Regenerate PDF → calls `POST /api/apply-required` with PDF + fields JSON
 - **Step 4**: Download regenerated PDF with all rules applied
 
+#### `NapGeneratorTab.tsx`
+Full NAP PDF generation workflow integrated as a UI tab:
+- **Step 1**: Upload digitalized template PDF (with radio buttons, JS validation)
+- **Step 2**: Upload Excel data file (H8S_App_Info.xlsx with site data)
+- **Step 3**: Click Generate — invokes `POST /api/generate-nap` (async job)
+- **Step 4**: Job status polling with results display:
+  - **Score Rings** — 508 Compliance score and Confidence level
+  - **Quick Stats** — Total PDFs, sites, processing time, widgets/PDF
+  - **508 Compliance** — Collapsible section with pass/fail/warn checks (same style as JobTracker)
+  - **Template Analysis** — Auto-detected template info (page size, header text, radio field, JS streams)
+  - **Widget Mapping** — Auto-detected Excel-to-widget field mapping
+  - **Generation Statistics** — Sites/PDF ratio, ms/PDF, output directory
+  - **Sample PDF Download** — Direct download of first generated PDF
+
 #### `ExtractedDataViewer.tsx`
 Displays extracted field data in a structured table. Shows field ID, label, type, page, value, and fill status. Used by the Extract tab.
 
@@ -383,11 +405,13 @@ All backend communication goes through typed API functions:
 - `validateData(formFile, rulesFile)` → `POST /api/validate`
 - `addRows(file, count)` → `POST /api/add-rows`
 - `getDownloadUrl(filename)` → URL string for download links
+- `generateNap(template, excel)` → `POST /api/generate-nap`
+- `getNapJob(id)` → `GET /api/jobs/{id}` (typed as `NapJob`)
 
 ### Type System (`types.ts`)
 
 All API response shapes are defined as TypeScript interfaces:
-`ConvertResponse`, `FolderConvertResponse`, `Job`, `JobResult`, `AuditResult`, `AuditCheck`, `FieldSchema`, `FormSchema`, `ExtractedField`, `ExtractedData`, `ExtractedFieldClean`, `ExtractFieldsResponse`, `ApplyRequiredResponse`, `ValidationResult`, `AddRowsResponse`, `HealthCheck`
+`ConvertResponse`, `FolderConvertResponse`, `Job`, `JobResult`, `AuditResult`, `AuditCheck`, `FieldSchema`, `FormSchema`, `ExtractedField`, `ExtractedData`, `ExtractedFieldClean`, `ExtractFieldsResponse`, `ApplyRequiredResponse`, `ValidationResult`, `AddRowsResponse`, `HealthCheck`, `NapJob`, `NapJobResult`, `NapCompliance`, `NapComplianceCheck`
 
 ---
 
@@ -609,6 +633,79 @@ For production validation:
 - **Adobe Acrobat Pro**: Edit → Accessibility → Full Check
 - **PAC (PDF Accessibility Checker)**: Free tool from PDF/UA Foundation
 - **Screen readers**: Test with NVDA (free) or JAWS
+
+---
+
+## NAP PDF Generation (`generate_nap_pdfs.py`)
+
+Generic bulk PDF generator that works with **any digitalized template PDF**. Auto-detects all layout elements from the template rather than hardcoding, making it reusable for different document types.
+
+### How it works
+
+1. **Template Introspection** (`TemplateInfo` class) — Opens the template PDF and auto-detects:
+   - Page dimensions
+   - Text widget names and positions (mapped to Excel data columns by vertical position)
+   - Radio button group field name, AP appearance streams, and x-positions from raw PDF objects
+   - Site section header text and bar position/colors
+   - Site row fill colors and border positions
+   - "Yes"/"No" label positions and question text x-offset
+   - Public Burden Statement text spans
+   - JavaScript validation stream xrefs (OpenAction, WillSave, WillPrint, WillClose)
+
+2. **PDF Generation** (per application from Excel):
+   - Opens a fresh copy of the template (preserving AcroForm, JS, fonts, structure tree)
+   - Fills header widgets with Excel data using auto-detected widget mapping
+   - Removes the template's placeholder radio group
+   - White-outs the site row area and redraws the section header
+   - Draws one site row per site with cloned radio groups (reusing template AP streams)
+   - Updates JS streams to reference all new radio groups for required validation
+   - Assigns `/StructParent` to new widgets via `StructTracker` for 508 compliance
+   - Finalizes structure tree (ParentTree, ParentTreeNextKey, root SE children)
+   - Saves with `garbage=3, deflate=True`
+
+3. **508 Compliance Retention** — The `StructTracker` class ensures new radio widgets get:
+   - `/StructParent` key assigned at creation time (not post-processed)
+   - Structure elements (`/StructElem /S /Form`) linked to the annotation via `/OBJR`
+   - ParentTree `/Nums` array extended with new entries
+   - `ParentTreeNextKey` updated
+   - Root structure element's `/K` children array extended
+
+4. **508 Audit** (`_audit_508_sample`) — After generation, audits a sample PDF for:
+   - `/Lang`, `/MarkInfo`, `/StructTreeRoot`, Document Title, `/DisplayDocTitle`
+   - `/Tabs` (structure order), Widget `/TU` tooltips, Widget `/StructParent`
+   - Required field JavaScript validation streams
+
+### Coordinate System
+
+Radio button widgets are created via raw `doc.update_object()` which requires PDF-native bottom-up coordinates (`y=0` at page bottom). PyMuPDF uses top-down coordinates (`y=0` at top). The conversion:
+```
+pdf_y0 = PAGE_H - y_bot_topdown   (bottom edge in PDF coords)
+pdf_y1 = PAGE_H - y_top_topdown   (top edge in PDF coords)
+```
+
+### CLI Usage
+
+```powershell
+py backend/generate_nap_pdfs.py
+py backend/generate_nap_pdfs.py --template "path/to/template.pdf" --excel "data.xlsx" --output "out/"
+```
+
+### API Usage
+
+```
+POST /api/generate-nap
+  Content-Type: multipart/form-data
+  Fields: template (PDF file), excel (XLSX file)
+  Returns: { job_id, status: "processing" }
+
+GET /api/jobs/{job_id}
+  Returns: NapJob with result containing:
+    - total_pdfs, total_sites, processing_time_sec
+    - template_info (page_size, text_widgets, radio_field, header_text, js_streams)
+    - widget_mapping (auto-detected Excel column → PDF widget mapping)
+    - compliance (508 audit with score, checks[])
+    - confidence (weighted score: 60% compliance + 40% JS coverage)
+```
 
 ---
 
