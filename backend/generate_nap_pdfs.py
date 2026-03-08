@@ -170,7 +170,7 @@ class TemplateInfo:
 
         # Compute gap between site row bottom and burden text start
         if self.burden_spans and self.row_rect:
-            burden_bbox_top_min = min(s["y"] for s in self.burden_spans)
+            burden_bbox_top_min = self.burden_y_min
             row_bottom = self.row_rect.y1 + BORDER_W
             self.burden_gap = burden_bbox_top_min - row_bottom
         else:
@@ -458,8 +458,14 @@ class TemplateInfo:
             self.template_row_h = self.font_size + 2.0
 
     def _extract_burden(self, page):
-        spans = []
+        """Extract burden text as a list of color-runs and overall metrics.
+
+        Returns a list of {"color": (r,g,b), "text": str} dicts that, when
+        concatenated, reproduce the full burden paragraph.  Also stores
+        burden_font_size and burden_line_spacing on self.
+        """
         burden_y_start = self.site_row_top + 20
+        raw = []   # (y, x, color_tuple, size, text)
         for b in page.get_text("dict")["blocks"]:
             if "lines" not in b:
                 continue
@@ -471,10 +477,29 @@ class TemplateInfo:
                         r = ((ci >> 16) & 0xFF) / 255.0
                         g = ((ci >> 8) & 0xFF) / 255.0
                         bv = (ci & 0xFF) / 255.0
-                        spans.append({"y": bbox[1], "x": bbox[0],
-                                      "font": span["font"], "size": span["size"],
-                                      "color": (r, g, bv), "text": span["text"]})
-        return spans
+                        raw.append((bbox[1], bbox[0], (r, g, bv), span["size"],
+                                    span["text"]))
+        if not raw:
+            return []
+        raw.sort(key=lambda t: (t[0], t[1]))
+        self.burden_font_size = raw[0][3]
+        self.burden_y_min = raw[0][0]
+
+        # Detect line spacing from consecutive y values
+        ys = sorted(set(r[0] for r in raw))
+        if len(ys) >= 2:
+            self.burden_line_spacing = ys[1] - ys[0]
+        else:
+            self.burden_line_spacing = self.burden_font_size * 1.22
+
+        # Build color-runs: merge adjacent spans with the same color
+        runs = []
+        for _, _, color, size, text in raw:
+            if runs and runs[-1]["color"] == color:
+                runs[-1]["text"] += text
+            else:
+                runs.append({"color": color, "text": text})
+        return runs
 
     def _detect_js_xrefs(self, doc):
         cat_obj = doc.xref_object(doc.pdf_catalog())
@@ -751,7 +776,8 @@ def _draw_site_row(page, y_top, idx, site_name, site_addr, row_h, doc, tmpl, str
 def _draw_site_section_header(page, y_top, tmpl):
     left, right = tmpl.content_left, tmpl.content_right
     bl, br = tmpl.border_left, tmpl.border_right
-    hdr_h = tmpl.hdr_bot - tmpl.hdr_top
+    # Add 2pt padding so descenders (e.g. "g" in "planning") aren't clipped
+    hdr_h = (tmpl.hdr_bot - tmpl.hdr_top) + 2.0
     page.draw_rect(fitz.Rect(bl, y_top - BORDER_W, br, y_top), fill=tmpl.border_color, color=None, width=0)
     page.draw_rect(fitz.Rect(left, y_top, right, y_top + hdr_h), fill=tmpl.hdr_fill, color=None, width=0)
     page.draw_rect(fitz.Rect(bl, y_top, left, y_top + hdr_h), fill=tmpl.border_color, color=None, width=0)
@@ -762,25 +788,94 @@ def _draw_site_section_header(page, y_top, tmpl):
 
 
 def _draw_public_burden(page, y_start, tmpl):
-    """Draw the Public Burden Statement, positioning it relative to y_start.
-    
-    y_start is the top of the first burden text bbox (not the baseline).
-    We convert each span's bbox_top to baseline using measured ascender offset.
+    """Draw the Public Burden Statement, re-wrapped for Helvetica widths.
+
+    The template burden text is in Calibri; Helvetica is ~8-10 % wider at
+    the same point size, so we must re-wrap the paragraph to fit within
+    content_left … content_right instead of blindly drawing at the original
+    Calibri x-positions.
+
+    Color-runs (blue links like "42 U.S.C. 254b" and "paperwork@hrsa.gov")
+    are preserved by tracking character-level color through the re-wrap.
     """
-    burden_spans = tmpl.burden_spans
-    if not burden_spans:
+    runs = tmpl.burden_spans          # list of {"color": (r,g,b), "text": str}
+    if not runs:
         return
-    # Ascender for burden text (typically 8.04pt Calibri -> use helv equivalent)
-    burden_ascender = _measure_ascender("helv", burden_spans[0]["size"])
-    
-    orig_bbox_top_min = min(s["y"] for s in burden_spans)
-    y_offset = y_start - orig_bbox_top_min
-    for s in burden_spans:
-        # Convert bbox_top to baseline: baseline = bbox_top + ascender
-        span_ascender = _measure_ascender("helv", s["size"])
-        baseline_y = s["y"] + y_offset + span_ascender
-        page.insert_text((s["x"], baseline_y), s["text"],
-                         fontsize=s["size"], fontname="helv", color=s["color"])
+
+    font_size = tmpl.burden_font_size
+    line_h    = tmpl.burden_line_spacing
+    x_left    = tmpl.content_left
+    max_w     = tmpl.content_right - x_left
+    ascender  = _measure_ascender("helv", font_size)
+
+    # ── Build a character-level color array ──
+    chars  = []          # [(char, color), ...]
+    for run in runs:
+        for ch in run["text"]:
+            chars.append((ch, run["color"]))
+
+    # ── Word-wrap using actual Helvetica measurements ──
+    # Tokenise into word+trailing-space chunks to keep colours aligned.
+    words = []      # [(text, [(char, color), ...]), ...]
+    buf_text = ""
+    buf_chars = []
+    for ch, col in chars:
+        if ch in (' ', '\t') and buf_text:
+            buf_text += ch
+            buf_chars.append((ch, col))
+            words.append((buf_text, list(buf_chars)))
+            buf_text = ""
+            buf_chars = []
+        else:
+            buf_text += ch
+            buf_chars.append((ch, col))
+    if buf_text:
+        words.append((buf_text, list(buf_chars)))
+
+    # Wrap into lines
+    wrapped = []          # [ [(text, color), ...], ... ]   per line
+    cur_line = []         # [(text, color), ...]
+    cur_w    = 0.0
+
+    def _flush():
+        nonlocal cur_line, cur_w
+        if cur_line:
+            wrapped.append(cur_line)
+        cur_line = []
+        cur_w = 0.0
+
+    for word_text, word_chars in words:
+        w = fitz.get_text_length(word_text, fontname="helv", fontsize=font_size)
+        if cur_w + w > max_w and cur_line:
+            # strip trailing space from last chunk on the line
+            last_text, last_col = cur_line[-1]
+            cur_line[-1] = (last_text.rstrip(), last_col)
+            _flush()
+        # Split word_chars into same-color sub-runs
+        sub_text = ""
+        sub_col  = word_chars[0][1] if word_chars else (0, 0, 0)
+        for ch, col in word_chars:
+            if col != sub_col:
+                if sub_text:
+                    cur_line.append((sub_text, sub_col))
+                sub_text = ch
+                sub_col  = col
+            else:
+                sub_text += ch
+        if sub_text:
+            cur_line.append((sub_text, sub_col))
+        cur_w += w
+
+    _flush()
+
+    # ── Draw each wrapped line ──
+    for li, line_chunks in enumerate(wrapped):
+        baseline_y = y_start + ascender + li * line_h
+        x = x_left
+        for text, color in line_chunks:
+            page.insert_text((x, baseline_y), text,
+                             fontsize=font_size, fontname="helv", color=color)
+            x += fitz.get_text_length(text, fontname="helv", fontsize=font_size)
 
 
 # ===================================================================
